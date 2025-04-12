@@ -8,6 +8,21 @@ declare global {
 		// interface PageState {}
 		// interface Platform {}
 	}
+	interface CategoriaDestajo {
+		id: number;
+		concept: string;
+		unit: string;
+		unitValue: number;
+	}
+	interface Destajo {
+		id: number;
+		category: number;
+		amount: number;
+	}
+	interface Employee {
+		name: string;
+		destajos: Destajo[];
+	}
 }
 
 export {};
