@@ -12,7 +12,7 @@ declare global {
 		id: number;
 		concept: string;
 		unit: string;
-		unitValue: number;
+		unitMonetaryValue: number;
 	}
 	interface Destajo {
 		id: number;
@@ -20,6 +20,7 @@ declare global {
 		amount: number;
 	}
 	interface Employee {
+		id: number;
 		name: string;
 		destajos: Destajo[];
 	}
