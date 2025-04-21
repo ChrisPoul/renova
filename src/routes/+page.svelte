@@ -1,6 +1,7 @@
 <script lang="ts">
 	import EmployeeRow from './EmployeeRow.svelte';
-	import {totals} from '$lib/stores/totals.svelte';
+	import { totals } from '$lib/stores/totals.svelte';
+	import { formatMonetaryValue } from '$lib/utils';
 
 	let categoriasDestajo = [
 		{ id: 1, concept: 'Puertas Grandes', unit: '', unitMonetaryValue: 12 },
@@ -26,27 +27,21 @@
 			]
 		}
 	]);
-	function formatNumber(value: number) {
-		return value.toLocaleString('en-US', {
-			minimumFractionDigits: 2,
-			maximumFractionDigits: 2
-		});
-	}
 	function getTotalMonetaryValueByEmployees() {
-		let total = 0
+		let total = 0;
 		for (const [employeeId, employeeTotal] of totals.byEmployee) {
-			total += employeeTotal
+			total += employeeTotal;
 		}
-		return total
+		return total;
 	}
 	function getCategoryTotalMonetaryValue(categoryId: number) {
-		let total = 0
-		const destajoTotals = totals.byCategory.get(categoryId)
-		if (!destajoTotals) return 0
+		let total = 0;
+		const destajoTotals = totals.byCategory.get(categoryId);
+		if (!destajoTotals) return 0;
 		for (const [destajoId, destajoTotal] of destajoTotals) {
-			total += destajoTotal
+			total += destajoTotal;
 		}
-		return total
+		return total;
 	}
 </script>
 
@@ -56,7 +51,10 @@
 			<th class="border border-gray-300 px-4 py-2">Empleado</th>
 			{#each categoriasDestajo as category}
 				<th class="border border-gray-300 px-4 py-2">
-					{category.concept}
+					{category.concept} 
+					<span class="font-normal text-sm pl-1">
+						{formatMonetaryValue(category.unitMonetaryValue)}
+					</span>
 				</th>
 			{/each}
 			<th class="border border-gray-300 px-4 py-2">Total</th>
@@ -70,11 +68,11 @@
 			<td class="border border-gray-300 px-4 py-2">Total</td>
 			{#each categoriasDestajo as category}
 				<td class="border border-gray-300 px-4 py-2">
-					{formatNumber(getCategoryTotalMonetaryValue(category.id))}
+					{formatMonetaryValue(getCategoryTotalMonetaryValue(category.id))}
 				</td>
 			{/each}
 			<td class="border border-gray-300 px-4 py-2">
-				{formatNumber(totalMonetaryValue)}
+				{formatMonetaryValue(totalMonetaryValue)}
 			</td>
 		</tr></tbody
 	>

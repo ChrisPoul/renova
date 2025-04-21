@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { totals } from '$lib/stores/totals.svelte';
+	import { formatMonetaryValue } from '$lib/utils';
 
 	let {
 		employee,
@@ -23,12 +24,6 @@
 
 	function getDestajoTotalMonetaryValue(amount: number, unitMonetaryValue: number) {
 		return amount * unitMonetaryValue;
-	}
-	function formatNumber(value: number) {
-		return value.toLocaleString('en-US', {
-			minimumFractionDigits: 2,
-			maximumFractionDigits: 2
-		});
 	}
 	function validateDestajoAmount(amount: number) {
 		if (!amount) return 0;
@@ -100,14 +95,16 @@
 				/>
 				{category.unit}
 				<span class="text-gray-500">
-					{formatNumber(getDestajoTotalMonetaryValue(destajo.amount, category.unitMonetaryValue))}$
+					{formatMonetaryValue(
+						getDestajoTotalMonetaryValue(destajo.amount, category.unitMonetaryValue)
+					)}
 				</span>
 			{/if}
 		</td>
 	{/each}
 	<td class="border border-gray-300 px-4 py-2">
 		<span class="text-gray-500">
-			{formatNumber(employeeTotalMonetaryValue)}$
+			{formatMonetaryValue(employeeTotalMonetaryValue)}
 		</span>
 	</td>
 </tr>
