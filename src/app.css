@@ -1,3 +1,13 @@
 @import 'tailwindcss';
 @plugin '@tailwindcss/forms';
 @plugin '@tailwindcss/typography';
+
+.destajo {
+  background-color: #7dc8f3;
+}
+.bono {
+  background-color: #fbbf24;
+}
+.deduccion {
+  background-color: #f87171;
+}

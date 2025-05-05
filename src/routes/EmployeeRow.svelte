@@ -23,6 +23,8 @@
 	function getIncidenciaTotalMonetaryValue(amount: number, category: CategoriaIncidencia) {
 		if (category.unit === 'días') {
 			return (amount * employee.salary) / 5;
+		} else if (category.unit === 'horas') {
+			return (amount * employee.salary) / 40;
 		}
 		return amount * category.unitMonetaryValue;
 	}
@@ -85,19 +87,19 @@
 </script>
 
 <tr class="odd:bg-white even:bg-gray-50">
-	<td class="border border-gray-300 px-4 py-2 text-nowrap">{employee.name}</td>
-	<td class="border border-gray-300 px-4 py-2 text-nowrap"
+	<td class="border border-gray-500 px-4 py-2 text-nowrap sticky left-0 bg-gray-200">{employee.name}</td>
+	<td class="border border-gray-500 px-4 py-2 text-nowrap"
 		>{formatMonetaryValue(employee.salary)}</td
 	>
 	{#each categoriasIncidencia as category}
 		{@const incidencia = incidenciasMapByCategory.get(category.id)}
-		<td class="border border-gray-300 px-4 py-2 text-nowrap">
+		<td class="border border-gray-500 px-4 py-2 text-nowrap">
 			{#if incidencia}
 				<input
 					type="number"
 					step=".01"
 					bind:value={incidencia.amount}
-					class="w-15 rounded-md border border-gray-300 px-2 py-1"
+					class="w-15 rounded-md border border-gray-500 px-2 py-1"
 					oninput={() => updateIncidenciaAmount(incidencia)}
 				/>
 				{category.unit}
@@ -109,7 +111,7 @@
 			{/if}
 		</td>
 	{/each}
-	<td class="border border-gray-300 px-4 py-2 text-nowrap">
+	<td class="border border-gray-500 px-4 py-2 text-nowrap bg-gray-200 sticky right-0">
 		{formatMonetaryValue(totals.byEmployee.get(employee.id) ?? 0)}
 	</td>
 </tr>
