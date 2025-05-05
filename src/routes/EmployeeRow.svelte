@@ -5,16 +5,14 @@
 
 	let {
 		employee,
-		categoriasDestajo
-	}: { employee: Employee; categoriasDestajo: CategoriaDestajo[] } = $props();
+		categoriasIncidencia
+	}: { employee: Employee; categoriasIncidencia: CategoriaIncidencia[] } = $props();
 
-	let employeeTotalMonetaryValue = $state(0);
-
-	let categoriasDestajoMap = new Map<number, CategoriaDestajo>(
-		categoriasDestajo.map((category) => [category.id, category])
+	let categoriasIncidenciaMap = new Map<number, CategoriaIncidencia>(
+		categoriasIncidencia.map((category) => [category.id, category])
 	);
-	let destajosMapByCategory = new Map<number, Destajo>(
-		employee.destajos.map((destajo) => [destajo.category, destajo])
+	let incidenciasMapByCategory = new Map<number, Incidencia>(
+		employee.incidencias.map((incidencia) => [incidencia.category, incidencia])
 	);
 
 	onMount(() => {
@@ -22,59 +20,62 @@
 		updateCategoryTotalMonetaryValues();
 	});
 
-	function getDestajoTotalMonetaryValue(amount: number, unitMonetaryValue: number) {
+	function getIncidenciaTotalMonetaryValue(amount: number, unitMonetaryValue: number) {
 		return amount * unitMonetaryValue;
 	}
-	function validateDestajoAmount(amount: number) {
-		if (!amount) return 0;
+	function validateIncidenciaAmount(amount: number) {
+		if (!amount) return amount;
 		if (isNaN(amount)) return 0;
 		if (amount < 0) return 0;
 
-		const numberStr = amount.toString();
-		const decimalsStr: string | undefined = numberStr.split('.')[1];
-		const numberHasMoreThanTwoDecimals = decimalsStr && decimalsStr.length > 2;
-		if (numberHasMoreThanTwoDecimals) {
-			return parseFloat(numberStr.slice(0, -1));
+		const numString = amount.toString();
+		const decimalIndex = numString.indexOf('.');
+		if (decimalIndex === -1) {
+			return amount;
 		}
-		return amount;
+		const truncatedString = numString.slice(0, decimalIndex + 3);
+		return parseFloat(truncatedString);
 	}
-	function updateDestajoAmount(destajo: Destajo) {
-		destajo.amount = validateDestajoAmount(destajo.amount);
+	function updateIncidenciaAmount(incidencia: Incidencia) {
+		incidencia.amount = validateIncidenciaAmount(incidencia.amount);
 		updateEmployeeTotalMonetaryValue();
-		updateCategoryTotalMonetaryValueByDestajo(destajo);
+		updateCategoryTotalMonetaryValueByIncidencia(incidencia);
 	}
 	function updateEmployeeTotalMonetaryValue() {
-		employeeTotalMonetaryValue = getEmployeeTotalMonetaryValue(employee);
-		totals.byEmployee.set(employee.id, employeeTotalMonetaryValue);
+		const total = getEmployeeTotalMonetaryValue(employee);
+		totals.byEmployee.set(employee.id, total);
 		totals.byEmployee = new Map(totals.byEmployee);
 	}
 	function getEmployeeTotalMonetaryValue(employee: Employee) {
 		let total = 0;
-		for (const destajo of employee.destajos) {
-			const category = categoriasDestajoMap.get(destajo.category);
+		for (const incidencia of employee.incidencias) {
+			const category = categoriasIncidenciaMap.get(incidencia.category);
 			if (category) {
-				total += getDestajoTotalMonetaryValue(destajo.amount, category.unitMonetaryValue);
+				total += getIncidenciaTotalMonetaryValue(incidencia.amount, category.unitMonetaryValue);
 			}
 		}
 		return total;
 	}
 	function updateCategoryTotalMonetaryValues() {
-		for (const destajo of employee.destajos) {
-			updateCategoryTotalMonetaryValueByDestajo(destajo);
+		for (const incidencia of employee.incidencias) {
+			updateCategoryTotalMonetaryValueByIncidencia(incidencia);
 		}
 	}
-	function updateCategoryTotalMonetaryValueByDestajo(destajo: Destajo) {
-		const category = categoriasDestajoMap.get(destajo.category);
+	function updateCategoryTotalMonetaryValueByIncidencia(incidencia: Incidencia) {
+		const category = categoriasIncidenciaMap.get(incidencia.category);
 		if (!category) return;
-		let destajoTotalMonetaryValue = getDestajoTotalMonetaryValue(
-			destajo.amount,
+		let incidenciaTotalMonetaryValue = getIncidenciaTotalMonetaryValue(
+			incidencia.amount,
 			category.unitMonetaryValue
 		);
-		const categoryDestajos = totals.byCategory.get(category.id);
-		if (categoryDestajos) {
-			categoryDestajos.set(destajo.id, destajoTotalMonetaryValue);
+		const categoryIncidencias = totals.byCategory.get(category.id);
+		if (categoryIncidencias) {
+			categoryIncidencias.set(employee.id, incidenciaTotalMonetaryValue);
 		} else {
-			totals.byCategory.set(destajo.category, new Map([[destajo.id, destajoTotalMonetaryValue]]));
+			totals.byCategory.set(
+				incidencia.category,
+				new Map([[employee.id, incidenciaTotalMonetaryValue]])
+			);
 		}
 		totals.byCategory = new Map(totals.byCategory);
 	}
@@ -82,29 +83,31 @@
 
 <tr class="odd:bg-white even:bg-gray-50">
 	<td class="border border-gray-300 px-4 py-2">{employee.name}</td>
-	{#each categoriasDestajo as category}
-		{@const destajo = destajosMapByCategory.get(category.id)}
+	{#each categoriasIncidencia as category}
+		{@const incidencia = incidenciasMapByCategory.get(category.id)}
 		<td class="border border-gray-300 px-4 py-2">
-			{#if destajo}
+			{#if incidencia}
 				<input
 					type="number"
-					step="0.01"
-					bind:value={destajo.amount}
+					step=".01"
+					bind:value={incidencia.amount}
 					class="w-20 rounded-md border border-gray-300 px-2 py-1"
-					oninput={() => updateDestajoAmount(destajo)}
+					oninput={() => updateIncidenciaAmount(incidencia)}
 				/>
 				{category.unit}
-				<span class="text-gray-500">
-					{formatMonetaryValue(
-						getDestajoTotalMonetaryValue(destajo.amount, category.unitMonetaryValue)
-					)}
-				</span>
+				{#if category.unitMonetaryValue !== 1}
+					<span class="text-gray-500">
+						{formatMonetaryValue(
+							getIncidenciaTotalMonetaryValue(incidencia.amount, category.unitMonetaryValue)
+						)}
+					</span>
+				{/if}
 			{/if}
 		</td>
 	{/each}
 	<td class="border border-gray-300 px-4 py-2">
 		<span class="text-gray-500">
-			{formatMonetaryValue(employeeTotalMonetaryValue)}
+			{formatMonetaryValue(totals.byEmployee.get(employee.id) ?? 0)}
 		</span>
 	</td>
 </tr>

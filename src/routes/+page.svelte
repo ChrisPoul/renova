@@ -3,7 +3,8 @@
 	import { totals } from '$lib/stores/totals.svelte';
 	import { formatMonetaryValue } from '$lib/utils';
 
-	let categoriasDestajo = [
+	let incidencias = 0;
+	let categoriasIncidencia = [
 		{ id: 1, concept: 'Puertas Grandes', unit: '', unitMonetaryValue: 12 },
 		{ id: 2, concept: 'Corte Junke', unit: 'kg', unitMonetaryValue: 20 }
 	];
@@ -13,7 +14,7 @@
 		{
 			id: 1,
 			name: 'John Doe',
-			destajos: [
+			incidencias: [
 				{ id: 1, category: 1, amount: 100 },
 				{ id: 2, category: 2, amount: 15 }
 			]
@@ -21,7 +22,7 @@
 		{
 			id: 2,
 			name: 'Jane Smith',
-			destajos: [
+			incidencias: [
 				{ id: 3, category: 1, amount: 120 },
 				{ id: 4, category: 2, amount: 20 }
 			]
@@ -36,10 +37,10 @@
 	}
 	function getCategoryTotalMonetaryValue(categoryId: number) {
 		let total = 0;
-		const destajoTotals = totals.byCategory.get(categoryId);
-		if (!destajoTotals) return 0;
-		for (const [destajoId, destajoTotal] of destajoTotals) {
-			total += destajoTotal;
+		const incidenciaTotals = totals.byCategory.get(categoryId);
+		if (!incidenciaTotals) return 0;
+		for (const [employeeId, incidenciaTotal] of incidenciaTotals) {
+			total += incidenciaTotal;
 		}
 		return total;
 	}
@@ -49,10 +50,10 @@
 	<thead>
 		<tr class="bg-gray-100">
 			<th class="border border-gray-300 px-4 py-2">Empleado</th>
-			{#each categoriasDestajo as category}
+			{#each categoriasIncidencia as category}
 				<th class="border border-gray-300 px-4 py-2">
-					{category.concept} 
-					<span class="font-normal text-sm pl-1">
+					{category.concept}
+					<span class="pl-1 text-sm font-normal">
 						{formatMonetaryValue(category.unitMonetaryValue)}
 					</span>
 				</th>
@@ -62,11 +63,11 @@
 	</thead>
 	<tbody>
 		{#each employees as employee}
-			<EmployeeRow {employee} {categoriasDestajo} />
+			<EmployeeRow {employee} {categoriasIncidencia} />
 		{/each}
 		<tr class="bg-gray-100">
 			<td class="border border-gray-300 px-4 py-2">Total</td>
-			{#each categoriasDestajo as category}
+			{#each categoriasIncidencia as category}
 				<td class="border border-gray-300 px-4 py-2">
 					{formatMonetaryValue(getCategoryTotalMonetaryValue(category.id))}
 				</td>

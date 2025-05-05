@@ -8,13 +8,13 @@ declare global {
 		// interface PageState {}
 		// interface Platform {}
 	}
-	interface CategoriaDestajo {
+	interface CategoriaIncidencia {
 		id: number;
 		concept: string;
 		unit: string;
 		unitMonetaryValue: number;
 	}
-	interface Destajo {
+	interface Incidencia {
 		id: number;
 		category: number;
 		amount: number;
@@ -22,7 +22,7 @@ declare global {
 	interface Employee {
 		id: number;
 		name: string;
-		destajos: Destajo[];
+		incidencias: Incidencia[];
 	}
 }
 
