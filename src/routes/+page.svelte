@@ -3,10 +3,63 @@
 	import { totals } from '$lib/stores/totals.svelte';
 	import { formatMonetaryValue } from '$lib/utils';
 
-	let incidencias = 0;
-	let categoriasIncidencia = [
-		{ id: 1, concept: 'Puertas Grandes', unit: '', unitMonetaryValue: 12 },
-		{ id: 2, concept: 'Corte Junke', unit: 'kg', unitMonetaryValue: 20 }
+	let categoriasIncidencia: CategoriaIncidencia[] = [
+		{
+			id: 1,
+			concept: 'Puertas Grandes',
+			type: 'percepcion',
+			parentCategory: 'destajo',
+			unit: '',
+			unitMonetaryValue: 12
+		},
+		{
+			id: 2,
+			concept: 'Corte Junke',
+			type: 'percepcion',
+			parentCategory: 'destajo',
+			unit: 'kg',
+			unitMonetaryValue: 20
+		},
+		{
+			id: 3,
+			concept: 'Corte Chapa',
+			type: 'percepcion',
+			parentCategory: 'destajo',
+			unit: 'kg',
+			unitMonetaryValue: 15
+		},
+		{
+			id: 4,
+			concept: 'Corte Aluminio',
+			type: 'percepcion',
+			parentCategory: 'destajo',
+			unit: 'kg',
+			unitMonetaryValue: 10
+		},
+		{
+			id: 5,
+			concept: 'Corte Vidrio',
+			type: 'percepcion',
+			parentCategory: 'destajo',
+			unit: 'kg',
+			unitMonetaryValue: 5
+		},
+		{
+			id: 6,
+			concept: 'Bono Productividad',
+			type: 'percepcion',
+			parentCategory: 'bono',
+			unit: '$',
+			unitMonetaryValue: 1
+		},
+		{
+			id: 7,
+			concept: 'Días de Destajo',
+			type: 'deduccion',
+			parentCategory: 'deduccion',
+			unit: 'días',
+			unitMonetaryValue: 1
+		}
 	];
 	let totalMonetaryValue = $derived.by(getTotalMonetaryValueByEmployees);
 
@@ -14,20 +67,40 @@
 		{
 			id: 1,
 			name: 'John Doe',
+			salary: 1000,
 			incidencias: [
 				{ id: 1, category: 1, amount: 100 },
-				{ id: 2, category: 2, amount: 15 }
+				{ id: 2, category: 2, amount: 15 },
+				{ id: 3, category: 3, amount: 50 },
+				{ id: 4, category: 4, amount: 30 },
+				{ id: 5, category: 5, amount: 10 },
+				{ id: 6, category: 6, amount: 5 },
+				{ id: 13, category: 7, amount: 2 }
 			]
 		},
 		{
 			id: 2,
 			name: 'Jane Smith',
+			salary: 1200,
 			incidencias: [
-				{ id: 3, category: 1, amount: 120 },
-				{ id: 4, category: 2, amount: 20 }
+				{ id: 7, category: 1, amount: 200 },
+				{ id: 8, category: 2, amount: 25 },
+				{ id: 9, category: 3, amount: 60 },
+				{ id: 10, category: 4, amount: 40 },
+				{ id: 11, category: 5, amount: 20 },
+				{ id: 12, category: 6, amount: 10 },
+				{ id: 14, category: 7, amount: 3 }
 			]
 		}
 	]);
+
+	function getTotalSalary() {
+		let total = 0;
+		for (const employee of employees) {
+			total += employee.salary;
+		}
+		return total;
+	}
 	function getTotalMonetaryValueByEmployees() {
 		let total = 0;
 		for (const [employeeId, employeeTotal] of totals.byEmployee) {
@@ -46,16 +119,19 @@
 	}
 </script>
 
-<table class="w-auto table-auto border-collapse border border-gray-300">
+<table class="table-auto border-collapse overflow-x-scroll border border-gray-300">
 	<thead>
 		<tr class="bg-gray-100">
 			<th class="border border-gray-300 px-4 py-2">Empleado</th>
+			<th class="border border-gray-300 px-4 py-2">Salario</th>
 			{#each categoriasIncidencia as category}
-				<th class="border border-gray-300 px-4 py-2">
+				<th class="border border-gray-300 px-4 py-2 text-nowrap">
 					{category.concept}
-					<span class="pl-1 text-sm font-normal">
-						{formatMonetaryValue(category.unitMonetaryValue)}
-					</span>
+					{#if category.unitMonetaryValue !== 1}
+						<span class="pl-1 text-sm font-normal">
+							{formatMonetaryValue(category.unitMonetaryValue)}
+						</span>
+					{/if}
 				</th>
 			{/each}
 			<th class="border border-gray-300 px-4 py-2">Total</th>
@@ -66,13 +142,16 @@
 			<EmployeeRow {employee} {categoriasIncidencia} />
 		{/each}
 		<tr class="bg-gray-100">
-			<td class="border border-gray-300 px-4 py-2">Total</td>
+			<td class="border border-gray-300 px-4 py-2 font-bold">Total</td>
+			<td class="border border-gray-300 px-4 py-2 text-nowrap">
+				{formatMonetaryValue(getTotalSalary())}
+			</td>
 			{#each categoriasIncidencia as category}
-				<td class="border border-gray-300 px-4 py-2">
+				<td class="border border-gray-300 px-4 py-2 text-nowrap">
 					{formatMonetaryValue(getCategoryTotalMonetaryValue(category.id))}
 				</td>
 			{/each}
-			<td class="border border-gray-300 px-4 py-2">
+			<td class="border border-gray-300 px-4 py-2 text-nowrap">
 				{formatMonetaryValue(totalMonetaryValue)}
 			</td>
 		</tr></tbody

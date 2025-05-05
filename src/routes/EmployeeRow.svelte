@@ -20,8 +20,11 @@
 		updateCategoryTotalMonetaryValues();
 	});
 
-	function getIncidenciaTotalMonetaryValue(amount: number, unitMonetaryValue: number) {
-		return amount * unitMonetaryValue;
+	function getIncidenciaTotalMonetaryValue(amount: number, category: CategoriaIncidencia) {
+		if (category.unit === 'días') {
+			return (amount * employee.salary) / 5;
+		}
+		return amount * category.unitMonetaryValue;
 	}
 	function validateIncidenciaAmount(amount: number) {
 		if (!amount) return amount;
@@ -50,8 +53,11 @@
 		let total = 0;
 		for (const incidencia of employee.incidencias) {
 			const category = categoriasIncidenciaMap.get(incidencia.category);
-			if (category) {
-				total += getIncidenciaTotalMonetaryValue(incidencia.amount, category.unitMonetaryValue);
+			if (!category) continue
+			if (category.type === 'deduccion') {
+				total -= getIncidenciaTotalMonetaryValue(incidencia.amount, category);
+			} else {
+				total += getIncidenciaTotalMonetaryValue(incidencia.amount, category);
 			}
 		}
 		return total;
@@ -64,10 +70,7 @@
 	function updateCategoryTotalMonetaryValueByIncidencia(incidencia: Incidencia) {
 		const category = categoriasIncidenciaMap.get(incidencia.category);
 		if (!category) return;
-		let incidenciaTotalMonetaryValue = getIncidenciaTotalMonetaryValue(
-			incidencia.amount,
-			category.unitMonetaryValue
-		);
+		let incidenciaTotalMonetaryValue = getIncidenciaTotalMonetaryValue(incidencia.amount, category);
 		const categoryIncidencias = totals.byCategory.get(category.id);
 		if (categoryIncidencias) {
 			categoryIncidencias.set(employee.id, incidenciaTotalMonetaryValue);
@@ -82,32 +85,31 @@
 </script>
 
 <tr class="odd:bg-white even:bg-gray-50">
-	<td class="border border-gray-300 px-4 py-2">{employee.name}</td>
+	<td class="border border-gray-300 px-4 py-2 text-nowrap">{employee.name}</td>
+	<td class="border border-gray-300 px-4 py-2 text-nowrap"
+		>{formatMonetaryValue(employee.salary)}</td
+	>
 	{#each categoriasIncidencia as category}
 		{@const incidencia = incidenciasMapByCategory.get(category.id)}
-		<td class="border border-gray-300 px-4 py-2">
+		<td class="border border-gray-300 px-4 py-2 text-nowrap">
 			{#if incidencia}
 				<input
 					type="number"
 					step=".01"
 					bind:value={incidencia.amount}
-					class="w-20 rounded-md border border-gray-300 px-2 py-1"
+					class="w-15 rounded-md border border-gray-300 px-2 py-1"
 					oninput={() => updateIncidenciaAmount(incidencia)}
 				/>
 				{category.unit}
 				{#if category.unitMonetaryValue !== 1}
-					<span class="text-gray-500">
-						{formatMonetaryValue(
-							getIncidenciaTotalMonetaryValue(incidencia.amount, category.unitMonetaryValue)
-						)}
+					<span class="pl-1 text-gray-500">
+						{formatMonetaryValue(getIncidenciaTotalMonetaryValue(incidencia.amount, category))}
 					</span>
 				{/if}
 			{/if}
 		</td>
 	{/each}
-	<td class="border border-gray-300 px-4 py-2">
-		<span class="text-gray-500">
-			{formatMonetaryValue(totals.byEmployee.get(employee.id) ?? 0)}
-		</span>
+	<td class="border border-gray-300 px-4 py-2 text-nowrap">
+		{formatMonetaryValue(totals.byEmployee.get(employee.id) ?? 0)}
 	</td>
 </tr>
