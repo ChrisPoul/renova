@@ -2,6 +2,7 @@
 	import { onMount } from 'svelte';
 	import { totals } from '$lib/stores/totals.svelte';
 	import { formatMonetaryValue } from '$lib/utils';
+	import { parentCategories } from '$lib/constants';
 
 	let {
 		employee,
@@ -52,22 +53,43 @@
 		updateCategoryTotalMonetaryValueByIncidencia(incidencia);
 	}
 	function updateEmployeeTotalMonetaryValue(employee: Employee) {
-		const total = getEmployeeTotalMonetaryValue(employee);
+		const { total, parentCategoryTotals } = getEmployeeTotalMonetaryValue(employee);
 		totals.byEmployee.set(employee.id, total);
 		totals.byEmployee = new Map(totals.byEmployee);
+		for (const [parentCategory, parentCategoryTotal] of parentCategoryTotals) {
+			const parentCategoryTotalsByEmployee = totals.byParentCategory.get(parentCategory);
+			if (parentCategoryTotalsByEmployee) {
+				parentCategoryTotalsByEmployee.set(employee.id, parentCategoryTotal);
+			} else {
+				totals.byParentCategory.set(
+					parentCategory,
+					new Map([[employee.id, parentCategoryTotal]])
+				);
+			}
+		}
+		totals.byParentCategory = new Map(totals.byParentCategory);
 	}
 	function getEmployeeTotalMonetaryValue(employee: Employee) {
 		let total = 0;
+		const parentCategoryTotals = new Map<ParentCategory, number>();
 		for (const incidencia of employee.incidencias) {
 			const category = categoriasIncidenciaMap.get(incidencia.category);
 			if (!category) continue;
+			const incidenciaTotalMonetaryValue = getIncidenciaTotalMonetaryValue(
+				incidencia.amount,
+				category
+			);
 			if (category.type === 'deduccion') {
-				total -= getIncidenciaTotalMonetaryValue(incidencia.amount, category);
+				total -= incidenciaTotalMonetaryValue;
 			} else {
-				total += getIncidenciaTotalMonetaryValue(incidencia.amount, category);
+				total += incidenciaTotalMonetaryValue;
 			}
+			parentCategoryTotals.set(
+				category.parentCategory,
+				(parentCategoryTotals.get(category.parentCategory) ?? 0) + incidenciaTotalMonetaryValue
+			);
 		}
-		return total;
+		return {total, parentCategoryTotals};
 	}
 	function updateCategoryTotalMonetaryValuesByEmployee(employee: Employee) {
 		for (const incidencia of employee.incidencias) {

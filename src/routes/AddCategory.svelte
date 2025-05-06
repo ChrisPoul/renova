@@ -1,7 +1,6 @@
 <script lang="ts">
+	import { parentCategories } from '$lib/constants';
 	import { getParentCategoryLabel } from '$lib/utils';
-
-	let { parentCategories } = $props();
 
 	let concept = $state('');
 	let type = $state('percepcion');

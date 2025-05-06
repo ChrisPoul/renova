@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { parentCategories } from '$lib/constants';
 	import { getParentCategoryLabel } from '$lib/utils';
 	import AddCategory from './AddCategory.svelte';
 	import MainTable from './MainTable.svelte';
@@ -70,7 +71,6 @@
 		}
 	];
 
-	const parentCategories: ParentCategory[] = ['destajo', 'bono', 'deduccion'];
 	let selectedParentCategories = $state(parentCategories);
 
 	let employees = $state([
@@ -141,4 +141,4 @@
 
 <MainTable {employees} {categoriasIncidencia} {selectedParentCategories} />
 
-<AddCategory {parentCategories} />
+<AddCategory />
