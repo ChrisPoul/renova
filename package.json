@@ -43,7 +43,8 @@
 	},
 	"dependencies": {
 		"better-sqlite3": "^11.8.0",
-		"drizzle-orm": "^0.40.0"
+		"drizzle-orm": "^0.40.0",
+		"xlsx": "^0.18.5"
 	},
 	"pnpm": {
 		"onlyBuiltDependencies": [

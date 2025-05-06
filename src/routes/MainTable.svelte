@@ -2,8 +2,17 @@
 	import EmployeeRow from './EmployeeRow.svelte';
 	import { totals } from '$lib/stores/totals.svelte';
 	import { formatMonetaryValue } from '$lib/utils';
+	import * as XLSX from 'xlsx';
 
-	let { categoriasIncidencia, employees, selectedParentCategories } = $props();
+	let {
+		categoriasIncidencia,
+		employees,
+		selectedParentCategories
+	}: {
+		categoriasIncidencia: CategoriaIncidencia[];
+		employees: Employee[];
+		selectedParentCategories: ParentCategory[];
+	} = $props();
 
 	let totalMonetaryValue = $derived.by(getTotalMonetaryValueByEmployees);
 
@@ -29,6 +38,46 @@
 			total += incidenciaTotal;
 		}
 		return total;
+	}
+
+	function generateExcelReport() {
+		// Prepare data for the Excel file
+		const data = [];
+		const headers = ['Empleado', 'Salario', ...categoriasIncidencia.map((c) => c.concept), 'Total'];
+		data.push(headers);
+
+		// Add employee rows
+		for (const employee of employees) {
+			const row = [
+				employee.name,
+				employee.salary,
+				...categoriasIncidencia.map((category) => {
+					const incidenciaTotalMonetaryValue = totals.byCategory.get(category.id)?.get(employee.id);
+					return incidenciaTotalMonetaryValue ?? 0;
+				}),
+				totals.byEmployee.get(employee.id) ?? 0
+			];
+			data.push(row);
+		}
+
+		// Add totals row
+		const totalsRow = [
+			'Total',
+			getTotalSalary(),
+			...categoriasIncidencia.map((category) => {
+				return getCategoryTotalMonetaryValue(category.id);
+			}),
+			totalMonetaryValue
+		];
+		data.push(totalsRow);
+
+		// Create a worksheet and workbook
+		const worksheet = XLSX.utils.aoa_to_sheet(data);
+		const workbook = XLSX.utils.book_new();
+		XLSX.utils.book_append_sheet(workbook, worksheet, 'Reporte');
+
+		// Export the Excel file
+		XLSX.writeFile(workbook, 'reporte.xlsx');
 	}
 </script>
 
@@ -72,7 +121,14 @@
 				<td class="sticky right-0 border border-gray-500 bg-gray-300 px-4 py-2 text-nowrap">
 					{formatMonetaryValue(totalMonetaryValue)}
 				</td>
-			</tr></tbody
-		>
+			</tr>
+		</tbody>
 	</table>
 </div>
+
+<button
+    class="mb-4 rounded-lg bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
+    onclick={generateExcelReport}
+>
+    Generar Reporte
+</button>
