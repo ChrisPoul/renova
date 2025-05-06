@@ -9,13 +9,13 @@ declare global {
 		// interface PageState {}
 		// interface Platform {}
 	}
-	type parentCategory = 'destajo' | 'bono' | 'deduccion'
-	type categoryType = 'deduccion' | 'percepcion';
+	type ParentCategory = 'destajo' | 'bono' | 'deduccion'
+	type CategoryType = 'deduccion' | 'percepcion';
 	interface CategoriaIncidencia {
 		id: number;
 		concept: string;
-		type: categoryType;
-		parentCategory: parentCategory;
+		type: CategoryType;
+		parentCategory: ParentCategory;
 		unit: string;
 		unitMonetaryValue: number;
 	}

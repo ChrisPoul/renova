@@ -1,10 +1,9 @@
 <script lang="ts">
-	import EmployeeRow from './EmployeeRow.svelte';
-	import { totals } from '$lib/stores/totals.svelte';
-	import { formatMonetaryValue } from '$lib/utils';
+	import { getParentCategoryLabel } from '$lib/utils';
 	import AddCategory from './AddCategory.svelte';
+	import MainTable from './MainTable.svelte';
 
-	let categoriasIncidencia: CategoriaIncidencia[] = [
+	const categoriasIncidencia: CategoriaIncidencia[] = [
 		{
 			id: 1,
 			concept: 'Puertas Grandes',
@@ -68,9 +67,10 @@
 			parentCategory: 'deduccion',
 			unit: 'días',
 			unitMonetaryValue: 1
-		},
+		}
 	];
-	let totalMonetaryValue = $derived.by(getTotalMonetaryValueByEmployees);
+	const parentCategories: ParentCategory[] = ['destajo', 'bono', 'deduccion'];
+	let selectedParentCategories = $state(parentCategories);
 
 	let employees = $state([
 		{
@@ -104,71 +104,40 @@
 			]
 		}
 	]);
-
-	function getTotalSalary() {
-		let total = 0;
-		for (const employee of employees) {
-			total += employee.salary;
-		}
-		return total;
-	}
-	function getTotalMonetaryValueByEmployees() {
-		let total = 0;
-		for (const [employeeId, employeeTotal] of totals.byEmployee) {
-			total += employeeTotal;
-		}
-		return total;
-	}
-	function getCategoryTotalMonetaryValue(categoryId: number) {
-		let total = 0;
-		const incidenciaTotals = totals.byCategory.get(categoryId);
-		if (!incidenciaTotals) return 0;
-		for (const [employeeId, incidenciaTotal] of incidenciaTotals) {
-			total += incidenciaTotal;
-		}
-		return total;
-	}
 </script>
 
-<div class="relative overflow-auto">
-	<table class="m-2 border-collapse border border-gray-500">
-		<thead>
-			<tr class="bg-gray-100">
-				<th class="sticky left-0 border border-gray-500 bg-gray-300 px-4 py-2">Empleado</th>
-				<th class="border border-gray-500 bg-gray-300 px-4 py-2">Salario</th>
-				{#each categoriasIncidencia as category}
-					<th class={`border border-gray-700 px-4 py-2 text-nowrap ${category.parentCategory}`}>
-						{category.concept}
-						{#if category.unitMonetaryValue !== 1}
-							<span class="pl-1 text-sm font-normal">
-								{formatMonetaryValue(category.unitMonetaryValue)}
-							</span>
-						{/if}
-					</th>
-				{/each}
-				<th class="sticky right-0 border border-gray-500 bg-gray-300 px-4 py-2">Total</th>
-			</tr>
-		</thead>
-		<tbody>
-			{#each employees as employee}
-				<EmployeeRow {employee} {categoriasIncidencia} />
-			{/each}
-			<tr class="bg-gray-100">
-				<td class="sticky left-0 border border-gray-500 bg-gray-300 px-4 py-2 font-bold">Total</td>
-				<td class="border border-gray-500 bg-gray-200 px-4 py-2 text-nowrap">
-					{formatMonetaryValue(getTotalSalary())}
-				</td>
-				{#each categoriasIncidencia as category}
-					<td class="border border-gray-500 bg-gray-200 px-4 py-2 text-nowrap">
-						{formatMonetaryValue(getCategoryTotalMonetaryValue(category.id))}
-					</td>
-				{/each}
-				<td class="sticky right-0 border border-gray-500 bg-gray-300 px-4 py-2 text-nowrap">
-					{formatMonetaryValue(totalMonetaryValue)}
-				</td>
-			</tr></tbody
+<div class="flex gap-2 p-2 font-bold text-white">
+	{#each parentCategories as category}
+		<label
+			class={`${category} flex cursor-pointer items-center gap-1.5 rounded-lg p-2 hover:scale-105`}
 		>
-	</table>
+			<input
+				type="checkbox"
+				class="rounded-lg"
+				bind:group={selectedParentCategories}
+				value={category}
+			/>
+			{getParentCategoryLabel(category)}
+		</label>
+	{/each}
+	<button
+		class="flex cursor-pointer items-center gap-1.5 rounded-lg bg-slate-400 py-2 px-4 hover:scale-105"
+		onclick={() => {
+			selectedParentCategories = parentCategories;
+		}}
+	>
+		Todo
+	</button>
+	<button
+		class="flex cursor-pointer items-center gap-1.5 rounded-lg bg-slate-400 py-2 px-4 hover:scale-105"
+		onclick={() => {
+			selectedParentCategories = [];
+		}}
+	>
+		Ninguno
+	</button>
 </div>
 
-<AddCategory />
+<MainTable {employees} {categoriasIncidencia} {selectedParentCategories} />
+
+<AddCategory {parentCategories}/>

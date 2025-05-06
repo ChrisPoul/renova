@@ -5,8 +5,13 @@
 
 	let {
 		employee,
-		categoriasIncidencia
-	}: { employee: Employee; categoriasIncidencia: CategoriaIncidencia[] } = $props();
+		categoriasIncidencia,
+		selectedParentCategories
+	}: {
+		employee: Employee;
+		categoriasIncidencia: CategoriaIncidencia[];
+		selectedParentCategories: ParentCategory[];
+	} = $props();
 
 	let categoriasIncidenciaMap = new Map<number, CategoriaIncidencia>(
 		categoriasIncidencia.map((category) => [category.id, category])
@@ -55,7 +60,7 @@
 		let total = 0;
 		for (const incidencia of employee.incidencias) {
 			const category = categoriasIncidenciaMap.get(incidencia.category);
-			if (!category) continue
+			if (!category) continue;
 			if (category.type === 'deduccion') {
 				total -= getIncidenciaTotalMonetaryValue(incidencia.amount, category);
 			} else {
@@ -87,31 +92,35 @@
 </script>
 
 <tr class="odd:bg-white even:bg-gray-50">
-	<td class="border border-gray-500 px-4 py-2 text-nowrap sticky left-0 bg-gray-200">{employee.name}</td>
+	<td class="sticky left-0 border border-gray-500 bg-gray-200 px-4 py-2 text-nowrap"
+		>{employee.name}</td
+	>
 	<td class="border border-gray-500 px-4 py-2 text-nowrap"
 		>{formatMonetaryValue(employee.salary)}</td
 	>
 	{#each categoriasIncidencia as category}
-		{@const incidencia = incidenciasMapByCategory.get(category.id)}
-		<td class="border border-gray-500 px-4 py-2 text-nowrap">
-			{#if incidencia}
-				<input
-					type="number"
-					step=".01"
-					bind:value={incidencia.amount}
-					class="w-15 rounded-md border border-gray-500 px-2 py-1"
-					oninput={() => updateIncidenciaAmount(incidencia)}
-				/>
-				{category.unit}
-				{#if category.unitMonetaryValue !== 1}
-					<span class="pl-1 text-gray-500">
-						{formatMonetaryValue(getIncidenciaTotalMonetaryValue(incidencia.amount, category))}
-					</span>
+		{#if selectedParentCategories.includes(category.parentCategory)}
+			{@const incidencia = incidenciasMapByCategory.get(category.id)}
+			<td class="border border-gray-500 px-4 py-2 text-nowrap">
+				{#if incidencia}
+					<input
+						type="number"
+						step=".01"
+						bind:value={incidencia.amount}
+						class="w-15 rounded-md border border-gray-500 px-2 py-1"
+						oninput={() => updateIncidenciaAmount(incidencia)}
+					/>
+					{category.unit}
+					{#if category.unitMonetaryValue !== 1}
+						<span class="pl-1 text-gray-500">
+							{formatMonetaryValue(getIncidenciaTotalMonetaryValue(incidencia.amount, category))}
+						</span>
+					{/if}
 				{/if}
-			{/if}
-		</td>
+			</td>
+		{/if}
 	{/each}
-	<td class="border border-gray-500 px-4 py-2 text-nowrap bg-gray-200 sticky right-0">
+	<td class="sticky right-0 border border-gray-500 bg-gray-200 px-4 py-2 text-nowrap">
 		{formatMonetaryValue(totals.byEmployee.get(employee.id) ?? 0)}
 	</td>
 </tr>
