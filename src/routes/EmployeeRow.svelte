@@ -21,8 +21,8 @@
 	);
 
 	onMount(() => {
-		updateEmployeeTotalMonetaryValue();
-		updateCategoryTotalMonetaryValues();
+		updateEmployeeTotalMonetaryValue(employee);
+		updateCategoryTotalMonetaryValuesByEmployee(employee);
 	});
 
 	function getIncidenciaTotalMonetaryValue(amount: number, category: CategoriaIncidencia) {
@@ -48,10 +48,10 @@
 	}
 	function updateIncidenciaAmount(incidencia: Incidencia) {
 		incidencia.amount = validateIncidenciaAmount(incidencia.amount);
-		updateEmployeeTotalMonetaryValue();
+		updateEmployeeTotalMonetaryValue(employee);
 		updateCategoryTotalMonetaryValueByIncidencia(incidencia);
 	}
-	function updateEmployeeTotalMonetaryValue() {
+	function updateEmployeeTotalMonetaryValue(employee: Employee) {
 		const total = getEmployeeTotalMonetaryValue(employee);
 		totals.byEmployee.set(employee.id, total);
 		totals.byEmployee = new Map(totals.byEmployee);
@@ -69,7 +69,7 @@
 		}
 		return total;
 	}
-	function updateCategoryTotalMonetaryValues() {
+	function updateCategoryTotalMonetaryValuesByEmployee(employee: Employee) {
 		for (const incidencia of employee.incidencias) {
 			updateCategoryTotalMonetaryValueByIncidencia(incidencia);
 		}

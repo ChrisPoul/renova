@@ -69,6 +69,7 @@
 			unitMonetaryValue: 1
 		}
 	];
+
 	const parentCategories: ParentCategory[] = ['destajo', 'bono', 'deduccion'];
 	let selectedParentCategories = $state(parentCategories);
 
@@ -121,7 +122,7 @@
 		</label>
 	{/each}
 	<button
-		class="flex cursor-pointer items-center gap-1.5 rounded-lg bg-slate-400 py-2 px-4 hover:scale-105"
+		class="flex cursor-pointer items-center gap-1.5 rounded-lg bg-slate-400 px-4 py-2 hover:scale-105"
 		onclick={() => {
 			selectedParentCategories = parentCategories;
 		}}
@@ -129,7 +130,7 @@
 		Todo
 	</button>
 	<button
-		class="flex cursor-pointer items-center gap-1.5 rounded-lg bg-slate-400 py-2 px-4 hover:scale-105"
+		class="flex cursor-pointer items-center gap-1.5 rounded-lg bg-slate-400 px-4 py-2 hover:scale-105"
 		onclick={() => {
 			selectedParentCategories = [];
 		}}
@@ -140,4 +141,4 @@
 
 <MainTable {employees} {categoriasIncidencia} {selectedParentCategories} />
 
-<AddCategory {parentCategories}/>
+<AddCategory {parentCategories} />

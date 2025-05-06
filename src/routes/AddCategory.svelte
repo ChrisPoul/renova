@@ -10,7 +10,7 @@
 	let unitMonetaryValue = $state('');
 </script>
 
-<form class="m-4 rounded border border-gray-300 p-4">
+<form class="m-10 rounded border border-gray-300 p-4">
 	<div class="mb-4">
 		<label class="mb-1 block text-sm font-medium" for="concept">Concepto</label>
 		<input
