@@ -65,7 +65,7 @@
 		<thead>
 			<tr class="bg-gray-100">
 				<th class="sticky left-0 bg-gray-300 t-cell">Empleado</th>
-				<th class="bg-gray-300 t-cell">Salario</th>
+				<th class="bg-gray-200 t-cell">Salario</th>
 				{#each categoriasIncidencia as category}
 					{#if selectedCategoryTypes.value.includes(category.type)}
 						<th class={`t-cell ${category.type}`}>

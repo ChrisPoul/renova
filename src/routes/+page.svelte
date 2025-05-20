@@ -98,7 +98,7 @@
 	]);
 </script>
 
-<div class="flex gap-2 p-2 font-bold text-white">
+<div class="fixed top-0 left-0 z-20 flex gap-2 p-2 font-bold text-white">
 	{#each categoryTypes as category}
 		<label
 			class={`${category} flex cursor-pointer items-center gap-1.5 rounded-lg p-2 hover:scale-105`}
@@ -130,6 +130,8 @@
 	</button>
 </div>
 
-<MainTable {employees} {categoriasIncidencia} />
+<div class="pt-16">
+	<MainTable {employees} {categoriasIncidencia} />
+</div>
 
 <AddCategory />
