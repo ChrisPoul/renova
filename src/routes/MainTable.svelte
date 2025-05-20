@@ -29,7 +29,7 @@
 			totalsByCategoryType.set(categoryType, categoryTypeTotal);
 			const prevTotal = totalsByCategoryType.get('all') ?? 0;
 			if (categoryType === 'deduccion') {
-				totalsByCategoryType.set("all", prevTotal - categoryTypeTotal);
+				totalsByCategoryType.set('all', prevTotal - categoryTypeTotal);
 			} else {
 				totalsByCategoryType.set('all', prevTotal + categoryTypeTotal);
 			}
@@ -79,7 +79,7 @@
 					{/if}
 				{/each}
 				{#each selectedCategoryTypes.value as categoryType}
-					<th class={`border border-gray-700 px-4 py-2 text-nowrap ${categoryType}-opaco`}>
+					<th class={`border border-gray-700 px-4 py-2 text-nowrap ${categoryType}`}>
 						Total {getCategoryTypeLabel(categoryType)}
 					</th>
 				{/each}
@@ -97,7 +97,9 @@
 				</td>
 				{#each categoriasIncidencia as category}
 					{#if selectedCategoryTypes.value.includes(category.type)}
-						<td class="border border-gray-500 bg-gray-200 px-4 py-2 text-nowrap">
+						<td
+							class={`border border-gray-500 bg-gray-200 px-4 py-2 text-nowrap ${category.type}-opaco`}
+						>
 							{formatMonetaryValue(getCategoryTotalMonetaryValue(category.id))}
 						</td>
 					{/if}
