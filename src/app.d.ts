@@ -21,6 +21,8 @@ declare global {
 		id: number;
 		category: number;
 		amount: number;
+		unitMonetaryValue?: number;
+		unit?: string
 	}
 	interface Employee {
 		id: number;

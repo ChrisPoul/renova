@@ -8,7 +8,7 @@
 	const categoriasIncidencia: CategoriaIncidencia[] = [
 		{
 			id: 1,
-			concept: 'Puertas Grandes',
+			concept: 'Puertas Muy Grandes',
 			type: 'destajo',
 			unit: '',
 			unitMonetaryValue: 12

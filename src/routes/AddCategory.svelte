@@ -1,12 +1,16 @@
 <script lang="ts">
 	import { categoryTypes } from '$lib/constants';
 	import { getCategoryTypeLabel } from '$lib/utils';
+	import UnitInputs from './UnitInputs.svelte';
 
 	let concept = $state('');
 	let type = $state('percepcion');
 	let categoryType = $state(categoryTypes[0]);
 	let unit = $state('kg');
-	let unitMonetaryValue = $state('');
+	let unitMonetaryValue = $state(1);
+	$effect(() => {
+		console.log(unit);
+	});
 </script>
 
 <form class="m-10 rounded border border-gray-300 p-4">
@@ -39,31 +43,7 @@
 			{/each}
 		</select>
 	</div>
-	<div class="mb-4">
-		<label class="mb-1 block text-sm font-medium" for="unit">Unidad</label>
-		<select id="unit" bind:value={unit} class="w-full rounded border border-gray-300 px-2 py-1">
-			<option value="kg">kg</option>
-			<option value="días">días</option>
-			<option value="horas">horas</option>
-			<option value="m²">m²</option>
-			<option value="m³">m³</option>
-		</select>
-	</div>
-	{#if unit !== 'días' && unit !== 'horas'}
-		<div class="mb-4">
-			<label class="mb-1 block text-sm font-medium" for="unitMonetaryValue"
-				>Valor Monetario por Unidad</label
-			>
-			<input
-				id="unitMonetaryValue"
-				type="number"
-				step="0.01"
-				bind:value={unitMonetaryValue}
-				class="w-full rounded border border-gray-300 px-2 py-1"
-				required
-			/>
-		</div>
-	{/if}
+	<UnitInputs bind:unit bind:unitMonetaryValue />
 	<button type="submit" class="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600">
 		Agregar Categoría
 	</button>

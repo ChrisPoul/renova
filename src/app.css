@@ -22,3 +22,10 @@
 .deduccion-opaco {
   background-color: rgba(248, 113, 113, 0.5);
 }
+
+.t-cell {
+  @apply px-3 py-2 border border-gray-500 leading-none text-center;
+}
+button {
+  @apply cursor-pointer
+}

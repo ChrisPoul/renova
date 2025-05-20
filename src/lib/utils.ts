@@ -17,3 +17,17 @@ export function getCategoryTypeLabel(category: CategoryType) {
 	}
 	return category;
 }
+
+export function validateAmount(amount: number) {
+		if (!amount) return amount;
+		if (isNaN(amount)) return 0;
+		if (amount < 0) return 0;
+
+		const numString = amount.toString();
+		const decimalIndex = numString.indexOf('.');
+		if (decimalIndex === -1) {
+			return amount;
+		}
+		const truncatedString = numString.slice(0, decimalIndex + 3);
+		return parseFloat(truncatedString);
+	}
