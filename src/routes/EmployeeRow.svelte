@@ -1,17 +1,14 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { totals } from '$lib/stores/totals.svelte';
+	import { selectedParentCategories, totals } from '$lib/stores.svelte';
 	import { formatMonetaryValue } from '$lib/utils';
-	import { parentCategories } from '$lib/constants';
 
 	let {
 		employee,
 		categoriasIncidencia,
-		selectedParentCategories
 	}: {
 		employee: Employee;
 		categoriasIncidencia: CategoriaIncidencia[];
-		selectedParentCategories: ParentCategory[];
 	} = $props();
 
 	let categoriasIncidenciaMap = new Map<number, CategoriaIncidencia>(
@@ -75,6 +72,7 @@
 		for (const incidencia of employee.incidencias) {
 			const category = categoriasIncidenciaMap.get(incidencia.category);
 			if (!category) continue;
+			if (!selectedParentCategories.value.includes(category.parentCategory)) continue
 			const incidenciaTotalMonetaryValue = getIncidenciaTotalMonetaryValue(
 				incidencia.amount,
 				category
@@ -121,7 +119,7 @@
 		>{formatMonetaryValue(employee.salary)}</td
 	>
 	{#each categoriasIncidencia as category}
-		{#if selectedParentCategories.includes(category.parentCategory)}
+		{#if selectedParentCategories.value.includes(category.parentCategory)}
 			{@const incidencia = incidenciasMapByCategory.get(category.id)}
 			<td class="border border-gray-500 px-4 py-2 text-nowrap">
 				{#if incidencia}
@@ -141,6 +139,11 @@
 				{/if}
 			</td>
 		{/if}
+	{/each}
+	{#each selectedParentCategories.value as parentCategory}
+	<td class="border border-gray-500 px-4 py-2 text-nowrap">
+			{formatMonetaryValue(totals.byParentCategory.get(parentCategory)?.get(employee.id) ?? 0)}
+		</td>
 	{/each}
 	<td class="sticky right-0 border border-gray-500 bg-gray-200 px-4 py-2 text-nowrap">
 		{formatMonetaryValue(totals.byEmployee.get(employee.id) ?? 0)}

@@ -1,17 +1,15 @@
 <script lang="ts">
 	import EmployeeRow from './EmployeeRow.svelte';
-	import { totals } from '$lib/stores/totals.svelte';
-	import { formatMonetaryValue } from '$lib/utils';
+	import { selectedParentCategories, totals } from '$lib/stores.svelte';
+	import { formatMonetaryValue, getParentCategoryLabel } from '$lib/utils';
 	import * as XLSX from 'xlsx';
 
 	let {
 		categoriasIncidencia,
 		employees,
-		selectedParentCategories
 	}: {
 		categoriasIncidencia: CategoriaIncidencia[];
 		employees: Employee[];
-		selectedParentCategories: ParentCategory[];
 	} = $props();
 
 	let totalMonetaryValue = $derived.by(getTotalMonetaryValueByEmployees);
@@ -36,6 +34,15 @@
 		if (!incidenciaTotals) return 0;
 		for (const [employeeId, incidenciaTotal] of incidenciaTotals) {
 			total += incidenciaTotal;
+		}
+		return total;
+	}
+	function getParentCategoryTotalMonetaryValue(parentCategory: ParentCategory) {
+		let total = 0;
+		const parentCategoryTotals = totals.byParentCategory.get(parentCategory);
+		if (!parentCategoryTotals) return 0;
+		for (const [employeeId, employeeTotalInParentCategory] of parentCategoryTotals) {
+			total += employeeTotalInParentCategory;
 		}
 		return total;
 	}
@@ -88,10 +95,10 @@
 				<th class="sticky left-0 border border-gray-500 bg-gray-300 px-4 py-2">Empleado</th>
 				<th class="border border-gray-500 bg-gray-300 px-4 py-2">Salario</th>
 				{#each categoriasIncidencia as category}
-					{#if selectedParentCategories.includes(category.parentCategory)}
+					{#if selectedParentCategories.value.includes(category.parentCategory)}
 						<th class={`border border-gray-700 px-4 py-2 text-nowrap ${category.parentCategory}`}>
 							{category.concept}
-							{#if category.unitMonetaryValue !== 1}
+							{#if category.unitMonetaryValue !== 1 && category.unitMonetaryValue !== 0}
 								<span class="pl-1 text-sm font-normal">
 									{formatMonetaryValue(category.unitMonetaryValue)}
 								</span>
@@ -99,12 +106,17 @@
 						</th>
 					{/if}
 				{/each}
+				{#each selectedParentCategories.value as parentCategory}
+					<th class={`border border-gray-700 px-4 py-2 text-nowrap ${parentCategory}-opaco`}>
+						Total {getParentCategoryLabel(parentCategory)}
+					</th>
+				{/each}
 				<th class="sticky right-0 border border-gray-500 bg-gray-300 px-4 py-2">Total</th>
 			</tr>
 		</thead>
 		<tbody>
 			{#each employees as employee}
-				<EmployeeRow {employee} {categoriasIncidencia} {selectedParentCategories} />
+				<EmployeeRow {employee} {categoriasIncidencia} />
 			{/each}
 			<tr class="bg-gray-100">
 				<td class="sticky left-0 border border-gray-500 bg-gray-300 px-4 py-2 font-bold">Total</td>
@@ -112,12 +124,17 @@
 					{formatMonetaryValue(getTotalSalary())}
 				</td>
 				{#each categoriasIncidencia as category}
-					{#if selectedParentCategories.includes(category.parentCategory)}
+					{#if selectedParentCategories.value.includes(category.parentCategory)}
 						<td class="border border-gray-500 bg-gray-200 px-4 py-2 text-nowrap">
 							{formatMonetaryValue(getCategoryTotalMonetaryValue(category.id))}
 						</td>
 					{/if}
 				{/each}
+        {#each selectedParentCategories.value as parentCategory}
+          <td class={`border border-gray-500 bg-gray-200 px-4 py-2 text-nowrap ${parentCategory}-opaco`}>
+            {formatMonetaryValue(getParentCategoryTotalMonetaryValue(parentCategory))}
+          </td>
+        {/each}
 				<td class="sticky right-0 border border-gray-500 bg-gray-300 px-4 py-2 text-nowrap">
 					{formatMonetaryValue(totalMonetaryValue)}
 				</td>
@@ -127,8 +144,8 @@
 </div>
 
 <button
-    class="mb-4 rounded-lg bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
-    onclick={generateExcelReport}
+	class="mb-4 rounded-lg bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
+	onclick={generateExcelReport}
 >
-    Generar Reporte
+	Generar Reporte
 </button>

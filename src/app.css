@@ -3,11 +3,22 @@
 @plugin '@tailwindcss/typography';
 
 .destajo {
-  background-color: #7dc8f3;
+  background-color: rgba(125, 200, 243);
 }
+.destajo-opaco {
+  background-color: rgba(125, 200, 243, 0.5);
+}
+
 .bono {
-  background-color: #fbbf24;
+  background-color: rgba(251, 191, 36);
 }
+.bono-opaco {
+  background-color: rgba(251, 191, 36, 0.5);
+}
+
 .deduccion {
-  background-color: #f87171;
+  background-color: rgba(248, 113, 113);
+}
+.deduccion-opaco {
+  background-color: rgba(248, 113, 113, 0.5);
 }

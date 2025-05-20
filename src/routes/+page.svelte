@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { parentCategories } from '$lib/constants';
+	import { selectedParentCategories } from '$lib/stores.svelte';
 	import { getParentCategoryLabel } from '$lib/utils';
 	import AddCategory from './AddCategory.svelte';
 	import MainTable from './MainTable.svelte';
@@ -59,7 +60,7 @@
 			type: 'percepcion',
 			parentCategory: 'bono',
 			unit: 'horas',
-			unitMonetaryValue: 1
+			unitMonetaryValue: 0
 		},
 		{
 			id: 7,
@@ -67,11 +68,9 @@
 			type: 'deduccion',
 			parentCategory: 'deduccion',
 			unit: 'días',
-			unitMonetaryValue: 1
+			unitMonetaryValue: 0
 		}
 	];
-
-	let selectedParentCategories = $state(parentCategories);
 
 	let employees = $state([
 		{
@@ -107,6 +106,7 @@
 	]);
 </script>
 
+
 <div class="flex gap-2 p-2 font-bold text-white">
 	{#each parentCategories as category}
 		<label
@@ -115,7 +115,7 @@
 			<input
 				type="checkbox"
 				class="rounded-lg"
-				bind:group={selectedParentCategories}
+				bind:group={selectedParentCategories.value}
 				value={category}
 			/>
 			{getParentCategoryLabel(category)}
@@ -124,7 +124,7 @@
 	<button
 		class="flex cursor-pointer items-center gap-1.5 rounded-lg bg-slate-400 px-4 py-2 hover:scale-105"
 		onclick={() => {
-			selectedParentCategories = parentCategories;
+			selectedParentCategories.value = parentCategories;
 		}}
 	>
 		Todo
@@ -132,13 +132,13 @@
 	<button
 		class="flex cursor-pointer items-center gap-1.5 rounded-lg bg-slate-400 px-4 py-2 hover:scale-105"
 		onclick={() => {
-			selectedParentCategories = [];
+			selectedParentCategories.value = [];
 		}}
 	>
 		Ninguno
 	</button>
 </div>
 
-<MainTable {employees} {categoriasIncidencia} {selectedParentCategories} />
+<MainTable {employees} {categoriasIncidencia} />
 
 <AddCategory />
