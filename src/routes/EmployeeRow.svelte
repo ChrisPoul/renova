@@ -2,6 +2,7 @@
 	import { onMount } from 'svelte';
 	import { selectedCategoryTypes, totals } from '$lib/stores.svelte';
 	import { formatMonetaryValue } from '$lib/utils';
+	import { categoryTypes } from '$lib/constants';
 
 	let {
 		employee,
@@ -19,9 +20,25 @@
 	);
 
 	onMount(() => {
-		updateEmployeeTotalMonetaryValue(employee);
 		updateCategoryTotalMonetaryValuesByEmployee(employee);
+		setEmployeeTotalsByCategoryType();
 	});
+
+	let employeeTotal = $derived.by(getEmployeeTotalByCategoryTypes);
+
+	function getEmployeeTotalByCategoryTypes() {
+		let total = 0;
+		for (const categoryType of selectedCategoryTypes.value) {
+			const categoryTypeTotal = totals.byCategoryType.get(categoryType)?.get(employee.id);
+			if (!categoryTypeTotal) continue;
+			if (categoryType === 'deduccion') {
+				total -= categoryTypeTotal;
+			} else {
+				total += categoryTypeTotal;
+			}
+		}
+		return total;
+	}
 
 	function getIncidenciaTotalMonetaryValue(amount: number, category: CategoriaIncidencia) {
 		if (category.unit === 'días') {
@@ -46,45 +63,26 @@
 	}
 	function updateIncidenciaAmount(incidencia: Incidencia) {
 		incidencia.amount = validateIncidenciaAmount(incidencia.amount);
-		updateEmployeeTotalMonetaryValue(employee);
+		setEmployeeTotalsByCategoryType();
 		updateCategoryTotalMonetaryValueByIncidencia(incidencia);
 	}
-	function updateEmployeeTotalMonetaryValue(employee: Employee) {
-		const { total, categoryTypeTotals } = getEmployeeTotalMonetaryValue(employee);
-		totals.byEmployee.set(employee.id, total);
-		totals.byEmployee = new Map(totals.byEmployee);
-		for (const [categoryType, categoryTypeTotal] of categoryTypeTotals) {
-			const categoryTypeTotalsByEmployee = totals.byCategoryType.get(categoryType);
-			if (categoryTypeTotalsByEmployee) {
-				categoryTypeTotalsByEmployee.set(employee.id, categoryTypeTotal);
-			} else {
-				totals.byCategoryType.set(categoryType, new Map([[employee.id, categoryTypeTotal]]));
-			}
+	function setEmployeeTotalsByCategoryType() {
+		for (const categoryType of categoryTypes) {
+			totals.byCategoryType.get(categoryType)?.set(employee.id, 0);
 		}
-		totals.byCategoryType = new Map(totals.byCategoryType);
-	}
-	function getEmployeeTotalMonetaryValue(employee: Employee) {
-		let total = 0;
-		const categoryTypeTotals = new Map<CategoryType, number>();
 		for (const incidencia of employee.incidencias) {
 			const category = categoriasIncidenciaMap.get(incidencia.category);
 			if (!category) continue;
-			if (!selectedCategoryTypes.value.includes(category.type)) continue;
-			const incidenciaTotalMonetaryValue = getIncidenciaTotalMonetaryValue(
-				incidencia.amount,
-				category
-			);
-			if (category.type === 'deduccion') {
-				total -= incidenciaTotalMonetaryValue;
-			} else {
-				total += incidenciaTotalMonetaryValue;
+			let categoryTypeTotals = totals.byCategoryType.get(category.type);
+			if (!categoryTypeTotals) {
+				categoryTypeTotals = new Map([[employee.id, 0]]);
 			}
-			categoryTypeTotals.set(
-				category.type,
-				(categoryTypeTotals.get(category.type) ?? 0) + incidenciaTotalMonetaryValue
-			);
+			const incidenciaTotal = getIncidenciaTotalMonetaryValue(incidencia.amount, category);
+			const prevTotal = categoryTypeTotals.get(employee.id) ?? 0;
+			categoryTypeTotals.set(employee.id, prevTotal + incidenciaTotal);
+			totals.byCategoryType.set(category.type, categoryTypeTotals);
 		}
-		return { total, categoryTypeTotals };
+		totals.byCategoryType = new Map(totals.byCategoryType);
 	}
 	function updateCategoryTotalMonetaryValuesByEmployee(employee: Employee) {
 		for (const incidencia of employee.incidencias) {
@@ -143,6 +141,6 @@
 		</td>
 	{/each}
 	<td class="sticky right-0 border border-gray-500 bg-gray-200 px-4 py-2 text-nowrap">
-		{formatMonetaryValue(totals.byEmployee.get(employee.id) ?? 0)}
+		{formatMonetaryValue(employeeTotal)}
 	</td>
 </tr>

@@ -3,6 +3,7 @@
 	import { selectedCategoryTypes, totals } from '$lib/stores.svelte';
 	import { formatMonetaryValue, getCategoryTypeLabel } from '$lib/utils';
 	import * as XLSX from 'xlsx';
+	import { categoryTypes } from '$lib/constants';
 
 	let {
 		categoriasIncidencia,
@@ -12,7 +13,7 @@
 		employees: Employee[];
 	} = $props();
 
-	let totalMonetaryValue = $derived.by(getTotalMonetaryValueByEmployees);
+	let totalsByCategoryType = $derived.by(getTotalsByCategoryType);
 
 	function getTotalSalary() {
 		let total = 0;
@@ -21,10 +22,27 @@
 		}
 		return total;
 	}
-	function getTotalMonetaryValueByEmployees() {
+	function getTotalsByCategoryType() {
+		const totalsByCategoryType = new Map<string, number>([['all', 0]]);
+		for (const categoryType of selectedCategoryTypes.value) {
+			const categoryTypeTotal = getCategoryTypeTotalMonetaryValue(categoryType);
+			totalsByCategoryType.set(categoryType, categoryTypeTotal);
+			const prevTotal = totalsByCategoryType.get('all') ?? 0;
+			if (categoryType === 'deduccion') {
+				totalsByCategoryType.set("all", prevTotal - categoryTypeTotal);
+			} else {
+				totalsByCategoryType.set('all', prevTotal + categoryTypeTotal);
+			}
+		}
+
+		return totalsByCategoryType;
+	}
+	function getCategoryTypeTotalMonetaryValue(categoryType: CategoryType) {
 		let total = 0;
-		for (const [employeeId, employeeTotal] of totals.byEmployee) {
-			total += employeeTotal;
+		const categoryTypeTotals = totals.byCategoryType.get(categoryType);
+		if (!categoryTypeTotals) return 0;
+		for (const [employeeId, employeeCategoryTypeTotal] of categoryTypeTotals) {
+			total += employeeCategoryTypeTotal;
 		}
 		return total;
 	}
@@ -37,54 +55,8 @@
 		}
 		return total;
 	}
-	function getCategoryTypeTotalMonetaryValue(categoryType: CategoryType) {
-		let total = 0;
-		const categoryTypeTotals = totals.byCategoryType.get(categoryType);
-		if (!categoryTypeTotals) return 0;
-		for (const [employeeId, employeeTotalInCategoryType] of categoryTypeTotals) {
-			total += employeeTotalInCategoryType;
-		}
-		return total;
-	}
-
 	function generateExcelReport() {
-		// Prepare data for the Excel file
-		const data = [];
-		const headers = ['Empleado', 'Salario', ...categoriasIncidencia.map((c) => c.concept), 'Total'];
-		data.push(headers);
-
-		// Add employee rows
-		for (const employee of employees) {
-			const row = [
-				employee.name,
-				employee.salary,
-				...categoriasIncidencia.map((category) => {
-					const incidenciaTotalMonetaryValue = totals.byCategory.get(category.id)?.get(employee.id);
-					return incidenciaTotalMonetaryValue ?? 0;
-				}),
-				totals.byEmployee.get(employee.id) ?? 0
-			];
-			data.push(row);
-		}
-
-		// Add totals row
-		const totalsRow = [
-			'Total',
-			getTotalSalary(),
-			...categoriasIncidencia.map((category) => {
-				return getCategoryTotalMonetaryValue(category.id);
-			}),
-			totalMonetaryValue
-		];
-		data.push(totalsRow);
-
-		// Create a worksheet and workbook
-		const worksheet = XLSX.utils.aoa_to_sheet(data);
-		const workbook = XLSX.utils.book_new();
-		XLSX.utils.book_append_sheet(workbook, worksheet, 'Reporte');
-
-		// Export the Excel file
-		XLSX.writeFile(workbook, 'reporte.xlsx');
+		return undefined;
 	}
 </script>
 
@@ -134,11 +106,11 @@
 					<td
 						class={`border border-gray-500 bg-gray-200 px-4 py-2 text-nowrap ${categoryType}-opaco`}
 					>
-						{formatMonetaryValue(getCategoryTypeTotalMonetaryValue(categoryType))}
+						{formatMonetaryValue(totalsByCategoryType.get(categoryType) ?? 0)}
 					</td>
 				{/each}
 				<td class="sticky right-0 border border-gray-500 bg-gray-300 px-4 py-2 text-nowrap">
-					{formatMonetaryValue(totalMonetaryValue)}
+					{formatMonetaryValue(totalsByCategoryType.get('all') ?? 0)}
 				</td>
 			</tr>
 		</tbody>
