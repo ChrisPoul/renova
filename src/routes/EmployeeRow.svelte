@@ -70,7 +70,7 @@
 		if (!unitMonetaryValue) {
 			unitMonetaryValue = category.unitMonetaryValue;
 		}
-		return category.unitMonetaryValue;
+		return unitMonetaryValue;
 	}
 	function updateIncidenciaAmount(incidencia: Incidencia, category: CategoriaIncidencia) {
 		incidencia.amount = validateAmount(incidencia.amount);
@@ -189,6 +189,7 @@
 									</span>
 									<button
 										class="ml-0.5 w-4"
+										tabindex="-1"
 										onclick={() => {
 											openEditIncidenciaUnitMenu(incidencia, category);
 										}}
