@@ -1,2 +1,1 @@
-
-export const parentCategories: ParentCategory[] = ['destajo', 'bono', 'deduccion'];
+export const categoryTypes: CategoryType[] = ['destajo', 'bono', 'deduccion'];

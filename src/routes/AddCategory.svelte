@@ -1,10 +1,10 @@
 <script lang="ts">
-	import { parentCategories } from '$lib/constants';
-	import { getParentCategoryLabel } from '$lib/utils';
+	import { categoryTypes } from '$lib/constants';
+	import { getCategoryTypeLabel } from '$lib/utils';
 
 	let concept = $state('');
 	let type = $state('percepcion');
-	let parentCategory = $state(parentCategories[0]);
+	let categoryType = $state(categoryTypes[0]);
 	let unit = $state('kg');
 	let unitMonetaryValue = $state('');
 </script>
@@ -28,14 +28,14 @@
 		</select>
 	</div>
 	<div class="mb-4">
-		<label class="mb-1 block text-sm font-medium" for="parentCategory">Categoría</label>
+		<label class="mb-1 block text-sm font-medium" for="categoryType">Categoría</label>
 		<select
-			id="parentCategory"
-			bind:value={parentCategory}
+			id="categoryType"
+			bind:value={categoryType}
 			class="w-full rounded border border-gray-300 px-2 py-1"
 		>
-			{#each parentCategories as category}
-				<option value={category}>{getParentCategoryLabel(category)}</option>
+			{#each categoryTypes as category}
+				<option value={category}>{getCategoryTypeLabel(category)}</option>
 			{/each}
 		</select>
 	</div>

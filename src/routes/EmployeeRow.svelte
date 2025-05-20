@@ -1,11 +1,11 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { selectedParentCategories, totals } from '$lib/stores.svelte';
+	import { selectedCategoryTypes, totals } from '$lib/stores.svelte';
 	import { formatMonetaryValue } from '$lib/utils';
 
 	let {
 		employee,
-		categoriasIncidencia,
+		categoriasIncidencia
 	}: {
 		employee: Employee;
 		categoriasIncidencia: CategoriaIncidencia[];
@@ -50,29 +50,26 @@
 		updateCategoryTotalMonetaryValueByIncidencia(incidencia);
 	}
 	function updateEmployeeTotalMonetaryValue(employee: Employee) {
-		const { total, parentCategoryTotals } = getEmployeeTotalMonetaryValue(employee);
+		const { total, categoryTypeTotals } = getEmployeeTotalMonetaryValue(employee);
 		totals.byEmployee.set(employee.id, total);
 		totals.byEmployee = new Map(totals.byEmployee);
-		for (const [parentCategory, parentCategoryTotal] of parentCategoryTotals) {
-			const parentCategoryTotalsByEmployee = totals.byParentCategory.get(parentCategory);
-			if (parentCategoryTotalsByEmployee) {
-				parentCategoryTotalsByEmployee.set(employee.id, parentCategoryTotal);
+		for (const [categoryType, categoryTypeTotal] of categoryTypeTotals) {
+			const categoryTypeTotalsByEmployee = totals.byCategoryType.get(categoryType);
+			if (categoryTypeTotalsByEmployee) {
+				categoryTypeTotalsByEmployee.set(employee.id, categoryTypeTotal);
 			} else {
-				totals.byParentCategory.set(
-					parentCategory,
-					new Map([[employee.id, parentCategoryTotal]])
-				);
+				totals.byCategoryType.set(categoryType, new Map([[employee.id, categoryTypeTotal]]));
 			}
 		}
-		totals.byParentCategory = new Map(totals.byParentCategory);
+		totals.byCategoryType = new Map(totals.byCategoryType);
 	}
 	function getEmployeeTotalMonetaryValue(employee: Employee) {
 		let total = 0;
-		const parentCategoryTotals = new Map<ParentCategory, number>();
+		const categoryTypeTotals = new Map<CategoryType, number>();
 		for (const incidencia of employee.incidencias) {
 			const category = categoriasIncidenciaMap.get(incidencia.category);
 			if (!category) continue;
-			if (!selectedParentCategories.value.includes(category.parentCategory)) continue
+			if (!selectedCategoryTypes.value.includes(category.type)) continue;
 			const incidenciaTotalMonetaryValue = getIncidenciaTotalMonetaryValue(
 				incidencia.amount,
 				category
@@ -82,12 +79,12 @@
 			} else {
 				total += incidenciaTotalMonetaryValue;
 			}
-			parentCategoryTotals.set(
-				category.parentCategory,
-				(parentCategoryTotals.get(category.parentCategory) ?? 0) + incidenciaTotalMonetaryValue
+			categoryTypeTotals.set(
+				category.type,
+				(categoryTypeTotals.get(category.type) ?? 0) + incidenciaTotalMonetaryValue
 			);
 		}
-		return {total, parentCategoryTotals};
+		return { total, categoryTypeTotals };
 	}
 	function updateCategoryTotalMonetaryValuesByEmployee(employee: Employee) {
 		for (const incidencia of employee.incidencias) {
@@ -119,7 +116,7 @@
 		>{formatMonetaryValue(employee.salary)}</td
 	>
 	{#each categoriasIncidencia as category}
-		{#if selectedParentCategories.value.includes(category.parentCategory)}
+		{#if selectedCategoryTypes.value.includes(category.type)}
 			{@const incidencia = incidenciasMapByCategory.get(category.id)}
 			<td class="border border-gray-500 px-4 py-2 text-nowrap">
 				{#if incidencia}
@@ -140,9 +137,9 @@
 			</td>
 		{/if}
 	{/each}
-	{#each selectedParentCategories.value as parentCategory}
-	<td class="border border-gray-500 px-4 py-2 text-nowrap">
-			{formatMonetaryValue(totals.byParentCategory.get(parentCategory)?.get(employee.id) ?? 0)}
+	{#each selectedCategoryTypes.value as categoryType}
+		<td class="border border-gray-500 px-4 py-2 text-nowrap">
+			{formatMonetaryValue(totals.byCategoryType.get(categoryType)?.get(employee.id) ?? 0)}
 		</td>
 	{/each}
 	<td class="sticky right-0 border border-gray-500 bg-gray-200 px-4 py-2 text-nowrap">

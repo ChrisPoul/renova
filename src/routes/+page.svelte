@@ -1,7 +1,7 @@
 <script lang="ts">
-	import { parentCategories } from '$lib/constants';
-	import { selectedParentCategories } from '$lib/stores.svelte';
-	import { getParentCategoryLabel } from '$lib/utils';
+	import { categoryTypes } from '$lib/constants';
+	import { selectedCategoryTypes } from '$lib/stores.svelte';
+	import { getCategoryTypeLabel } from '$lib/utils';
 	import AddCategory from './AddCategory.svelte';
 	import MainTable from './MainTable.svelte';
 
@@ -9,56 +9,49 @@
 		{
 			id: 1,
 			concept: 'Puertas Grandes',
-			type: 'percepcion',
-			parentCategory: 'destajo',
+			type: 'destajo',
 			unit: '',
 			unitMonetaryValue: 12
 		},
 		{
 			id: 2,
 			concept: 'Corte Junke',
-			type: 'percepcion',
-			parentCategory: 'destajo',
+			type: 'destajo',
 			unit: 'kg',
 			unitMonetaryValue: 20
 		},
 		{
 			id: 3,
 			concept: 'Corte Chapa',
-			type: 'percepcion',
-			parentCategory: 'destajo',
+			type: 'destajo',
 			unit: 'kg',
 			unitMonetaryValue: 15
 		},
 		{
 			id: 4,
 			concept: 'Corte Aluminio',
-			type: 'percepcion',
-			parentCategory: 'destajo',
+			type: 'destajo',
 			unit: 'kg',
 			unitMonetaryValue: 10
 		},
 		{
 			id: 5,
 			concept: 'Corte Vidrio',
-			type: 'percepcion',
-			parentCategory: 'destajo',
+			type: 'destajo',
 			unit: 'kg',
 			unitMonetaryValue: 5
 		},
 		{
 			id: 6,
 			concept: 'Bono Productividad',
-			type: 'percepcion',
-			parentCategory: 'bono',
+			type: 'bono',
 			unit: '$',
 			unitMonetaryValue: 1
 		},
 		{
 			id: 8,
 			concept: 'Tiempo Extra',
-			type: 'percepcion',
-			parentCategory: 'bono',
+			type: 'bono',
 			unit: 'horas',
 			unitMonetaryValue: 0
 		},
@@ -66,7 +59,6 @@
 			id: 7,
 			concept: 'Días de Destajo',
 			type: 'deduccion',
-			parentCategory: 'deduccion',
 			unit: 'días',
 			unitMonetaryValue: 0
 		}
@@ -106,25 +98,24 @@
 	]);
 </script>
 
-
 <div class="flex gap-2 p-2 font-bold text-white">
-	{#each parentCategories as category}
+	{#each categoryTypes as category}
 		<label
 			class={`${category} flex cursor-pointer items-center gap-1.5 rounded-lg p-2 hover:scale-105`}
 		>
 			<input
 				type="checkbox"
 				class="rounded-lg"
-				bind:group={selectedParentCategories.value}
+				bind:group={selectedCategoryTypes.value}
 				value={category}
 			/>
-			{getParentCategoryLabel(category)}
+			{getCategoryTypeLabel(category)}
 		</label>
 	{/each}
 	<button
 		class="flex cursor-pointer items-center gap-1.5 rounded-lg bg-slate-400 px-4 py-2 hover:scale-105"
 		onclick={() => {
-			selectedParentCategories.value = parentCategories;
+			selectedCategoryTypes.value = categoryTypes;
 		}}
 	>
 		Todo
@@ -132,7 +123,7 @@
 	<button
 		class="flex cursor-pointer items-center gap-1.5 rounded-lg bg-slate-400 px-4 py-2 hover:scale-105"
 		onclick={() => {
-			selectedParentCategories.value = [];
+			selectedCategoryTypes.value = [];
 		}}
 	>
 		Ninguno
