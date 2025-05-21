@@ -10,7 +10,7 @@
 			id: 1,
 			concept: 'Puertas Muy Grandes',
 			type: 'destajo',
-			unit: '',
+			unit: 'u',
 			unitMonetaryValue: 12
 		},
 		{
@@ -69,6 +69,8 @@
 			id: 1,
 			name: 'John Doe de la crem',
 			salary: 1000,
+			puesto: 'Operador',
+			area: 'Producción',
 			incidencias: [
 				{ id: 1, category: 1, amount: 100 },
 				{ id: 2, category: 2, amount: 15 },
@@ -84,6 +86,8 @@
 			id: 2,
 			name: 'Jane Smith',
 			salary: 1200,
+			puesto: 'Supervisor',
+			area: 'Producción',
 			incidencias: [
 				{ id: 7, category: 1, amount: 200 },
 				{ id: 8, category: 2, amount: 25 },

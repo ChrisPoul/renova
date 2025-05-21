@@ -27,8 +27,10 @@ declare global {
 	interface Employee {
 		id: number;
 		name: string;
-		incidencias: Incidencia[];
 		salary: number;
+		puesto: string;
+		area: string;
+		incidencias: Incidencia[];
 	}
 }
 

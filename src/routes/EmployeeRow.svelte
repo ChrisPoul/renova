@@ -4,6 +4,7 @@
 	import { formatMonetaryValue, validateAmount } from '$lib/utils';
 	import { categoryTypes } from '$lib/constants';
 	import UnitInputs from './UnitInputs.svelte';
+	import ModalMenu from './ModalMenu.svelte';
 
 	let {
 		employee,
@@ -119,44 +120,24 @@
 </script>
 
 {#if incidenciaToEdit}
-	<div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-		<div class="relative w-full max-w-md rounded-lg bg-white p-6 shadow-lg">
-			<button
-				class="absolute top-3 right-3 text-gray-500 hover:text-gray-700"
-				onclick={() => (incidenciaToEdit = null)}
-				aria-label="Close"
-			>
-				&times;
-			</button>
-			<h2 class="mb-4 text-lg font-semibold">Editar Incidencia</h2>
-			<div class="flex flex-col gap-2">
-				<UnitInputs
-					bind:unit={incidenciaToEdit.unit}
-					bind:unitMonetaryValue={incidenciaToEdit.unitMonetaryValue}
-				/>
-			</div>
-			<div class="flex justify-end gap-2">
-				<button
-					class="rounded bg-gray-200 px-4 py-2 text-gray-700 hover:bg-gray-300"
-					onclick={() => (incidenciaToEdit = null)}
-				>
-					Cancelar
-				</button>
-				<button
-					class="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
-					onclick={() => {
-						if (!incidenciaToEdit) return;
-						const category = categoriasIncidenciaMap.get(incidenciaToEdit.category);
-						if (!category) return;
-						updateIncidenciaAmount(incidenciaToEdit, category);
-						incidenciaToEdit = null;
-					}}
-				>
-					Aceptar
-				</button>
-			</div>
+	<ModalMenu
+		title="Editar Unidad"
+		onAccept={() => {
+			if (!incidenciaToEdit) return;
+			const category = categoriasIncidenciaMap.get(incidenciaToEdit.category);
+			if (!category) return;
+			updateIncidenciaAmount(incidenciaToEdit, category);
+			incidenciaToEdit = null;
+		}}
+		onCancel={() => (incidenciaToEdit = null)}
+	>
+		<div class="flex flex-col gap-2">
+			<UnitInputs
+				bind:unit={incidenciaToEdit.unit}
+				bind:unitMonetaryValue={incidenciaToEdit.unitMonetaryValue}
+			/>
 		</div>
-	</div>
+	</ModalMenu>
 {/if}
 
 <tr class="odd:bg-white even:bg-gray-50">

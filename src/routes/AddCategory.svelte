@@ -8,9 +8,7 @@
 	let categoryType = $state(categoryTypes[0]);
 	let unit = $state('kg');
 	let unitMonetaryValue = $state(1);
-	$effect(() => {
-		console.log(unit);
-	});
+	
 </script>
 
 <form class="m-10 rounded border border-gray-300 p-4">
