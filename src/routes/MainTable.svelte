@@ -6,10 +6,10 @@
 	import { categoryTypes } from '$lib/constants';
 
 	let {
-		categoriasIncidencia,
+		incidenceCategories,
 		employees
 	}: {
-		categoriasIncidencia: CategoriaIncidencia[];
+		incidenceCategories: IncidenceCategory[];
 		employees: Employee[];
 	} = $props();
 
@@ -64,9 +64,9 @@
 	<table class="m-2 border-collapse border border-gray-500">
 		<thead>
 			<tr class="bg-gray-100">
-				<th class="sticky left-0 bg-gray-300 t-cell">Empleado</th>
-				<th class="bg-gray-200 t-cell">Salario</th>
-				{#each categoriasIncidencia as category}
+				<th class="t-cell sticky left-0 bg-gray-300">Empleado</th>
+				<th class="t-cell bg-gray-200">Salario</th>
+				{#each incidenceCategories as category}
 					{#if selectedCategoryTypes.value.includes(category.type)}
 						<th class={`t-cell ${category.type}`}>
 							{category.concept}
@@ -83,35 +83,31 @@
 						Total {getCategoryTypeLabel(categoryType)}
 					</th>
 				{/each}
-				<th class="sticky right-0 t-cell bg-gray-300">Total</th>
+				<th class="t-cell sticky right-0 bg-gray-300">Total</th>
 			</tr>
 		</thead>
 		<tbody>
 			{#each employees as employee}
-				<EmployeeRow {employee} {categoriasIncidencia} />
+				<EmployeeRow {employee} {incidenceCategories} />
 			{/each}
 			<tr class="bg-gray-100">
-				<td class="sticky left-0 t-cell bg-gray-300 font-bold">Total</td>
+				<td class="t-cell sticky left-0 bg-gray-300 font-bold">Total</td>
 				<td class="t-cell bg-gray-200 text-nowrap">
 					{formatMonetaryValue(getTotalSalary())}
 				</td>
-				{#each categoriasIncidencia as category}
+				{#each incidenceCategories as category}
 					{#if selectedCategoryTypes.value.includes(category.type)}
-						<td
-							class={`t-cell text-nowrap ${category.type}-opaco`}
-						>
+						<td class={`t-cell text-nowrap ${category.type}-opaco`}>
 							{formatMonetaryValue(getCategoryTotalMonetaryValue(category.id))}
 						</td>
 					{/if}
 				{/each}
 				{#each selectedCategoryTypes.value as categoryType}
-					<td
-						class={`t-cell text-nowrap ${categoryType}-opaco`}
-					>
+					<td class={`t-cell text-nowrap ${categoryType}-opaco`}>
 						{formatMonetaryValue(totalsByCategoryType.get(categoryType) ?? 0)}
 					</td>
 				{/each}
-				<td class="sticky right-0 t-cell bg-gray-300 text-nowrap">
+				<td class="t-cell sticky right-0 bg-gray-300 text-nowrap">
 					{formatMonetaryValue(totalsByCategoryType.get('all') ?? 0)}
 				</td>
 			</tr>

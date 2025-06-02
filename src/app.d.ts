@@ -10,19 +10,19 @@ declare global {
 		// interface Platform {}
 	}
 	type CategoryType = 'destajo' | 'bono' | 'deduccion';
-	interface CategoriaIncidencia {
+	interface IncidenceCategory {
 		id: number;
 		concept: string;
 		type: CategoryType;
 		unit: string;
 		unitMonetaryValue: number;
 	}
-	interface Incidencia {
+	interface Incidence {
 		id: number;
 		category: number;
 		amount: number;
 		unitMonetaryValue?: number;
-		unit?: string
+		unit?: string;
 	}
 	interface Employee {
 		id: number;
@@ -30,7 +30,7 @@ declare global {
 		salary: number;
 		puesto: string;
 		area: string;
-		incidencias: Incidencia[];
+		incidencias: Incidence[];
 	}
 }
 

@@ -1,22 +1,22 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { selectedCategoryTypes, totals } from '$lib/stores.svelte';
-	import { formatMonetaryValue, getIncidenciaTotalMonetaryValue, validateAmount } from '$lib/utils';
+	import { formatMonetaryValue, getIncidenceTotalMonetaryValue, validateAmount } from '$lib/utils';
 	import { categoryTypes } from '$lib/constants';
-	import IncidenciaCell from './IncidenciaCell.svelte';
+	import IncidenceCell from './IncidenceCell.svelte';
 
 	let {
 		employee,
-		categoriasIncidencia
+		incidenceCategories
 	}: {
 		employee: Employee;
-		categoriasIncidencia: CategoriaIncidencia[];
+		incidenceCategories: IncidenceCategory[];
 	} = $props();
 
-	let categoriasIncidenciaMap = new Map<number, CategoriaIncidencia>(
-		categoriasIncidencia.map((category) => [category.id, category])
+	let incidenceCategoriesMap = new Map<number, IncidenceCategory>(
+		incidenceCategories.map((category) => [category.id, category])
 	);
-	let incidenciasMapByCategory = new Map<number, Incidencia>(
+	let incidenciasMapByCategory = new Map<number, Incidence>(
 		employee.incidencias.map((incidencia) => [incidencia.category, incidencia])
 	);
 
@@ -40,10 +40,10 @@
 		}
 		return total;
 	}
-	function updateIncidenciaAmount(incidencia: Incidencia, category: CategoriaIncidencia) {
+	function updateIncidenceAmount(incidencia: Incidence, category: IncidenceCategory) {
 		incidencia.amount = validateAmount(incidencia.amount);
 		setEmployeeTotalsByCategoryType();
-		setCategoryTotalByIncidencia(incidencia, category);
+		setCategoryTotalByIncidence(incidencia, category);
 		totals.byCategory = new Map(totals.byCategory);
 	}
 	function setEmployeeTotalsByCategoryType() {
@@ -51,13 +51,13 @@
 			totals.byCategoryType.get(categoryType)?.set(employee.id, 0);
 		}
 		for (const incidencia of employee.incidencias) {
-			const category = categoriasIncidenciaMap.get(incidencia.category);
+			const category = incidenceCategoriesMap.get(incidencia.category);
 			if (!category) continue;
 			let categoryTypeTotals = totals.byCategoryType.get(category.type);
 			if (!categoryTypeTotals) {
 				categoryTypeTotals = new Map([[employee.id, 0]]);
 			}
-			const incidenciaTotal = getIncidenciaTotalMonetaryValue(incidencia, category, employee);
+			const incidenciaTotal = getIncidenceTotalMonetaryValue(incidencia, category, employee);
 			const prevTotal = categoryTypeTotals.get(employee.id) ?? 0;
 			categoryTypeTotals.set(employee.id, prevTotal + incidenciaTotal);
 			totals.byCategoryType.set(category.type, categoryTypeTotals);
@@ -66,21 +66,21 @@
 	}
 	function updateCategoryTotalMonetaryValuesByEmployee(employee: Employee) {
 		for (const incidencia of employee.incidencias) {
-			const category = categoriasIncidenciaMap.get(incidencia.category);
+			const category = incidenceCategoriesMap.get(incidencia.category);
 			if (!category) continue;
-			setCategoryTotalByIncidencia(incidencia, category);
+			setCategoryTotalByIncidence(incidencia, category);
 		}
 		totals.byCategory = new Map(totals.byCategory);
 	}
-	function setCategoryTotalByIncidencia(incidencia: Incidencia, category: CategoriaIncidencia) {
-		let incidenciaTotalMonetaryValue = getIncidenciaTotalMonetaryValue(
+	function setCategoryTotalByIncidence(incidencia: Incidence, category: IncidenceCategory) {
+		let incidenciaTotalMonetaryValue = getIncidenceTotalMonetaryValue(
 			incidencia,
 			category,
 			employee
 		);
-		const categoryIncidencias = totals.byCategory.get(category.id);
-		if (categoryIncidencias) {
-			categoryIncidencias.set(employee.id, incidenciaTotalMonetaryValue);
+		const categoryIncidences = totals.byCategory.get(category.id);
+		if (categoryIncidences) {
+			categoryIncidences.set(employee.id, incidenciaTotalMonetaryValue);
 		} else {
 			totals.byCategory.set(
 				incidencia.category,
@@ -93,8 +93,8 @@
 <tr class="odd:bg-white even:bg-gray-50">
 	<td class="t-cell sticky left-0 bg-gray-200 text-nowrap">{employee.name}</td>
 	<td class="t-cell text-nowrap">{formatMonetaryValue(employee.salary)}</td>
-	{#each categoriasIncidencia as category}
-		<IncidenciaCell {category} {employee} {incidenciasMapByCategory} {updateIncidenciaAmount} />
+	{#each incidenceCategories as category}
+		<IncidenceCell {category} {employee} {incidenciasMapByCategory} {updateIncidenceAmount} />
 	{/each}
 	{#each selectedCategoryTypes.value as categoryType}
 		<td class="t-cell text-nowrap">

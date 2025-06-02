@@ -5,7 +5,7 @@
 	import AddCategory from './AddCategory.svelte';
 	import MainTable from './MainTable.svelte';
 
-	const categoriasIncidencia: CategoriaIncidencia[] = [
+	const incidenceCategories: IncidenceCategory[] = [
 		{
 			id: 1,
 			concept: 'Puertas Muy Grandes',
@@ -135,7 +135,7 @@
 </div>
 
 <div class="pt-16">
-	<MainTable {employees} {categoriasIncidencia} />
+	<MainTable {employees} {incidenceCategories} />
 </div>
 
 <AddCategory />

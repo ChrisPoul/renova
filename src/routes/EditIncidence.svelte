@@ -3,13 +3,13 @@
 	import UnitInputs from './UnitInputs.svelte';
 
 	let {
-		incidencia=$bindable(),
+		incidencia = $bindable(),
 		category,
-		updateIncidenciaAmount
+		updateIncidenceAmount
 	}: {
-		incidencia: Incidencia;
-		category: CategoriaIncidencia;
-		updateIncidenciaAmount: (incidencia: Incidencia, category: CategoriaIncidencia) => void;
+		incidencia: Incidence;
+		category: IncidenceCategory;
+		updateIncidenceAmount: (incidencia: Incidence, category: IncidenceCategory) => void;
 	} = $props();
 
 	let isMenuOpen = $state(false);
@@ -17,9 +17,9 @@
 	let unit = $state(incidencia.unit || category.unit);
 
 	function acceptChanges() {
-    incidencia.unitMonetaryValue = unitMonetaryValue;
-    incidencia.unit = unit;
-		updateIncidenciaAmount(incidencia, category);
+		incidencia.unitMonetaryValue = unitMonetaryValue;
+		incidencia.unit = unit;
+		updateIncidenceAmount(incidencia, category);
 		isMenuOpen = false;
 	}
 </script>

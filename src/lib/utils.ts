@@ -32,18 +32,18 @@ export function validateAmount(amount: number) {
 	return parseFloat(truncatedString);
 }
 
-export function getIncidenciaTotalMonetaryValue(
-	incidencia: Incidencia,
-	category: CategoriaIncidencia,
+export function getIncidenceTotalMonetaryValue(
+	incidencia: Incidence,
+	category: IncidenceCategory,
 	employee: Employee
 ) {
-	const unitMonetaryValue = getIncidenciaUnitMonetaryValue(incidencia, category, employee);
+	const unitMonetaryValue = getIncidenceUnitMonetaryValue(incidencia, category, employee);
 	return incidencia.amount * unitMonetaryValue;
 }
 
-export function getIncidenciaUnitMonetaryValue(
-	incidencia: Incidencia,
-	category: CategoriaIncidencia,
+export function getIncidenceUnitMonetaryValue(
+	incidencia: Incidence,
+	category: IncidenceCategory,
 	employee: Employee
 ) {
 	let unit = incidencia.unit;

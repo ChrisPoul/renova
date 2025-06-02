@@ -2,20 +2,20 @@
 	import { selectedCategoryTypes } from '$lib/stores.svelte';
 	import {
 		formatMonetaryValue,
-		getIncidenciaTotalMonetaryValue,
-		getIncidenciaUnitMonetaryValue,
+		getIncidenceTotalMonetaryValue,
+		getIncidenceUnitMonetaryValue
 	} from '$lib/utils';
-	import EditIncidencia from './EditIncidencia.svelte';
+	import EditIncidence from './EditIncidence.svelte';
 	let {
 		category,
 		employee,
 		incidenciasMapByCategory,
-		updateIncidenciaAmount
+		updateIncidenceAmount
 	}: {
-		category: CategoriaIncidencia;
+		category: IncidenceCategory;
 		employee: Employee;
-		incidenciasMapByCategory: Map<number, Incidencia>;
-		updateIncidenciaAmount: (incidencia: Incidencia, category: CategoriaIncidencia) => void;
+		incidenciasMapByCategory: Map<number, Incidence>;
+		updateIncidenceAmount: (incidencia: Incidence, category: IncidenceCategory) => void;
 	} = $props();
 	let incidencia = $derived(incidenciasMapByCategory.get(category.id));
 </script>
@@ -31,7 +31,7 @@
 					class="rounded-md border border-gray-500 px-2 py-1"
 					oninput={() => {
 						if (!incidencia) return;
-						updateIncidenciaAmount(incidencia, category);
+						updateIncidenceAmount(incidencia, category);
 					}}
 					style="width: {`${(incidencia.amount?.toString().length || 1) + 4}ch`}; min-width: 8ch;"
 				/>
@@ -44,14 +44,12 @@
 					<div class="ml-auto flex flex-col">
 						<div class="ml-auto flex items-center">
 							<span class="text-sm leading-none text-gray-500">
-								{formatMonetaryValue(
-									getIncidenciaUnitMonetaryValue(incidencia, category, employee)
-								)}
+								{formatMonetaryValue(getIncidenceUnitMonetaryValue(incidencia, category, employee))}
 							</span>
-							<EditIncidencia bind:incidencia {category} {updateIncidenciaAmount} />
+							<EditIncidence bind:incidencia {category} {updateIncidenceAmount} />
 						</div>
 						<span class="leading-none text-gray-500">
-							{formatMonetaryValue(getIncidenciaTotalMonetaryValue(incidencia, category, employee))}
+							{formatMonetaryValue(getIncidenceTotalMonetaryValue(incidencia, category, employee))}
 						</span>
 					</div>
 				{/if}
