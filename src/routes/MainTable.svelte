@@ -3,7 +3,6 @@
 	import { selectedCategoryTypes, totals } from '$lib/stores.svelte';
 	import { formatMonetaryValue, getCategoryTypeLabel } from '$lib/utils';
 	import * as XLSX from 'xlsx';
-	import { categoryTypes } from '$lib/constants';
 	import EditCategory from './EditCategory.svelte';
 
 	let {
@@ -57,7 +56,88 @@
 		return total;
 	}
 	function generateExcelReport() {
-		return undefined;
+		const headers = [
+			'Empleado',
+			'Salario',
+			...incidenceCategories
+				.filter((cat) => selectedCategoryTypes.value.includes(cat.type))
+				.map((cat) => cat.concept),
+			...selectedCategoryTypes.value.map((type) => `Total ${getCategoryTypeLabel(type)}`),
+			'Total'
+		];
+
+		const data = [headers];
+
+		// Prepare rows
+		for (const employee of employees) {
+			const row = [employee.name, formatMonetaryValue(employee.salary)];
+
+			for (const category of incidenceCategories) {
+				if (!selectedCategoryTypes.value.includes(category.type)) continue;
+				const incidencia = employee.incidencias.find((i) => i.category === category.id);
+				if (incidencia) {
+					const unit = incidencia.unit || category.unit;
+					const unitMonetaryValue = incidencia.unitMonetaryValue ?? category.unitMonetaryValue;
+					const total = incidencia.amount * unitMonetaryValue || 0;
+					row.push(`${incidencia.amount} (${formatMonetaryValue(total)})`);
+				} else {
+					row.push('');
+				}
+			}
+
+			for (const categoryType of selectedCategoryTypes.value) {
+				// You may want to use your getCategoryTypeTotalMonetaryValue here
+				const typeTotal = totals.byCategoryType.get(categoryType)?.get(employee.id) ?? 0;
+				row.push(formatMonetaryValue(typeTotal));
+			}
+
+			// Employee total
+			const employeeTotal = (() => {
+				let total = 0;
+				for (const categoryType of selectedCategoryTypes.value) {
+					const categoryTypeTotal = totals.byCategoryType.get(categoryType)?.get(employee.id) ?? 0;
+					if (categoryType === 'deduccion') {
+						total -= categoryTypeTotal;
+					} else {
+						total += categoryTypeTotal;
+					}
+				}
+				return formatMonetaryValue(total);
+			})();
+			row.push(employeeTotal);
+
+			data.push(row);
+		}
+
+		// Add totals row
+		const totalsRow = ['Total', formatMonetaryValue(getTotalSalary())];
+		for (const category of incidenceCategories) {
+			if (!selectedCategoryTypes.value.includes(category.type)) continue;
+			totalsRow.push(formatMonetaryValue(getCategoryTotalMonetaryValue(category.id)));
+		}
+		for (const categoryType of selectedCategoryTypes.value) {
+			totalsRow.push(formatMonetaryValue(totalsByCategoryType.get(categoryType) ?? 0));
+		}
+		totalsRow.push(formatMonetaryValue(totalsByCategoryType.get('all') ?? 0));
+		data.push(totalsRow);
+
+		// Calculate column widths
+		const colWidths = headers.map(
+			(_, colIdx) =>
+				Math.max(
+					...data.map((row) => (row[colIdx] ? row[colIdx].toString().length : 10)),
+					headers[colIdx].length
+				) + 2 // add some padding
+		);
+
+		// Create worksheet and set column widths
+		const ws = XLSX.utils.aoa_to_sheet(data);
+		ws['!cols'] = colWidths.map((w) => ({ wch: w }));
+
+		const wb = XLSX.utils.book_new();
+		XLSX.utils.book_append_sheet(wb, ws, 'Reporte');
+
+		XLSX.writeFile(wb, 'reporte.xlsx');
 	}
 </script>
 
@@ -71,10 +151,10 @@
 					{#if selectedCategoryTypes.value.includes(category.type)}
 						<th class={`t-cell ${category.type}`}>
 							{category.concept}
-								<span class="text-sm font-normal">
-									{formatMonetaryValue(category.unitMonetaryValue)}
-								</span>
-								<EditCategory {category} />
+							<span class="text-sm font-normal">
+								{formatMonetaryValue(category.unitMonetaryValue)}
+							</span>
+							<EditCategory {category} />
 						</th>
 					{/if}
 				{/each}

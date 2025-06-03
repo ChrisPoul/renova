@@ -7,7 +7,9 @@ export const db = drizzle('file:local.db', { schema });
 
 // Get all incidence categories
 export async function getAllIncidenceCategories() {
-	return db.query.incidenceCategoriesTable.findMany();
+  return db.query.incidenceCategoriesTable.findMany({
+    orderBy: (table, { desc }) => [desc(table.type)]
+  });
 }
 
 export async function getAllEmployeesWithIncidences() {

@@ -5,8 +5,10 @@
 	import AddCategory from './AddCategory.svelte';
 	import MainTable from './MainTable.svelte';
 
-	export let data;
-	let { employees, incidenceCategories } = data;
+	let {data} = $props()
+	let employees = $state(data.employees);
+	let incidenceCategories = $state(data.incidenceCategories);
+
 </script>
 
 <div class="fixed top-0 left-0 z-20 flex gap-2 p-2 font-bold text-white">

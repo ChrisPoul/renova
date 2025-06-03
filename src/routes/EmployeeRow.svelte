@@ -40,12 +40,23 @@
 		}
 		return total;
 	}
-	function updateIncidenceAmount(incidencia: Incidence, category: IncidenceCategory) {
+	async function updateIncidenceAmount(incidencia: Incidence, category: IncidenceCategory) {
 		incidencia.amount = validateAmount(incidencia.amount);
 		setEmployeeTotalsByCategoryType();
 		setCategoryTotalByIncidence(incidencia, category);
 		totals.byCategory = new Map(totals.byCategory);
+		await fetch('/api/incidence', {
+			method: 'PATCH',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({
+				id: incidencia.id,
+				amount: incidencia.amount,
+				unit: incidencia.unit,
+				unitMonetaryValue: incidencia.unitMonetaryValue
+			})
+		});
 	}
+
 	function setEmployeeTotalsByCategoryType() {
 		for (const categoryType of categoryTypes) {
 			totals.byCategoryType.get(categoryType)?.set(employee.id, 0);

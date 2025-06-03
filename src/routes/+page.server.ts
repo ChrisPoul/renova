@@ -4,7 +4,11 @@ import {
 	makeDummyData
 } from '$lib/server/db/index';
 import { db } from '$lib/server/db/index';
-import { incidenceCategoriesTable } from '$lib/server/db/schema';
+import {
+	incidenceCategoriesTable,
+	employeesTable,
+	incidencesTable
+} from '$lib/server/db/schema';
 import { fail } from '@sveltejs/kit';
 import { eq } from 'drizzle-orm';
 
@@ -37,7 +41,8 @@ export const actions = {
 			return fail(400, { error: 'Todos los campos son obligatorios.' });
 		}
 
-		await db
+		// Insert the new category and get its ID
+		const result = await db
 			.insert(incidenceCategoriesTable)
 			.values({
 				concept,
@@ -45,10 +50,26 @@ export const actions = {
 				unit,
 				unitMonetaryValue
 			})
-			.run();
+			.returning({ id: incidenceCategoriesTable.id })
+			.get();
 
-		// Optionally redirect or return success
-		console.log('Category added successfully');
+		const newCategoryId = result.id;
+
+		// Fetch all employees
+		const employees = await db.select().from(employeesTable).all();
+
+		// Create an incidence for each employee for the new category
+		const newIncidences = employees.map((emp) => ({
+			employee: emp.id,
+			category: newCategoryId,
+			amount: 0 // or any default value you want
+		}));
+
+		if (newIncidences.length > 0) {
+			await db.insert(incidencesTable).values(newIncidences).run();
+		}
+
+		console.log('Category and incidences added successfully');
 		return { success: true };
 	},
 	editCategory: async ({ request }) => {
@@ -71,18 +92,15 @@ export const actions = {
 
 		return { success: true };
 	},
-  deleteCategory: async ({ request }) => {
-    const form = await request.formData();
-    console.log("Deleting category");
-    const id = Number(form.get('id'));
-    if (!id) {
-      return fail(400, { error: 'ID de categoría es obligatorio.' });
-    }
-    await db
-      .delete(incidenceCategoriesTable)
-      .where(eq(incidenceCategoriesTable.id, id))
-      .run();
+	deleteCategory: async ({ request }) => {
+		const form = await request.formData();
+		console.log('Deleting category');
+		const id = Number(form.get('id'));
+		if (!id) {
+			return fail(400, { error: 'ID de categoría es obligatorio.' });
+		}
+		await db.delete(incidenceCategoriesTable).where(eq(incidenceCategoriesTable.id, id)).run();
 
-    return { success: true };
-  }
+		return { success: true };
+	}
 };
