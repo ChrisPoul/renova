@@ -1,1 +1,1 @@
-export const categoryTypes: CategoryType[] = ['destajo', 'bono', 'deduccion'];
+export const categoryTypes = ['destajo', 'bono', 'deduccion'];

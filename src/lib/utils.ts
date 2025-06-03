@@ -10,8 +10,8 @@ export function formatMonetaryValue(value: number) {
 export function capitalizeFirstLetter(string: string) {
 	return string.charAt(0).toUpperCase() + string.slice(1);
 }
-export function getCategoryTypeLabel(category: CategoryType) {
-	category = capitalizeFirstLetter(category) as CategoryType;
+export function getCategoryTypeLabel(category: string) {
+	category = capitalizeFirstLetter(category);
 	if (category.endsWith('ccion')) {
 		return category.replace(/ccion$/, 'cción');
 	}

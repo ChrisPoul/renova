@@ -37,7 +37,7 @@
 
 		return totalsByCategoryType;
 	}
-	function getCategoryTypeTotalMonetaryValue(categoryType: CategoryType) {
+	function getCategoryTypeTotalMonetaryValue(categoryType: string) {
 		let total = 0;
 		const categoryTypeTotals = totals.byCategoryType.get(categoryType);
 		if (!categoryTypeTotals) return 0;

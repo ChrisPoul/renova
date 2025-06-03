@@ -7,7 +7,7 @@ type incidenciaTotal = number;
 
 interface Totals {
 	byCategory: Map<categoryID, Map<employeeID, incidenciaTotal>>;
-	byCategoryType: Map<CategoryType, Map<employeeID, employeeTotal>>;
+	byCategoryType: Map<string, Map<employeeID, employeeTotal>>;
 }
 
 export const totals = $state<Totals>({

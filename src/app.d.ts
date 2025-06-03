@@ -9,11 +9,10 @@ declare global {
 		// interface PageState {}
 		// interface Platform {}
 	}
-	type CategoryType = 'destajo' | 'bono' | 'deduccion';
 	interface IncidenceCategory {
 		id: number;
 		concept: string;
-		type: CategoryType;
+		type: string;
 		unit: string;
 		unitMonetaryValue: number;
 	}
