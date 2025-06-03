@@ -4,18 +4,20 @@
 	import UnitInputs from './UnitInputs.svelte';
 
 	let concept = $state('');
-	let type = $state('percepcion');
-	let categoryType = $state(categoryTypes[0]);
+	let type = $state(categoryTypes[0]);
 	let unit = $state('kg');
 	let unitMonetaryValue = $state(1);
-	
 </script>
 
-<form class="m-10 rounded border border-gray-300 p-4">
+<form
+	method="POST"
+	action="?/addCategory"
+	class="m-10 rounded border border-gray-300 p-4"
+>
 	<div class="mb-4">
 		<label class="mb-1 block text-sm font-medium" for="concept">Concepto</label>
 		<input
-			id="concept"
+			name="concept"
 			type="text"
 			bind:value={concept}
 			class="w-full rounded border border-gray-300 px-2 py-1"
@@ -24,18 +26,7 @@
 	</div>
 	<div class="mb-4">
 		<label class="mb-1 block text-sm font-medium" for="type">Tipo</label>
-		<select id="type" bind:value={type} class="w-full rounded border border-gray-300 px-2 py-1">
-			<option value="percepcion">Percepción</option>
-			<option value="deduccion">Deducción</option>
-		</select>
-	</div>
-	<div class="mb-4">
-		<label class="mb-1 block text-sm font-medium" for="categoryType">Categoría</label>
-		<select
-			id="categoryType"
-			bind:value={categoryType}
-			class="w-full rounded border border-gray-300 px-2 py-1"
-		>
+		<select name="type" bind:value={type} class="w-full rounded border border-gray-300 px-2 py-1">
 			{#each categoryTypes as category}
 				<option value={category}>{getCategoryTypeLabel(category)}</option>
 			{/each}

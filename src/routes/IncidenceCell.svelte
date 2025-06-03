@@ -40,7 +40,6 @@
 				{:else}
 					{category.unit}
 				{/if}
-				{#if category.unitMonetaryValue !== 1}
 					<div class="ml-auto flex flex-col">
 						<div class="ml-auto flex items-center">
 							<span class="text-sm leading-none text-gray-500">
@@ -52,7 +51,6 @@
 							{formatMonetaryValue(getIncidenceTotalMonetaryValue(incidencia, category, employee))}
 						</span>
 					</div>
-				{/if}
 			</div>
 		{/if}
 	</td>

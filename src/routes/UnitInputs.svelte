@@ -9,7 +9,7 @@
 
 <div>
 	<label class="mb-1 block text-sm font-medium" for="unit">Unidad</label>
-	<select id="unit" bind:value={unit} class="w-full rounded border border-gray-300 px-2 py-1">
+	<select name="unit" bind:value={unit} class="w-full rounded border border-gray-300 px-2 py-1">
 		{#each unitOptions as option}
 			<option value={option}>
 				{#if option === 'u'}
@@ -26,7 +26,7 @@
 		>Valor Monetario por Unidad</label
 	>
 	<input
-		id="unitMonetaryValue"
+		name="unitMonetaryValue"
 		type="number"
 		step="0.01"
 		bind:value={unitMonetaryValue}

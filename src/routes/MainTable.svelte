@@ -4,6 +4,7 @@
 	import { formatMonetaryValue, getCategoryTypeLabel } from '$lib/utils';
 	import * as XLSX from 'xlsx';
 	import { categoryTypes } from '$lib/constants';
+	import EditCategory from './EditCategory.svelte';
 
 	let {
 		incidenceCategories,
@@ -70,11 +71,10 @@
 					{#if selectedCategoryTypes.value.includes(category.type)}
 						<th class={`t-cell ${category.type}`}>
 							{category.concept}
-							{#if category.unitMonetaryValue !== 1 && category.unitMonetaryValue !== 0}
 								<span class="text-sm font-normal">
 									{formatMonetaryValue(category.unitMonetaryValue)}
 								</span>
-							{/if}
+								<EditCategory {category} />
 						</th>
 					{/if}
 				{/each}

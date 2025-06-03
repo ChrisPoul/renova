@@ -1,19 +1,29 @@
 import { drizzle } from 'drizzle-orm/libsql';
+import { eq } from 'drizzle-orm';
 import * as schema from './schema';
+
 
 export const db = drizzle('file:local.db', { schema });
 
 // Get all incidence categories
 export async function getAllIncidenceCategories() {
-	return db.query.incidenceCategories.findMany();
+	return db.query.incidenceCategoriesTable.findMany();
 }
 
 export async function getAllEmployeesWithIncidences() {
-	return db.query.employees.findMany({
+	return db.query.employeesTable.findMany({
 		with: {
 			incidencias: true
 		}
 	});
+}
+
+export async function updateIncidenceCategory(categoryID:number, data) {
+  await db
+        .update(schema.incidenceCategoriesTable)
+        .set(data)
+        .where(eq(schema.incidenceCategoriesTable.id, categoryID))
+        .run();
 }
 
 export async function makeDummyData() {
@@ -51,8 +61,8 @@ export async function makeDummyData() {
 		{ id: 16, employee: 2, category: 8, amount: 4 }
 	];
 
-	await db.insert(schema.incidenceCategories).values(incidenceCategories).run();
-	await db.insert(schema.employees).values(employees).run();
-	await db.insert(schema.incidences).values(incidencias).run();
+	await db.insert(schema.incidenceCategoriesTable).values(incidenceCategories).run();
+	await db.insert(schema.employeesTable).values(employees).run();
+	await db.insert(schema.incidencesTable).values(incidencias).run();
   console.log('Dummy data inserted successfully');
 }
