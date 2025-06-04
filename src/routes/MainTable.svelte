@@ -24,6 +24,8 @@
 		<thead>
 			<tr class="bg-gray-100">
 				<th class="t-cell sticky left-0 bg-gray-300">Empleado</th>
+				<th class="t-cell bg-gray-200">Área</th>
+				<th class="t-cell bg-gray-200">Puesto</th>
 				<th class="t-cell bg-gray-200">Salario</th>
 				{#each incidenceCategories as category}
 					{#if selectedCategoryTypes.value.includes(category.type)}
@@ -50,6 +52,8 @@
 			{/each}
 			<tr class="bg-gray-100">
 				<td class="t-cell sticky left-0 bg-gray-300 font-bold">Total</td>
+				<td class="t-cell bg-gray-200"></td>
+				<td class="t-cell bg-gray-200"></td>
 				<td class="t-cell bg-gray-200 text-nowrap">
 					{formatMonetaryValue(getTotalSalary())}
 				</td>

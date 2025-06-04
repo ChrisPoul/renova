@@ -103,6 +103,8 @@
 
 <tr class="odd:bg-white even:bg-gray-50">
 	<td class="t-cell sticky left-0 bg-gray-200 text-nowrap">{employee.name}</td>
+	<td class="t-cell text-nowrap">{employee.area}</td>
+	<td class="t-cell text-nowrap">{employee.puesto}</td>
 	<td class="t-cell text-nowrap">{formatMonetaryValue(employee.salary)}</td>
 	{#each incidenceCategories as category}
 		<IncidenceCell {category} {employee} {incidenciasMapByCategory} {updateIncidenceAmount} />
