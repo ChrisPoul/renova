@@ -10,8 +10,6 @@
 </script>
 
 <form
-	method="POST"
-	action="?/addCategory"
 	class="m-10 rounded border border-gray-300 p-4"
 >
 	<div class="mb-4">

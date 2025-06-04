@@ -20,23 +20,14 @@
 		incidencia.unitMonetaryValue = unitMonetaryValue;
 		incidencia.unit = unit;
 		updateIncidenceAmount(incidencia, category);
-		isMenuOpen = false;
 	}
 </script>
 
-<button
-	class="ml-0.5 w-4"
-	tabindex="-1"
-	onclick={() => {
-		isMenuOpen = true;
-	}}
->
-	<img class="bg-white" src="/EditIcon.svg" alt="" />
-</button>
-{#if isMenuOpen}
-	<ModalMenu title="Editar Unidad" onAccept={acceptChanges} onCancel={() => (isMenuOpen = false)}>
-		<div class="flex flex-col gap-2">
-			<UnitInputs bind:unit bind:unitMonetaryValue />
-		</div>
-	</ModalMenu>
-{/if}
+<ModalMenu title="Editar Unidad" onAccept={acceptChanges} onCancel={() => (isMenuOpen = false)}>
+	<div class="flex flex-col gap-2">
+		<UnitInputs bind:unit bind:unitMonetaryValue />
+	</div>
+	{#snippet openButton()}
+		<img class="ml-0.5 w-4 bg-white" src="/EditIcon.svg" alt="" />
+	{/snippet}
+</ModalMenu>

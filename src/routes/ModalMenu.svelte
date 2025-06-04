@@ -3,12 +3,19 @@
 
 	let {
 		children,
+		openButton,
 		title,
 		onAccept = () => {},
 		onCancel = () => {}
-	}: { children: Snippet; title: string; onAccept?: () => void; onCancel?: () => void } = $props();
+	}: {
+		children: Snippet;
+		openButton: Snippet;
+		title: string;
+		onAccept?: () => void;
+		onCancel?: () => void;
+	} = $props();
 
-	let isMenuOpen = $state(true);
+	let isMenuOpen = $state(false);
 
 	function toggleMenu() {
 		isMenuOpen = !isMenuOpen;
@@ -23,6 +30,9 @@
 	}
 </script>
 
+<button onclick={toggleMenu} tabindex="-1">
+	{@render openButton()}
+</button>
 {#if isMenuOpen}
 	<button aria-label="Close Menu" onclick={toggleMenu} class="fixed inset-0 z-40 bg-black/50"
 	></button>
@@ -44,10 +54,7 @@
 				>
 					Cancelar
 				</button>
-				<button
-					class="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
-					onclick={accept}
-				>
+				<button class="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700" onclick={accept}>
 					Aceptar
 				</button>
 			</div>

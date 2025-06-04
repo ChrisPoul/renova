@@ -19,9 +19,9 @@ export const incidenceCategoriesTable = sqliteTable('incidence_categories', {
 
 export const incidencesTable = sqliteTable('incidences', {
 	id: int('id').primaryKey(),
-	category: int('category')
+	category: int()
 		.notNull()
-		.references(() => incidenceCategoriesTable.id),
+		.references(() => incidenceCategoriesTable.id, { onDelete: 'cascade' }), // <-- Add this
 	employee: int('employee')
 		.notNull()
 		.references(() => employeesTable.id),
