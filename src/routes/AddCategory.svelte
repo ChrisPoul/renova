@@ -8,12 +8,6 @@
 	let unitMonetaryValue = $state(1);
 
 	async function acceptChanges() {
-		console.log('Adding new category:', {
-			concept,
-			type,
-			unit,
-			unitMonetaryValue
-		});
 		await fetch('/api/category', {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
@@ -24,6 +18,7 @@
 				unitMonetaryValue
 			})
 		});
+		location.reload();
 	}
 </script>
 
