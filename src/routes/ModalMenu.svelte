@@ -3,13 +3,13 @@
 
 	let {
 		children,
-		openButton,
+		triggerButton,
 		title,
 		onAccept = () => {},
 		onCancel = () => {}
 	}: {
 		children: Snippet;
-		openButton: Snippet;
+		triggerButton: Snippet;
 		title: string;
 		onAccept?: () => void;
 		onCancel?: () => void;
@@ -31,7 +31,7 @@
 </script>
 
 <button onclick={toggleMenu} tabindex="-1">
-	{@render openButton()}
+	{@render triggerButton()}
 </button>
 {#if isMenuOpen}
 	<button aria-label="Close Menu" onclick={toggleMenu} class="fixed inset-0 z-40 bg-black/50"

@@ -27,7 +27,7 @@
 	<div class="flex flex-col gap-2">
 		<UnitInputs bind:unit bind:unitMonetaryValue />
 	</div>
-	{#snippet openButton()}
+	{#snippet triggerButton()}
 		<img class="ml-0.5 w-4 bg-white" src="/EditIcon.svg" alt="" />
 	{/snippet}
 </ModalMenu>
