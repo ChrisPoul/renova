@@ -21,10 +21,10 @@ export const incidencesTable = sqliteTable('incidences', {
 	id: int('id').primaryKey(),
 	category: int()
 		.notNull()
-		.references(() => incidenceCategoriesTable.id, { onDelete: 'cascade' }), // <-- Add this
+		.references(() => incidenceCategoriesTable.id, { onDelete: 'cascade' }),
 	employee: int('employee')
 		.notNull()
-		.references(() => employeesTable.id),
+		.references(() => employeesTable.id, {onDelete: 'cascade' }),
 	amount: real('amount').notNull(),
 	unitMonetaryValue: real('unitMonetaryValue'),
 	unit: text('unit')

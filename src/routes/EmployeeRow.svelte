@@ -4,6 +4,7 @@
 	import { formatMonetaryValue, getIncidenceTotalMonetaryValue, validateAmount } from '$lib/utils';
 	import { categoryTypes } from '$lib/constants';
 	import IncidenceCell from './IncidenceCell.svelte';
+	import EditEmployee from './EditEmployee.svelte';
 
 	let {
 		employee,
@@ -102,7 +103,10 @@
 </script>
 
 <tr class="odd:bg-white even:bg-gray-50">
-	<td class="t-cell sticky left-0 bg-gray-200 text-nowrap">{employee.name}</td>
+	<td class="t-cell sticky left-0 bg-gray-200 text-nowrap">
+		{employee.name}
+		<EditEmployee {employee} />
+	</td>
 	<td class="t-cell text-nowrap">{employee.area}</td>
 	<td class="t-cell text-nowrap">{employee.puesto}</td>
 	<td class="t-cell text-nowrap">{formatMonetaryValue(employee.salary)}</td>
