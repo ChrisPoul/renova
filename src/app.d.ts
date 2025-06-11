@@ -15,13 +15,16 @@ declare global {
 		type: string;
 		unit: string;
 		unitMonetaryValue: number;
+		unitValueIsDerived: boolean;
 	}
 	interface Incidence {
 		id: number;
 		category: number;
 		amount: number;
-		unitMonetaryValue?: number;
-		unit?: string;
+		basedOnCategory: boolean;
+		unitMonetaryValue: number;
+		unit: string;
+		unitValueIsDerived: boolean;
 	}
 	interface Employee {
 		id: number;

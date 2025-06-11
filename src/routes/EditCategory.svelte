@@ -11,8 +11,12 @@
 	let type = $state(category.type);
 	let unit = $state(category.unit);
 	let unitMonetaryValue = $state(category.unitMonetaryValue);
+	let unitValueIsDerived = $state(category.unitValueIsDerived);
 
 	async function acceptChanges() {
+		if (unitValueIsDerived) {
+			unitMonetaryValue = 1;
+		}
 		await fetch('/api/category', {
 			method: 'PATCH',
 			headers: { 'Content-Type': 'application/json' },
@@ -22,7 +26,8 @@
 					concept,
 					type,
 					unit,
-					unitMonetaryValue
+					unitMonetaryValue,
+					unitValueIsDerived
 				}
 			})
 		});
@@ -39,14 +44,15 @@
 </script>
 
 <CategoryForm
-  bind:concept
-  bind:type
-  bind:unit
-  bind:unitMonetaryValue
-  {acceptChanges}
-  {deleteCategory}
+	bind:concept
+	bind:type
+	bind:unit
+	bind:unitMonetaryValue
+	bind:unitValueIsDerived
+	{acceptChanges}
+	{deleteCategory}
 >
-  {#snippet triggerButton()}
-    <img class="ml-1 w-4" src="/EditIcon.svg" alt="Editar" />
-  {/snippet}
+	{#snippet triggerButton()}
+		<img class="ml-1 w-4" src="/EditIcon.svg" alt="Editar" />
+	{/snippet}
 </CategoryForm>

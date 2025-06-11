@@ -47,17 +47,17 @@ export function getIncidenceUnitMonetaryValue(
 	employee: Employee
 ) {
 	let unit = incidencia.unit;
-	if (!unit) {
-		unit = category.unit;
-	}
-	if (unit === 'días') {
-		return employee.salary / 5;
-	} else if (unit === 'horas') {
-		return employee.salary / 40;
-	}
 	let unitMonetaryValue = incidencia.unitMonetaryValue;
-	if (!unitMonetaryValue) {
+	let unitValueIsDerived = incidencia.unitValueIsDerived;
+	if (incidencia.basedOnCategory) {
+		unit = category.unit;
 		unitMonetaryValue = category.unitMonetaryValue;
+		unitValueIsDerived = category.unitValueIsDerived;
+	}
+	if (unit === 'días' && unitValueIsDerived) {
+		return employee.salary / 5;
+	} else if (unit === 'horas' && unitValueIsDerived) {
+		return employee.salary / 40;
 	}
 	return unitMonetaryValue;
 }

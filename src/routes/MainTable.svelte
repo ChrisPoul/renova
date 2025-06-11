@@ -32,7 +32,11 @@
 						<th class={`t-cell ${category.type}`}>
 							{category.concept}
 							<span class="text-sm font-normal">
-								{formatMonetaryValue(category.unitMonetaryValue)}
+								{#if category.unitValueIsDerived || category.unit === '$'}
+									{category.unit}
+								{:else}
+									{formatMonetaryValue(category.unitMonetaryValue)}
+								{/if}
 							</span>
 							<EditCategory {category} />
 						</th>

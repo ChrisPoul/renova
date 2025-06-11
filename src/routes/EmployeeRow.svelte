@@ -51,9 +51,12 @@
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify({
 				id: incidencia.id,
-				amount: incidencia.amount,
-				unit: incidencia.unit,
-				unitMonetaryValue: incidencia.unitMonetaryValue
+				changes: {
+					amount: incidencia.amount,
+					unit: incidencia.unit,
+					unitMonetaryValue: incidencia.unitMonetaryValue,
+					basedOnCategory: incidencia.basedOnCategory
+				}
 			})
 		});
 	}

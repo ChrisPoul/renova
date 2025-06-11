@@ -30,7 +30,7 @@
 	}
 </script>
 
-<button onclick={toggleMenu} tabindex="-1">
+<button class="min-w-4" onclick={toggleMenu} tabindex="-1">
 	{@render triggerButton()}
 </button>
 {#if isMenuOpen}

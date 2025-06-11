@@ -10,6 +10,7 @@
 		type = $bindable(),
 		unit = $bindable(),
 		unitMonetaryValue = $bindable(),
+		unitValueIsDerived = $bindable(),
 		deleteCategory,
 		acceptChanges,
 		triggerButton
@@ -18,6 +19,7 @@
 		type: string;
 		unit: string;
 		unitMonetaryValue: number;
+		unitValueIsDerived: boolean;
 		deleteCategory?: () => void;
 		acceptChanges: () => void;
 		triggerButton: Snippet;
@@ -38,7 +40,7 @@
 				{/each}
 			</select>
 		</label>
-		<UnitInputs bind:unit bind:unitMonetaryValue />
+		<UnitInputs bind:unit bind:unitMonetaryValue bind:unitValueIsDerived />
 		{#if deleteCategory}
 			<button onclick={deleteCategory} class="rounded-lg bg-red-400 px-4 py-2">Delete</button>
 		{/if}

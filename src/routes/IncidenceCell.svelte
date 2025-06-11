@@ -35,22 +35,22 @@
 					}}
 					style="width: {`${(incidencia.amount?.toString().length || 1) + 4}ch`}; min-width: 8ch;"
 				/>
-				{#if incidencia.unit}
-					{incidencia.unit}
-				{:else}
+				{#if incidencia.basedOnCategory}
 					{category.unit}
+				{:else}
+					{incidencia.unit}
 				{/if}
-					<div class="ml-auto flex flex-col">
-						<div class="ml-auto flex items-center">
-							<span class="text-sm leading-none text-gray-500">
-								{formatMonetaryValue(getIncidenceUnitMonetaryValue(incidencia, category, employee))}
-							</span>
-							<EditIncidence bind:incidencia {category} {updateIncidenceAmount} />
-						</div>
-						<span class="leading-none text-gray-500">
-							{formatMonetaryValue(getIncidenceTotalMonetaryValue(incidencia, category, employee))}
+				<div class="ml-auto flex flex-col">
+					<div class="ml-auto flex items-center">
+						<span class="text-sm leading-none text-gray-500">
+							{formatMonetaryValue(getIncidenceUnitMonetaryValue(incidencia, category, employee))}
 						</span>
+						<EditIncidence bind:incidencia {category} {updateIncidenceAmount} />
 					</div>
+					<span class="leading-none text-gray-500">
+						{formatMonetaryValue(getIncidenceTotalMonetaryValue(incidencia, category, employee))}
+					</span>
+				</div>
 			</div>
 		{/if}
 	</td>

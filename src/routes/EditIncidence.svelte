@@ -15,17 +15,24 @@
 	let isMenuOpen = $state(false);
 	let unitMonetaryValue = $state(incidencia.unitMonetaryValue || category.unitMonetaryValue);
 	let unit = $state(incidencia.unit || category.unit);
+	let unitValueIsDerived = $state(incidencia.unitValueIsDerived || category.unitValueIsDerived);
 
 	function acceptChanges() {
-		incidencia.unitMonetaryValue = unitMonetaryValue;
 		incidencia.unit = unit;
+		incidencia.unitValueIsDerived = unitValueIsDerived;
+		if (unitValueIsDerived) {
+			unitMonetaryValue = 1;
+		}
+		incidencia.unitMonetaryValue = unitMonetaryValue;
+		incidencia.basedOnCategory = false;
+
 		updateIncidenceAmount(incidencia, category);
 	}
 </script>
 
 <ModalMenu title="Editar Unidad" onAccept={acceptChanges} onCancel={() => (isMenuOpen = false)}>
 	<div class="flex flex-col gap-2">
-		<UnitInputs bind:unit bind:unitMonetaryValue />
+		<UnitInputs bind:unit bind:unitMonetaryValue bind:unitValueIsDerived />
 	</div>
 	{#snippet triggerButton()}
 		<img class="ml-0.5 w-4 bg-white" src="/EditIcon.svg" alt="" />

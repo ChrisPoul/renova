@@ -10,11 +10,12 @@ export const employeesTable = sqliteTable('employees', {
 });
 
 export const incidenceCategoriesTable = sqliteTable('incidence_categories', {
-	id: int('id').primaryKey(),
-	concept: text('concept').notNull(),
-	type: text('type').notNull(),
-	unit: text('unit').notNull(),
-	unitMonetaryValue: real('unitMonetaryValue').notNull()
+	id: int().primaryKey(),
+	concept: text().notNull(),
+	type: text().notNull(),
+	unit: text().notNull(),
+	unitMonetaryValue: real().notNull(),
+	unitValueIsDerived: int({ mode: 'boolean' }).default(false)
 });
 
 export const incidencesTable = sqliteTable('incidences', {
@@ -24,10 +25,12 @@ export const incidencesTable = sqliteTable('incidences', {
 		.references(() => incidenceCategoriesTable.id, { onDelete: 'cascade' }),
 	employee: int('employee')
 		.notNull()
-		.references(() => employeesTable.id, {onDelete: 'cascade' }),
+		.references(() => employeesTable.id, { onDelete: 'cascade' }),
 	amount: real('amount').notNull(),
-	unitMonetaryValue: real('unitMonetaryValue'),
-	unit: text('unit')
+	basedOnCategory: int({ mode: 'boolean' }).default(true),
+	unit: text().default('kg'),
+	unitMonetaryValue: real().default(1),
+	unitValueIsDerived: int({ mode: 'boolean' })
 });
 
 // --- Relations ---
