@@ -11,10 +11,15 @@
 	const derivableUnits = ['días', 'horas'];
 
 	$effect(() => {
-		if (unitValueIsDerived) {
+		if (unitValueIsDerived && derivableUnits.includes(unit)) {
 			unitMonetaryValue = 'Derivado del Salario';
 		} else if (unitMonetaryValue === 'Derivado del Salario') {
 			unitMonetaryValue = 1;
+		}
+	});
+	$effect(() => {
+		if (!derivableUnits.includes(unit)) {
+			unitValueIsDerived = false;
 		}
 	});
 	$effect(() => {

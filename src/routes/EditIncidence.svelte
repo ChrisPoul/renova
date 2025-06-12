@@ -12,10 +12,13 @@
 		updateIncidenceAmount: (incidencia: Incidence, category: IncidenceCategory) => void;
 	} = $props();
 
-	let isMenuOpen = $state(false);
-	let unitMonetaryValue = $state(incidencia.unitMonetaryValue || category.unitMonetaryValue);
-	let unit = $state(incidencia.unit || category.unit);
-	let unitValueIsDerived = $state(incidencia.unitValueIsDerived || category.unitValueIsDerived);
+	let unitMonetaryValue = $state(
+		incidencia.basedOnCategory ? category.unitMonetaryValue : incidencia.unitMonetaryValue
+	);
+	let unit = $state(incidencia.basedOnCategory ? category.unit : incidencia.unit);
+	let unitValueIsDerived = $state(
+		incidencia.basedOnCategory ? category.unitValueIsDerived : incidencia.unitValueIsDerived
+	);
 
 	function acceptChanges() {
 		incidencia.unit = unit;
@@ -30,7 +33,7 @@
 	}
 </script>
 
-<ModalMenu title="Editar Unidad" onAccept={acceptChanges} onCancel={() => (isMenuOpen = false)}>
+<ModalMenu title="Editar Unidad" onAccept={acceptChanges}>
 	<div class="flex flex-col gap-2">
 		<UnitInputs bind:unit bind:unitMonetaryValue bind:unitValueIsDerived />
 	</div>
