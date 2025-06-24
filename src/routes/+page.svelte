@@ -192,3 +192,12 @@
 		Generar Reporte
 	</button>
 </div>
+<button
+class="fixed top-4 right-4 rounded-lg bg-red-500 px-4 py-2 text-white hover:bg-red-600"
+    onclick={async () => {
+        await fetch('/api/logout', { method: 'POST' });
+        location.href = '/login';
+    }}
+>
+    Cerrar sesión
+</button>
