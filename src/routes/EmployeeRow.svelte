@@ -95,11 +95,17 @@
 		);
 		const categoryIncidences = totals.byCategory.get(category.id);
 		if (categoryIncidences) {
-			categoryIncidences.set(employee.id, incidenciaTotalMonetaryValue);
+			categoryIncidences.set(employee.id, {
+				monetaryValue: incidenciaTotalMonetaryValue,
+				amount: incidencia.amount
+			});
 		} else {
 			totals.byCategory.set(
 				incidencia.category,
-				new Map([[employee.id, incidenciaTotalMonetaryValue]])
+				new Map([[employee.id, {
+					monetaryValue: incidenciaTotalMonetaryValue,
+					amount: incidencia.amount
+				}]])
 			);
 		}
 	}

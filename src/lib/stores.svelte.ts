@@ -3,10 +3,13 @@ import { categoryTypes } from './constants';
 type categoryID = number;
 type employeeID = number;
 type employeeTotal = number;
-type incidenciaTotal = number;
+interface incidenceTotal {
+	amount: number;
+	monetaryValue: number;
+}
 
 interface Totals {
-	byCategory: Map<categoryID, Map<employeeID, incidenciaTotal>>;
+	byCategory: Map<categoryID, Map<employeeID, incidenceTotal>>;
 	byCategoryType: Map<string, Map<employeeID, employeeTotal>>;
 }
 

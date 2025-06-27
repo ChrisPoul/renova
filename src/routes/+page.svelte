@@ -43,12 +43,16 @@
 		}
 		return total;
 	}
-	function getCategoryTotalMonetaryValue(categoryId: number) {
-		let total = 0;
+	function getCategoryTotalMonetaryValueAndAmount(categoryId: number) {
+		let total = {
+			monetaryValue: 0,
+			amount: 0
+		};
 		const incidenciaTotals = totals.byCategory.get(categoryId);
-		if (!incidenciaTotals) return 0;
+		if (!incidenciaTotals) return total;
 		for (const [employeeId, incidenciaTotal] of incidenciaTotals) {
-			total += incidenciaTotal;
+			total.monetaryValue += incidenciaTotal.monetaryValue;
+			total.amount += incidenciaTotal.amount;
 		}
 		return total;
 	}
@@ -111,7 +115,8 @@
 		const totalsRow = ['Total', formatMonetaryValue(getTotalSalary())];
 		for (const category of incidenceCategories) {
 			if (!selectedCategoryTypes.value.includes(category.type)) continue;
-			totalsRow.push(formatMonetaryValue(getCategoryTotalMonetaryValue(category.id)));
+			const { amount, monetaryValue } = getCategoryTotalMonetaryValueAndAmount(category.id);
+			totalsRow.push(`${amount} (${formatMonetaryValue(monetaryValue)})`);
 		}
 		for (const categoryType of selectedCategoryTypes.value) {
 			totalsRow.push(formatMonetaryValue(totalsByCategoryType.get(categoryType) ?? 0));
@@ -176,7 +181,7 @@
 		{employees}
 		{incidenceCategories}
 		{getTotalSalary}
-		{getCategoryTotalMonetaryValue}
+		{getCategoryTotalMonetaryValueAndAmount}
 		{getCategoryTypeTotalMonetaryValue}
 		{totalsByCategoryType}
 	/>
@@ -193,11 +198,11 @@
 	</button>
 </div>
 <button
-class="fixed top-4 right-4 rounded-lg bg-red-500 px-4 py-2 text-white hover:bg-red-600"
-    onclick={async () => {
-        await fetch('/api/logout', { method: 'POST' });
-        location.href = '/login';
-    }}
+	class="fixed top-4 right-4 rounded-lg bg-red-500 px-4 py-2 text-white hover:bg-red-600"
+	onclick={async () => {
+		await fetch('/api/logout', { method: 'POST' });
+		location.href = '/login';
+	}}
 >
-    Cerrar sesión
+	Cerrar sesión
 </button>

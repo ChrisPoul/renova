@@ -8,13 +8,16 @@
 		incidenceCategories,
 		employees,
 		getTotalSalary,
-		getCategoryTotalMonetaryValue,
+		getCategoryTotalMonetaryValueAndAmount,
 		totalsByCategoryType
 	}: {
 		incidenceCategories: IncidenceCategory[];
 		employees: Employee[];
 		getTotalSalary: () => number;
-		getCategoryTotalMonetaryValue: (categoryId: number) => number;
+		getCategoryTotalMonetaryValueAndAmount: (categoryId: number) => {
+			monetaryValue: number;
+			amount: number;
+		};
 		totalsByCategoryType: Map<string, number>;
 	} = $props();
 </script>
@@ -63,8 +66,12 @@
 				</td>
 				{#each incidenceCategories as category}
 					{#if selectedCategoryTypes.value.includes(category.type)}
+						{@const total = getCategoryTotalMonetaryValueAndAmount(category.id)}
 						<td class={`t-cell text-nowrap ${category.type}-opaco`}>
-							{formatMonetaryValue(getCategoryTotalMonetaryValue(category.id))}
+							<div class="flex items-center justify-center gap-1">
+								<span class="text-sm text-gray-500">({total.amount})</span>
+								{formatMonetaryValue(total.monetaryValue)}
+							</div>
 						</td>
 					{/if}
 				{/each}
