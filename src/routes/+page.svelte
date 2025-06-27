@@ -5,7 +5,7 @@
 	import AddCategory from './AddCategory.svelte';
 	import AddEmployee from './AddEmployee.svelte';
 	import MainTable from './MainTable.svelte';
-	import * as XLSX from 'xlsx';
+	import ExcelJS from 'exceljs';
 
 	let { data } = $props();
 	let employees = $state(data.employees);
@@ -57,9 +57,21 @@
 		return total;
 	}
 
+	// Define your category type colors (matching your CSS)
+	const categoryTypeColors = {
+		destajo: 'FF7DC8F3',
+		bono: 'FFFBBF24',
+		deduccion: 'FFF87171'
+	};
+
 	function generateExcelReport() {
+		const workbook = new ExcelJS.Workbook();
+		const worksheet = workbook.addWorksheet('Reporte');
+
 		const headers = [
 			'Empleado',
+			'Área',
+			'Puesto',
 			'Salario',
 			...incidenceCategories
 				.filter((cat) => selectedCategoryTypes.value.includes(cat.type))
@@ -68,11 +80,55 @@
 			'Total'
 		];
 
-		const data = [headers];
+		const headerRow = worksheet.addRow(headers);
 
-		// Prepare rows
+		// Category type colors matching your CSS
+		const defaultHeaderColor = 'FFE5E7EB'; // light gray
+
+		let colIdx = 1;
+		for (const header of headers) {
+			const cat = incidenceCategories.find((c) => c.concept === header);
+			let color = defaultHeaderColor;
+			if (cat && categoryTypeColors[cat.type]) {
+				color = categoryTypeColors[cat.type];
+			}
+			worksheet.getColumn(colIdx).width = Math.max(header.length + 2, 12);
+			const cell = headerRow.getCell(colIdx);
+			cell.fill = {
+				type: 'pattern',
+				pattern: 'solid',
+				fgColor: { argb: color }
+			};
+			cell.font = { bold: true };
+			colIdx++;
+		}
+
+		// Find the column indexes for each category type total column
+		const totalColIndexes = selectedCategoryTypes.value.map((type) => {
+			const header = `Total ${getCategoryTypeLabel(type)}`;
+			return headers.indexOf(header) + 1; // exceljs columns are 1-based
+		});
+
+		// Color those columns in all rows (including the totals row)
+		worksheet.eachRow((row) => {
+			totalColIndexes.forEach((colIdx, i) => {
+				const cell = row.getCell(colIdx);
+				cell.fill = {
+					type: 'pattern',
+					pattern: 'solid',
+					fgColor: { argb: categoryTypeColors[selectedCategoryTypes.value[i]] }
+				};
+			});
+		});
+
+		// Add data rows
 		for (const employee of employees) {
-			const row = [employee.name, formatMonetaryValue(employee.salary)];
+			const row = [
+				employee.name,
+				employee.area,
+				employee.puesto,
+				formatMonetaryValue(employee.salary)
+			];
 
 			for (const category of incidenceCategories) {
 				if (!selectedCategoryTypes.value.includes(category.type)) continue;
@@ -88,12 +144,10 @@
 			}
 
 			for (const categoryType of selectedCategoryTypes.value) {
-				// You may want to use your getCategoryTypeTotalMonetaryValue here
 				const typeTotal = totals.byCategoryType.get(categoryType)?.get(employee.id) ?? 0;
 				row.push(formatMonetaryValue(typeTotal));
 			}
 
-			// Employee total
 			const employeeTotal = (() => {
 				let total = 0;
 				for (const categoryType of selectedCategoryTypes.value) {
@@ -108,39 +162,70 @@
 			})();
 			row.push(employeeTotal);
 
-			data.push(row);
+			worksheet.addRow(row);
 		}
 
-		// Add totals row
-		const totalsRow = ['Total', formatMonetaryValue(getTotalSalary())];
+		// --- Add totals row at the end ---
+		const totalsRow = [
+			'Total',
+			'', // Área
+			'', // Puesto
+			formatMonetaryValue(getTotalSalary())
+		];
+
 		for (const category of incidenceCategories) {
 			if (!selectedCategoryTypes.value.includes(category.type)) continue;
 			const { amount, monetaryValue } = getCategoryTotalMonetaryValueAndAmount(category.id);
 			totalsRow.push(`${amount} (${formatMonetaryValue(monetaryValue)})`);
 		}
+
 		for (const categoryType of selectedCategoryTypes.value) {
 			totalsRow.push(formatMonetaryValue(totalsByCategoryType.get(categoryType) ?? 0));
 		}
+
+		// Grand total (all)
 		totalsRow.push(formatMonetaryValue(totalsByCategoryType.get('all') ?? 0));
-		data.push(totalsRow);
 
-		// Calculate column widths
-		const colWidths = headers.map(
-			(_, colIdx) =>
-				Math.max(
-					...data.map((row) => (row[colIdx] ? row[colIdx].toString().length : 10)),
-					headers[colIdx].length
-				) + 2 // add some padding
-		);
+		const excelTotalsRow = worksheet.addRow(totalsRow);
 
-		// Create worksheet and set column widths
-		const ws = XLSX.utils.aoa_to_sheet(data);
-		ws['!cols'] = colWidths.map((w) => ({ wch: w }));
+		// Color the entire totals row in gray
+		excelTotalsRow.eachCell((cell) => {
+			cell.fill = {
+				type: 'pattern',
+				pattern: 'solid',
+				fgColor: { argb: 'FFE5E7EB' } // light gray
+			};
+		});
 
-		const wb = XLSX.utils.book_new();
-		XLSX.utils.book_append_sheet(wb, ws, 'Reporte');
+		// Optionally, color the "Total" cell
+		excelTotalsRow.getCell(1).fill = {
+			type: 'pattern',
+			pattern: 'solid',
+			fgColor: { argb: 'FFE5E7EB' }
+		};
 
-		XLSX.writeFile(wb, 'reporte.xlsx');
+		// Auto-size columns based on the max length of their contents
+		worksheet.columns.forEach((column) => {
+			let maxLength = 10; // minimum width
+			column.eachCell({ includeEmpty: true }, (cell) => {
+				const cellValue = cell.value ? cell.value.toString() : '';
+				maxLength = Math.max(maxLength, cellValue.length + 2);
+			});
+			column.width = maxLength;
+		});
+
+		// Download the file in the browser
+		workbook.xlsx.writeBuffer().then((buffer) => {
+			const blob = new Blob([buffer], {
+				type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+			});
+			const url = URL.createObjectURL(blob);
+			const a = document.createElement('a');
+			a.href = url;
+			a.download = 'reporte.xlsx';
+			a.click();
+			URL.revokeObjectURL(url);
+		});
 	}
 </script>
 
