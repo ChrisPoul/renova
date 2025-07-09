@@ -1,15 +1,18 @@
 <script lang="ts">
 	import { categoryTypes } from '$lib/constants';
-	import { selectedCategoryTypes, totals } from '$lib/stores.svelte';
+	import { selectedCategoryTypes, totals, selectedWeekId } from '$lib/stores.svelte';
 	import { formatMonetaryValue, getCategoryTypeLabel } from '$lib/utils';
 	import AddCategory from './AddCategory.svelte';
 	import AddEmployee from './AddEmployee.svelte';
 	import MainTable from './MainTable.svelte';
 	import ExcelJS from 'exceljs';
+	import WeekManager from './WeekManager.svelte';
 
 	let { data } = $props();
 	let employees = $state(data.employees);
 	let incidenceCategories = $state(data.incidenceCategories);
+	let weeks = $state(data.weeks);
+	selectedWeekId.value = data.selectedWeekId;
 	let totalsByCategoryType = $derived.by(getTotalsByCategoryType);
 
 	function getTotalSalary() {
@@ -230,6 +233,19 @@
 </script>
 
 <div class="fixed top-0 left-0 z-20 flex gap-2 p-2 font-bold text-white">
+	<select
+		class="select select-bordered"
+		onchange={(e) => {
+			selectedWeekId.value = parseInt(e.target.value);
+			window.location.href = `/?weekId=${selectedWeekId.value}`;
+		}}
+	>
+		{#each weeks as week}
+			<option value={week.id} selected={week.id === selectedWeekId.value}>
+				{new Date(week.startDate).toLocaleDateString()} - {new Date(week.endDate).toLocaleDateString()}
+			</option>
+		{/each}
+	</select>
 	{#each categoryTypes as category}
 		<label
 			class={`${category} flex cursor-pointer items-center gap-1.5 rounded-lg p-2 hover:scale-105`}
@@ -273,6 +289,7 @@
 </div>
 
 <div class="p-2">
+	<WeekManager />
 	<AddCategory />
 	<AddEmployee />
 	<button

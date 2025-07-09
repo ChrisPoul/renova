@@ -21,3 +21,5 @@ export const totals = $state<Totals>({
 export const selectedCategoryTypes = $state({
 	value: categoryTypes
 });
+
+export const selectedWeekId = $state({ value: 0 });

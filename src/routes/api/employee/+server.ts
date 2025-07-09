@@ -1,14 +1,20 @@
 import { db } from '$lib/server/db/index';
-import { employeesTable, incidenceCategoriesTable, incidencesTable } from '$lib/server/db/schema';
+import {
+	employeesTable,
+	employeesToWeeksTable,
+	incidenceCategoriesTable,
+	incidencesTable
+} from '$lib/server/db/schema';
 import { json } from '@sveltejs/kit';
 import { eq } from 'drizzle-orm';
 
 export async function POST({ request }) {
 	const body = await request.json();
+	const { weekId, ...employeeData } = body;
 
 	const result = await db
 		.insert(employeesTable)
-		.values(body)
+		.values(employeeData)
 		.returning({ id: employeesTable.id })
 		.get();
 
@@ -21,12 +27,15 @@ export async function POST({ request }) {
 	const newIncidences = categories.map((cat) => ({
 		employee: newEmployeeId,
 		category: cat.id,
-		amount: 0
+		amount: 0,
+		weekId
 	}));
 
 	if (newIncidences.length > 0) {
 		await db.insert(incidencesTable).values(newIncidences).run();
 	}
+
+	await db.insert(employeesToWeeksTable).values({ employeeId: newEmployeeId, weekId });
 
 	return json({ success: true });
 }
