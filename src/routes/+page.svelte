@@ -6,7 +6,6 @@
 	import AddEmployee from './AddEmployee.svelte';
 	import MainTable from './MainTable.svelte';
 	import ExcelJS from 'exceljs';
-	import WeekManager from './WeekManager.svelte';
 
 	let { data } = $props();
 	let employees = $state(data.employees);
@@ -233,19 +232,20 @@
 </script>
 
 <div class="fixed top-0 left-0 z-20 flex gap-2 p-2 font-bold text-white">
-	<select
-		class="select select-bordered"
-		onchange={(e) => {
-			selectedWeekId.value = parseInt(e.target.value);
-			window.location.href = `/?weekId=${selectedWeekId.value}`;
+	<input
+		type="week"
+		class="text-black"
+		onchange={async (e) => {
+			const week = e.target.value;
+			const res = await fetch('/api/weeks', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ week })
+			});
+			const { weekId } = await res.json();
+			window.location.href = `/?weekId=${weekId}`;
 		}}
-	>
-		{#each weeks as week}
-			<option value={week.id} selected={week.id === selectedWeekId.value}>
-				{new Date(week.startDate).toLocaleDateString()} - {new Date(week.endDate).toLocaleDateString()}
-			</option>
-		{/each}
-	</select>
+	/>
 	{#each categoryTypes as category}
 		<label
 			class={`${category} flex cursor-pointer items-center gap-1.5 rounded-lg p-2 hover:scale-105`}
@@ -289,7 +289,6 @@
 </div>
 
 <div class="p-2">
-	<WeekManager />
 	<AddCategory />
 	<AddEmployee />
 	<button

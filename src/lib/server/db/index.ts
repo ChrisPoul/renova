@@ -6,10 +6,24 @@ export const db = drizzle('file:local.db', { schema });
 
 // Get all incidence categories
 export async function getAllIncidenceCategories(weekId: string | null) {
-	const where = weekId ? eq(schema.incidencesTable.weekId, +weekId) : undefined;
+	if (!weekId) {
+		return db.query.incidenceCategoriesTable.findMany({
+			orderBy: (table, { desc }) => [desc(table.type)]
+		});
+	}
+
 	return db.query.incidenceCategoriesTable.findMany({
 		orderBy: (table, { desc }) => [desc(table.type)],
-		where
+		where: (table, { exists }) =>
+			exists(
+				db
+					.select()
+					.from(schema.categoriesToWeeksTable)
+					.where(
+						eq(schema.categoriesToWeeksTable.categoryId, table.id) &&
+							eq(schema.categoriesToWeeksTable.weekId, +weekId)
+					)
+			)
 	});
 }
 
