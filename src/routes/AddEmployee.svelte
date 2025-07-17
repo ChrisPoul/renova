@@ -1,6 +1,6 @@
 <script lang="ts">
 	import EmployeeForm from './EmployeeForm.svelte';
-	import { selectedWeekId } from '$lib/stores.svelte';
+	import { selectedWeek } from '$lib/stores.svelte';
 
 	let name = $state('');
 	let salary = $state(0);
@@ -11,7 +11,7 @@
 		await fetch('/api/employee', {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ name, salary, puesto, area, weekId: selectedWeekId.value })
+			body: JSON.stringify({ name, salary, puesto, area, weekId: selectedWeek.value.id })
 		});
 		location.reload();
 	}

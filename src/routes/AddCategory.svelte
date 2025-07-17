@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { categoryTypes } from '$lib/constants';
 	import CategoryForm from './CategoryForm.svelte';
-	import { selectedWeekId } from '$lib/stores.svelte';
+	import { selectedWeek } from '$lib/stores.svelte';
 
 	let concept = $state('');
 	let type = $state(categoryTypes[0]);
@@ -22,7 +22,7 @@
 				unit,
 				unitMonetaryValue,
 				unitValueIsDerived,
-				weekId: selectedWeekId.value
+				weekId: selectedWeek.value.id
 			})
 		});
 		location.reload();

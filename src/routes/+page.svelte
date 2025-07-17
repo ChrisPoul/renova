@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { categoryTypes } from '$lib/constants';
-	import { selectedCategoryTypes, totals, selectedWeekId } from '$lib/stores.svelte';
+	import { selectedCategoryTypes, totals, selectedWeek } from '$lib/stores.svelte';
 	import { formatMonetaryValue, getCategoryTypeLabel } from '$lib/utils';
 	import AddCategory from './AddCategory.svelte';
 	import AddEmployee from './AddEmployee.svelte';
@@ -10,9 +10,19 @@
 	let { data } = $props();
 	let employees = $state(data.employees);
 	let incidenceCategories = $state(data.incidenceCategories);
-	let weeks = $state(data.weeks);
-	selectedWeekId.value = data.selectedWeekId;
+	selectedWeek.value = data.selectedWeek;
 	let totalsByCategoryType = $derived.by(getTotalsByCategoryType);
+
+	function getWeekTitle(week) {
+		if (!week) return '';
+
+		const startDate = new Date(week.startDate);
+		const year = startDate.getFullYear();
+		const month = startDate.toLocaleString('es-ES', { month: 'long' });
+		const weekOfMonth = Math.ceil(startDate.getDate() / 7);
+
+		return `${year}, ${month}, Semana ${weekOfMonth}`;
+	}
 
 	function getTotalSalary() {
 		let total = 0;
@@ -278,6 +288,7 @@
 </div>
 
 <div class="pt-16">
+	<h1 class="text-center text-2xl font-bold">{getWeekTitle(selectedWeek.value)}</h1>
 	<MainTable
 		{employees}
 		{incidenceCategories}

@@ -22,4 +22,4 @@ export const selectedCategoryTypes = $state({
 	value: categoryTypes
 });
 
-export const selectedWeekId = $state({ value: 0 });
+export const selectedWeek = $state({ value: null });
