@@ -19,9 +19,20 @@
 		const startDate = new Date(week.startDate);
 		const year = startDate.getFullYear();
 		const month = startDate.toLocaleString('es-ES', { month: 'long' });
-		const weekOfMonth = Math.ceil(startDate.getDate() / 7);
+		const endDate = new Date(week.endDate);
+		const startDay = startDate.getDate();
+		const endDay = endDate.getDate();
+		return `Del ${startDay} al ${endDay} de ${month} de ${year}`;
 
-		return `${year}, ${month}, Semana ${weekOfMonth}`;
+	}
+
+	function getWeekForInput(date: Date) {
+		const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+		const dayNum = d.getUTCDay() || 7;
+		d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+		const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+		const weekNumber =Math.ceil(((d - yearStart) / 86400000 + 1) / 7);
+		return `${date.getFullYear()}-W${weekNumber}`
 	}
 
 	function getTotalSalary() {
@@ -245,6 +256,7 @@
 	<input
 		type="week"
 		class="text-black"
+		value={getWeekForInput(selectedWeek.value.startDate)}
 		onchange={async (e) => {
 			const week = e.target.value;
 			const res = await fetch('/api/weeks', {
