@@ -4,7 +4,8 @@ import {
 	incidenceCategoriesTable,
 	categoriesToWeeksTable,
 	employeesTable,
-	incidencesTable
+	incidencesTable,
+	employeesToWeeksTable
 } from '$lib/server/db/schema';
 import { json } from '@sveltejs/kit';
 import { eq } from 'drizzle-orm';
@@ -44,6 +45,14 @@ export async function POST({ request }) {
 				weekId: newWeek.id
 			}));
 			await tx.insert(categoriesToWeeksTable).values(categoriesToInsert);
+		}
+
+		if (allEmployees.length > 0) {
+			const employeesToInsert = allEmployees.map((employee) => ({
+				employeeId: employee.id,
+				weekId: newWeek.id
+			}));
+			await tx.insert(employeesToWeeksTable).values(employeesToInsert);
 		}
 
 		if (allEmployees.length > 0 && allCategories.length > 0) {

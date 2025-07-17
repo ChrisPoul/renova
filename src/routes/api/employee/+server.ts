@@ -3,39 +3,42 @@ import {
 	employeesTable,
 	employeesToWeeksTable,
 	incidenceCategoriesTable,
-	incidencesTable
+	incidencesTable,
+	categoriesToWeeksTable
 } from '$lib/server/db/schema';
 import { json } from '@sveltejs/kit';
-import { eq } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 
 export async function POST({ request }) {
 	const body = await request.json();
 	const { weekId, ...employeeData } = body;
 
-	const result = await db
-		.insert(employeesTable)
-		.values(employeeData)
-		.returning({ id: employeesTable.id })
-		.get();
+	await db.transaction(async (tx) => {
+		const [newEmployee] = await tx
+			.insert(employeesTable)
+			.values(employeeData)
+			.returning({ id: employeesTable.id });
 
-	const newEmployeeId = result.id;
+		const newEmployeeId = newEmployee.id;
 
-	// Get all categories
-	const categories = await db.select().from(incidenceCategoriesTable).all();
+		await tx.insert(employeesToWeeksTable).values({ employeeId: newEmployeeId, weekId });
 
-	// Create an incidence for each category for the new employee
-	const newIncidences = categories.map((cat) => ({
-		employee: newEmployeeId,
-		category: cat.id,
-		amount: 0,
-		weekId
-	}));
+		const categoriesInWeek = await tx
+			.select({ id: categoriesToWeeksTable.categoryId })
+			.from(categoriesToWeeksTable)
+			.where(eq(categoriesToWeeksTable.weekId, weekId));
 
-	if (newIncidences.length > 0) {
-		await db.insert(incidencesTable).values(newIncidences).run();
-	}
+		const newIncidences = categoriesInWeek.map((cat) => ({
+			employee: newEmployeeId,
+			category: cat.id,
+			amount: 0,
+			weekId
+		}));
 
-	await db.insert(employeesToWeeksTable).values({ employeeId: newEmployeeId, weekId });
+		if (newIncidences.length > 0) {
+			await tx.insert(incidencesTable).values(newIncidences);
+		}
+	});
 
 	return json({ success: true });
 }
@@ -55,13 +58,26 @@ export async function PATCH({ request }) {
 
 export async function DELETE({ request }) {
 	const body = await request.json();
-	const { id } = body;
+	const { id, weekId } = body;
 
-	if (!id) {
-		return json({ error: 'ID de empleado es obligatorio.' }, { status: 400 });
+	if (!id || !weekId) {
+		return json({ error: 'ID de empleado y de semana son obligatorios.' }, { status: 400 });
 	}
 
-	await db.delete(employeesTable).where(eq(employeesTable.id, id)).run();
+	await db.transaction(async (tx) => {
+		await tx
+			.delete(employeesToWeeksTable)
+			.where(
+				and(
+					eq(employeesToWeeksTable.employeeId, id),
+					eq(employeesToWeeksTable.weekId, weekId)
+				)
+			);
+
+		await tx
+			.delete(incidencesTable)
+			.where(and(eq(incidencesTable.employee, id), eq(incidencesTable.weekId, weekId)));
+	});
 
 	return json({ success: true });
 }

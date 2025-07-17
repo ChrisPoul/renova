@@ -31,7 +31,26 @@ export async function getAllIncidenceCategories(weekId: string | null) {
 
 export async function getAllEmployeesWithIncidences(weekId: string | null) {
 	const where = weekId ? eq(schema.incidencesTable.weekId, +weekId) : undefined;
+
+	if (!weekId) {
+		return db.query.employeesTable.findMany({
+			with: {
+				incidencias: {
+					where
+				}
+			}
+		});
+	}
+
+	const employeesInWeek = await db
+		.select({ id: schema.employeesToWeeksTable.employeeId })
+		.from(schema.employeesToWeeksTable)
+		.where(eq(schema.employeesToWeeksTable.weekId, +weekId));
+
+	const employeeIds = employeesInWeek.map((e) => e.id);
+
 	return db.query.employeesTable.findMany({
+		where: (table, { inArray }) => inArray(table.id, employeeIds),
 		with: {
 			incidencias: {
 				where

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { selectedWeek } from '$lib/stores.svelte';
 	import EmployeeForm from './EmployeeForm.svelte';
 
 	const {
@@ -28,7 +29,7 @@
 		await fetch('/api/employee', {
 			method: 'DELETE',
 			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ id: employee.id })
+			body: JSON.stringify({ id: employee.id, weekId: selectedWeek.value.id })
 		});
 		location.reload();
 	}
