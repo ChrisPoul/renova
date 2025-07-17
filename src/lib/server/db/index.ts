@@ -1,5 +1,5 @@
 import { drizzle } from 'drizzle-orm/libsql';
-import { eq } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 import * as schema from './schema';
 
 export const db = drizzle('file:local.db', { schema });
@@ -20,8 +20,10 @@ export async function getAllIncidenceCategories(weekId: string | null) {
 					.select()
 					.from(schema.categoriesToWeeksTable)
 					.where(
-						eq(schema.categoriesToWeeksTable.categoryId, table.id) &&
+						and(
+							eq(schema.categoriesToWeeksTable.categoryId, table.id),
 							eq(schema.categoriesToWeeksTable.weekId, +weekId)
+						)
 					)
 			)
 	});
@@ -48,10 +50,7 @@ export async function updateIncidenceCategory(categoryID: number, data) {
 
 export async function makeDummyData() {
 	// --- Dummy Data ---
-	const weeks = [
-		{ id: 1, startDate: new Date('2024-07-01'), endDate: new Date('2024-07-07') },
-		{ id: 2, startDate: new Date('2024-07-08'), endDate: new Date('2024-07-14') }
-	];
+	const weeks = [{ id: 1, startDate: new Date('2024-07-01'), endDate: new Date('2024-07-07') }];
 	const incidenceCategories = [
 		{ id: 1, concept: 'Puertas Muy Grandes', type: 'destajo', unit: 'u', unitMonetaryValue: 12 },
 		{ id: 2, concept: 'Corte Junke', type: 'destajo', unit: 'kg', unitMonetaryValue: 20 },
@@ -75,21 +74,19 @@ export async function makeDummyData() {
 		{ id: 6, employee: 1, category: 6, amount: 5, weekId: 1 },
 		{ id: 13, employee: 1, category: 7, amount: 2, weekId: 1 },
 		{ id: 15, employee: 1, category: 8, amount: 3, weekId: 1 },
-		{ id: 7, employee: 2, category: 1, amount: 200, weekId: 2 },
-		{ id: 8, employee: 2, category: 2, amount: 25, weekId: 2 },
-		{ id: 9, employee: 2, category: 3, amount: 60, weekId: 2 },
-		{ id: 10, employee: 2, category: 4, amount: 40, weekId: 2 },
-		{ id: 11, employee: 2, category: 5, amount: 20, weekId: 2 },
-		{ id: 12, employee: 2, category: 6, amount: 10, weekId: 2 },
-		{ id: 14, employee: 2, category: 7, amount: 3, weekId: 2 },
-		{ id: 16, employee: 2, category: 8, amount: 4, weekId: 2 }
+		{ id: 7, employee: 2, category: 1, amount: 200, weekId: 1 },
+		{ id: 8, employee: 2, category: 2, amount: 25, weekId: 1 },
+		{ id: 9, employee: 2, category: 3, amount: 60, weekId: 1 },
+		{ id: 10, employee: 2, category: 4, amount: 40, weekId: 1 },
+		{ id: 11, employee: 2, category: 5, amount: 20, weekId: 1 },
+		{ id: 12, employee: 2, category: 6, amount: 10, weekId: 1 },
+		{ id: 14, employee: 2, category: 7, amount: 3, weekId: 1 },
+		{ id: 16, employee: 2, category: 8, amount: 4, weekId: 1 }
 	];
 
 	const employeesToWeeks = [
 		{ employeeId: 1, weekId: 1 },
-		{ employeeId: 2, weekId: 1 },
-		{ employeeId: 1, weekId: 2 },
-		{ employeeId: 2, weekId: 2 }
+		{ employeeId: 2, weekId: 1 }
 	];
 
 	const categoriesToWeeks = [
@@ -100,15 +97,7 @@ export async function makeDummyData() {
 		{ categoryId: 5, weekId: 1 },
 		{ categoryId: 6, weekId: 1 },
 		{ categoryId: 7, weekId: 1 },
-		{ categoryId: 8, weekId: 1 },
-		{ categoryId: 1, weekId: 2 },
-		{ categoryId: 2, weekId: 2 },
-		{ categoryId: 3, weekId: 2 },
-		{ categoryId: 4, weekId: 2 },
-		{ categoryId: 5, weekId: 2 },
-		{ categoryId: 6, weekId: 2 },
-		{ categoryId: 7, weekId: 2 },
-		{ categoryId: 8, weekId: 2 }
+		{ categoryId: 8, weekId: 1 }
 	];
 
 	await db.insert(schema.weeksTable).values(weeks).run();

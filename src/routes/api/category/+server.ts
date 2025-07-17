@@ -6,33 +6,35 @@ import {
 	incidencesTable
 } from '$lib/server/db/schema';
 import { json } from '@sveltejs/kit';
-import { eq } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 
 export async function POST({ request }) {
 	const body = await request.json();
 	const { weekId, ...categoryData } = body;
 
-	const result = await db
-		.insert(incidenceCategoriesTable)
-		.values(categoryData)
-		.returning({ id: incidenceCategoriesTable.id })
-		.get();
+	await db.transaction(async (tx) => {
+		const [newCategory] = await tx
+			.insert(incidenceCategoriesTable)
+			.values(categoryData)
+			.returning({ id: incidenceCategoriesTable.id });
 
-	const newCategoryId = result.id;
-	const employees = await db.select().from(employeesTable).all();
+		const newCategoryId = newCategory.id;
 
-	const newIncidences = employees.map((emp) => ({
-		employee: emp.id,
-		category: newCategoryId,
-		amount: 0,
-		weekId
-	}));
+		await tx.insert(categoriesToWeeksTable).values({ categoryId: newCategoryId, weekId });
 
-	if (newIncidences.length > 0) {
-		await db.insert(incidencesTable).values(newIncidences).run();
-	}
+		const employees = await tx.select().from(employeesTable);
 
-	await db.insert(categoriesToWeeksTable).values({ categoryId: newCategoryId, weekId });
+		const newIncidences = employees.map((emp) => ({
+			employee: emp.id,
+			category: newCategoryId,
+			amount: 0,
+			weekId
+		}));
+
+		if (newIncidences.length > 0) {
+			await tx.insert(incidencesTable).values(newIncidences);
+		}
+	});
 
 	return json({ success: true });
 }
@@ -52,13 +54,26 @@ export async function PATCH({ request }) {
 
 export async function DELETE({ request }) {
 	const body = await request.json();
-	const { id } = body;
+	const { id, weekId } = body;
 
-	if (!id) {
-		return json({ error: 'ID de categoría es obligatorio.' }, { status: 400 });
+	if (!id || !weekId) {
+		return json({ error: 'ID de categoría y de semana son obligatorios.' }, { status: 400 });
 	}
 
-	await db.delete(incidenceCategoriesTable).where(eq(incidenceCategoriesTable.id, id)).run();
+	await db.transaction(async (tx) => {
+		await tx
+			.delete(categoriesToWeeksTable)
+			.where(
+				and(
+					eq(categoriesToWeeksTable.categoryId, id),
+					eq(categoriesToWeeksTable.weekId, weekId)
+				)
+			);
+
+		await tx
+			.delete(incidencesTable)
+			.where(and(eq(incidencesTable.category, id), eq(incidencesTable.weekId, weekId)));
+	});
 
 	return json({ success: true });
 }

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { selectedWeek } from '$lib/stores.svelte';
 	import CategoryForm from './CategoryForm.svelte';
 
 	const {
@@ -37,7 +38,7 @@
 		await fetch('/api/category', {
 			method: 'DELETE',
 			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ id: category.id })
+			body: JSON.stringify({ id: category.id, weekId: selectedWeek.value.id })
 		});
 		location.reload();
 	}
