@@ -46,7 +46,6 @@
 				totalsByCategoryType.set('all', prevTotal + categoryTypeTotal);
 			}
 		}
-
 		return totalsByCategoryType;
 	}
 	function getCategoryTypeTotalMonetaryValue(categoryType: string) {
@@ -63,9 +62,9 @@
 			monetaryValue: 0,
 			amount: 0
 		};
-		const incidenciaTotals = totals.incidences.get(categoryId);
-		if (!incidenciaTotals) return total;
-		for (const [employeeId, incidenciaTotal] of incidenciaTotals) {
+		const incidenciaTotalsInCategory = totals.incidences.get(categoryId);
+		if (!incidenciaTotalsInCategory) return total;
+		for (const [employeeId, incidenciaTotal] of incidenciaTotalsInCategory) {
 			total.monetaryValue += incidenciaTotal.monetaryValue;
 			total.amount += incidenciaTotal.amount;
 		}

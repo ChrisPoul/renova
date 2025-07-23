@@ -5,11 +5,11 @@
 	let {
 		incidencia = $bindable(),
 		category,
-		updateIncidenceAmount
+		updateIncidence
 	}: {
 		incidencia: Incidence;
 		category: IncidenceCategory;
-		updateIncidenceAmount: (incidencia: Incidence, category: IncidenceCategory) => void;
+		updateIncidence: (incidencia: Incidence, category: IncidenceCategory) => void;
 	} = $props();
 
 	let unitMonetaryValue = $state(
@@ -29,7 +29,7 @@
 		incidencia.unitMonetaryValue = unitMonetaryValue;
 		incidencia.basedOnCategory = false;
 
-		updateIncidenceAmount(incidencia, category);
+		updateIncidence(incidencia, category);
 	}
 </script>
 

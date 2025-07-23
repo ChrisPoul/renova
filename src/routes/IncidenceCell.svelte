@@ -10,12 +10,12 @@
 		category,
 		employee,
 		incidenciasMapByCategory,
-		updateIncidenceAmount
+		updateIncidence
 	}: {
 		category: IncidenceCategory;
 		employee: Employee;
 		incidenciasMapByCategory: Map<number, Incidence>;
-		updateIncidenceAmount: (incidencia: Incidence, category: IncidenceCategory) => void;
+		updateIncidence: (incidencia: Incidence, category: IncidenceCategory) => void;
 	} = $props();
 	let incidencia = $derived(incidenciasMapByCategory.get(category.id));
 </script>
@@ -31,7 +31,7 @@
 					class="rounded-md border border-gray-500 px-2 py-1"
 					oninput={() => {
 						if (!incidencia) return;
-						updateIncidenceAmount(incidencia, category);
+						updateIncidence(incidencia, category);
 					}}
 					style="width: {`${(incidencia.amount?.toString().length || 1) + 4}ch`}; min-width: 8ch;"
 				/>
@@ -45,7 +45,7 @@
 						<span class="text-sm leading-none text-gray-500">
 							{formatMonetaryValue(getIncidenceUnitMonetaryValue(incidencia, category, employee))}
 						</span>
-						<EditIncidence bind:incidencia {category} {updateIncidenceAmount} />
+						<EditIncidence bind:incidencia {category} {updateIncidence} />
 					</div>
 					<span class="leading-none text-gray-500">
 						{formatMonetaryValue(getIncidenceTotalMonetaryValue(incidencia, category, employee))}

@@ -39,9 +39,9 @@
 		);
 	});
 
-	async function updateIncidenceAmount(incidencia: Incidence, category: IncidenceCategory) {
+	async function updateIncidence(incidencia: Incidence, category: IncidenceCategory) {
 		incidencia.amount = validateAmount(incidencia.amount);
-		setCategoryTotalByIncidence(incidencia, category);
+		setIncidenceTotal(incidencia, category);
 		setEmployeeTotalsByCategoryType();
 		totals.incidences = new Map(totals.incidences);
 		await fetch('/api/incidence', {
@@ -79,40 +79,29 @@
 		}
 		totals.categoryTypes = new Map(totals.categoryTypes);
 	}
-	function updateCategoryTotalMonetaryValuesByEmployee(employee: Employee) {
-		for (const incidencia of employee.incidencias) {
-			const category = incidenceCategoriesMap.get(incidencia.category);
-			if (!category) continue;
-			setCategoryTotalByIncidence(incidencia, category);
-		}
-		totals.incidences = new Map(totals.incidences);
-	}
-	function setCategoryTotalByIncidence(incidencia: Incidence, category: IncidenceCategory) {
+
+	function setIncidenceTotal(incidencia: Incidence, category: IncidenceCategory) {
 		let incidenciaTotalMonetaryValue = getIncidenceTotalMonetaryValue(
 			incidencia,
 			category,
 			employee
 		);
-		const categoryIncidences = totals.incidences.get(category.id);
-		if (categoryIncidences) {
-			categoryIncidences.set(employee.id, {
-				monetaryValue: incidenciaTotalMonetaryValue,
-				amount: incidencia.amount
-			});
-		} else {
-			totals.incidences.set(
-				incidencia.category,
-				new Map([
-					[
-						employee.id,
-						{
-							monetaryValue: incidenciaTotalMonetaryValue,
-							amount: incidencia.amount
-						}
-					]
-				])
-			);
+		if (!totals.incidences.get(category.id)) {
+			totals.incidences.set(incidencia.category, new Map());
 		}
+		totals.incidences.get(category.id)?.set(employee.id, {
+			monetaryValue: incidenciaTotalMonetaryValue,
+			amount: incidencia.amount
+		});
+	}
+
+	function updateCategoryTotalMonetaryValuesByEmployee(employee: Employee) {
+		for (const incidencia of employee.incidencias) {
+			const category = incidenceCategoriesMap.get(incidencia.category);
+			if (!category) continue;
+			setIncidenceTotal(incidencia, category);
+		}
+		totals.incidences = new Map(totals.incidences);
 	}
 </script>
 
@@ -125,7 +114,7 @@
 	<td class="t-cell text-nowrap">{employee.puesto}</td>
 	<td class="t-cell text-nowrap">{formatMonetaryValue(employee.salary)}</td>
 	{#each incidenceCategories as category}
-		<IncidenceCell {category} {employee} {incidenciasMapByCategory} {updateIncidenceAmount} />
+		<IncidenceCell {category} {employee} {incidenciasMapByCategory} {updateIncidence} />
 	{/each}
 	{#each selectedCategoryTypes.value as categoryType}
 		<td class="t-cell text-nowrap">
