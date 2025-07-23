@@ -1,13 +1,12 @@
 <script lang="ts">
 	import EmployeeRow from './EmployeeRow.svelte';
-	import { selectedCategoryTypes, totals } from '$lib/stores.svelte';
+	import { selectedCategoryTypes } from '$lib/stores.svelte';
 	import { formatMonetaryValue, getCategoryTypeLabel } from '$lib/utils';
 	import EditCategory from './EditCategory.svelte';
 
 	let {
 		incidenceCategories,
 		employees,
-		getTotalSalary,
 		getCategoryTotalMonetaryValueAndAmount,
 		totalsByCategoryType
 	}: {
@@ -20,6 +19,14 @@
 		};
 		totalsByCategoryType: Map<string, number>;
 	} = $props();
+
+	function getTotalSalary(employees: Employee[]) {
+		let total = 0;
+		for (const employee of employees) {
+			total += employee.salary;
+		}
+		return total;
+	}
 </script>
 
 <div class="relative overflow-auto">
@@ -62,7 +69,7 @@
 				<td class="t-cell bg-gray-200"></td>
 				<td class="t-cell bg-gray-200"></td>
 				<td class="t-cell bg-gray-200 text-nowrap">
-					{formatMonetaryValue(getTotalSalary())}
+					{formatMonetaryValue(getTotalSalary(employees))}
 				</td>
 				{#each incidenceCategories as category}
 					{#if selectedCategoryTypes.value.includes(category.type)}

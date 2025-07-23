@@ -2,20 +2,21 @@ import { categoryTypes } from './constants';
 
 type categoryID = number;
 type employeeID = number;
-type employeeTotal = number;
+type employeeCategoryTypeTotal = number;
 interface incidenceTotal {
 	amount: number;
 	monetaryValue: number;
 }
+export type CategoryTypesTotals = Map<string, Map<employeeID, employeeCategoryTypeTotal>>
 
 interface Totals {
-	byCategory: Map<categoryID, Map<employeeID, incidenceTotal>>;
-	byCategoryType: Map<string, Map<employeeID, employeeTotal>>;
+	incidences: Map<categoryID, Map<employeeID, incidenceTotal>>;
+	categoryTypes: CategoryTypesTotals;
 }
 
 export const totals = $state<Totals>({
-	byCategory: new Map(),
-	byCategoryType: new Map()
+	incidences: new Map(),
+	categoryTypes: new Map(),
 });
 
 export const selectedCategoryTypes = $state({

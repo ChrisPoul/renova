@@ -23,7 +23,6 @@
 		const startDay = startDate.getDate();
 		const endDay = endDate.getDate();
 		return `Del ${startDay} al ${endDay} de ${month} de ${year}`;
-
 	}
 
 	function getWeekForInput(date: Date) {
@@ -31,17 +30,10 @@
 		const dayNum = d.getUTCDay() || 7;
 		d.setUTCDate(d.getUTCDate() + 4 - dayNum);
 		const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
-		const weekNumber =Math.ceil(((d - yearStart) / 86400000 + 1) / 7);
-		return `${date.getFullYear()}-W${weekNumber}`
+		const weekNumber = Math.ceil(((d - yearStart) / 86400000 + 1) / 7);
+		return `${date.getFullYear()}-W${weekNumber}`;
 	}
 
-	function getTotalSalary() {
-		let total = 0;
-		for (const employee of employees) {
-			total += employee.salary;
-		}
-		return total;
-	}
 	function getTotalsByCategoryType() {
 		const totalsByCategoryType = new Map<string, number>([['all', 0]]);
 		for (const categoryType of selectedCategoryTypes.value) {
@@ -59,7 +51,7 @@
 	}
 	function getCategoryTypeTotalMonetaryValue(categoryType: string) {
 		let total = 0;
-		const categoryTypeTotals = totals.byCategoryType.get(categoryType);
+		const categoryTypeTotals = totals.categoryTypes.get(categoryType);
 		if (!categoryTypeTotals) return 0;
 		for (const [employeeId, employeeCategoryTypeTotal] of categoryTypeTotals) {
 			total += employeeCategoryTypeTotal;
@@ -71,7 +63,7 @@
 			monetaryValue: 0,
 			amount: 0
 		};
-		const incidenciaTotals = totals.byCategory.get(categoryId);
+		const incidenciaTotals = totals.incidences.get(categoryId);
 		if (!incidenciaTotals) return total;
 		for (const [employeeId, incidenciaTotal] of incidenciaTotals) {
 			total.monetaryValue += incidenciaTotal.monetaryValue;
@@ -167,14 +159,14 @@
 			}
 
 			for (const categoryType of selectedCategoryTypes.value) {
-				const typeTotal = totals.byCategoryType.get(categoryType)?.get(employee.id) ?? 0;
+				const typeTotal = totals.categoryTypes.get(categoryType)?.get(employee.id) ?? 0;
 				row.push(formatMonetaryValue(typeTotal));
 			}
 
 			const employeeTotal = (() => {
 				let total = 0;
 				for (const categoryType of selectedCategoryTypes.value) {
-					const categoryTypeTotal = totals.byCategoryType.get(categoryType)?.get(employee.id) ?? 0;
+					const categoryTypeTotal = totals.categoryTypes.get(categoryType)?.get(employee.id) ?? 0;
 					if (categoryType === 'deduccion') {
 						total -= categoryTypeTotal;
 					} else {
@@ -304,7 +296,6 @@
 	<MainTable
 		{employees}
 		{incidenceCategories}
-		{getTotalSalary}
 		{getCategoryTotalMonetaryValueAndAmount}
 		{getCategoryTypeTotalMonetaryValue}
 		{totalsByCategoryType}

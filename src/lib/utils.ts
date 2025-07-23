@@ -1,3 +1,5 @@
+import type {CategoryTypesTotals} from '$lib/stores.svelte'
+
 export function formatMonetaryValue(value: number) {
 	return (
 		value.toLocaleString('en-US', {
@@ -60,4 +62,22 @@ export function getIncidenceUnitMonetaryValue(
 		return employee.salary / 40;
 	}
 	return unitMonetaryValue;
+}
+
+export function getEmployeeTotalUsingCategoryTypes(
+	categoryTypes: string[],
+	employeeId: number,
+	categoryTypesTotals: CategoryTypesTotals
+) {
+	let total = 0;
+	for (const categoryType of categoryTypes) {
+		const categoryTypeTotal = categoryTypesTotals.get(categoryType)?.get(employeeId);
+		if (!categoryTypeTotal) continue;
+		if (categoryType === 'deduccion') {
+			total -= categoryTypeTotal;
+		} else {
+			total += categoryTypeTotal;
+		}
+	}
+	return total;
 }
