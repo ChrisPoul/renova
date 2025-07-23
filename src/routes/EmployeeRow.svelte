@@ -3,7 +3,7 @@
 	import { selectedCategoryTypes, totals, isReadOnly } from '$lib/stores.svelte';
 	import {
 		formatMonetaryValue,
-		getEmployeeTotalUsingCategoryTypes,
+		getEmployeeTotalFromCategoryTypeTotals,
 		getIncidenceTotalMonetaryValue,
 		validateAmount
 	} from '$lib/utils';
@@ -32,7 +32,7 @@
 	});
 
 	let employeeTotal = $derived.by(() => {
-		return getEmployeeTotalUsingCategoryTypes(
+		return getEmployeeTotalFromCategoryTypeTotals(
 			selectedCategoryTypes.value,
 			employee.id,
 			totals.categoryTypes

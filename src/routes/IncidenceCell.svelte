@@ -2,7 +2,6 @@
 	import { selectedCategoryTypes, isReadOnly, totals } from '$lib/stores.svelte';
 	import {
 		formatMonetaryValue,
-		getIncidenceTotalMonetaryValue,
 		getIncidenceUnitMonetaryValue
 	} from '$lib/utils';
 	import EditIncidence from './EditIncidence.svelte';
@@ -54,7 +53,9 @@
 						{/if}
 					</div>
 					<span class="leading-none text-gray-500">
-						{formatMonetaryValue(getIncidenceTotalMonetaryValue(incidence, category, employee))}
+						{formatMonetaryValue(
+							totals.incidences.get(incidence.category)?.get(incidence.employee)?.monetaryValue || 0
+						)}
 					</span>
 				</div>
 			</div>

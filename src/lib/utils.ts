@@ -1,4 +1,4 @@
-import type {CategoryTypesTotals} from '$lib/stores.svelte'
+import type { CategoryTypesTotals } from '$lib/stores.svelte';
 
 export function formatMonetaryValue(value: number) {
 	return (
@@ -64,7 +64,7 @@ export function getIncidenceUnitMonetaryValue(
 	return unitMonetaryValue;
 }
 
-export function getEmployeeTotalUsingCategoryTypes(
+export function getEmployeeTotalFromCategoryTypeTotals(
 	categoryTypes: string[],
 	employeeId: number,
 	categoryTypesTotals: CategoryTypesTotals
