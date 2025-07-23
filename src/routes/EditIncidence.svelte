@@ -3,33 +3,33 @@
 	import UnitInputs from './UnitInputs.svelte';
 
 	let {
-		incidencia = $bindable(),
+		incidence = $bindable(),
 		category,
 		updateIncidence
 	}: {
-		incidencia: Incidence;
+		incidence: Incidence;
 		category: IncidenceCategory;
-		updateIncidence: (incidencia: Incidence, category: IncidenceCategory) => void;
+		updateIncidence: (incidence: Incidence, category: IncidenceCategory) => void;
 	} = $props();
 
 	let unitMonetaryValue = $state(
-		incidencia.basedOnCategory ? category.unitMonetaryValue : incidencia.unitMonetaryValue
+		incidence.basedOnCategory ? category.unitMonetaryValue : incidence.unitMonetaryValue
 	);
-	let unit = $state(incidencia.basedOnCategory ? category.unit : incidencia.unit);
+	let unit = $state(incidence.basedOnCategory ? category.unit : incidence.unit);
 	let unitValueIsDerived = $state(
-		incidencia.basedOnCategory ? category.unitValueIsDerived : incidencia.unitValueIsDerived
+		incidence.basedOnCategory ? category.unitValueIsDerived : incidence.unitValueIsDerived
 	);
 
 	function acceptChanges() {
-		incidencia.unit = unit;
-		incidencia.unitValueIsDerived = unitValueIsDerived;
+		incidence.unit = unit;
+		incidence.unitValueIsDerived = unitValueIsDerived;
 		if (unitValueIsDerived) {
 			unitMonetaryValue = 1;
 		}
-		incidencia.unitMonetaryValue = unitMonetaryValue;
-		incidencia.basedOnCategory = false;
+		incidence.unitMonetaryValue = unitMonetaryValue;
+		incidence.basedOnCategory = false;
 
-		updateIncidence(incidencia, category);
+		updateIncidence(incidence, category);
 	}
 </script>
 

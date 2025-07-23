@@ -20,6 +20,7 @@ declare global {
 	interface Incidence {
 		id: number;
 		category: number;
+		employee: number;
 		amount: number;
 		basedOnCategory: boolean;
 		unitMonetaryValue: number;

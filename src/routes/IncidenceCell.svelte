@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { selectedCategoryTypes, isReadOnly } from '$lib/stores.svelte';
+	import { selectedCategoryTypes, isReadOnly, totals } from '$lib/stores.svelte';
 	import {
 		formatMonetaryValue,
 		getIncidenceTotalMonetaryValue,
@@ -15,43 +15,46 @@
 		category: IncidenceCategory;
 		employee: Employee;
 		incidenciasMapByCategory: Map<number, Incidence>;
-		updateIncidence: (incidencia: Incidence, category: IncidenceCategory) => void;
+		updateIncidence: (incidence: Incidence, category: IncidenceCategory) => void;
 	} = $props();
-	let incidencia = $derived(incidenciasMapByCategory.get(category.id));
+	let incidence = $derived(incidenciasMapByCategory.get(category.id));
 </script>
 
 {#if selectedCategoryTypes.value.includes(category.type)}
 	<td class="t-cell text-nowrap">
-		{#if incidencia}
+		{#if incidence}
 			<div class="flex w-full items-center gap-0.75">
-				<input
-					type="number"
-					step=".01"
-					readonly={isReadOnly.value}
-					bind:value={incidencia.amount}
-					class="rounded-md border border-gray-500 px-2 py-1"
-					oninput={() => {
-						if (!incidencia) return;
-						updateIncidence(incidencia, category);
-					}}
-					style="width: {`${(incidencia.amount?.toString().length || 1) + 4}ch`}; min-width: 8ch;"
-				/>
-				{#if incidencia.basedOnCategory}
+				{#if isReadOnly.value}
+					{totals.incidences.get(incidence.category)?.get(incidence.employee)?.amount}
+				{:else}
+					<input
+						type="number"
+						step=".01"
+						bind:value={incidence.amount}
+						class="rounded-md border border-gray-500 px-2 py-1"
+						oninput={() => {
+							if (!incidence) return;
+							updateIncidence(incidence, category);
+						}}
+						style="width: {`${(incidence.amount?.toString().length || 1) + 4}ch`}; min-width: 8ch;"
+					/>
+				{/if}
+				{#if incidence.basedOnCategory}
 					{category.unit}
 				{:else}
-					{incidencia.unit}
+					{incidence.unit}
 				{/if}
 				<div class="ml-auto flex flex-col">
 					<div class="ml-auto flex items-center">
 						<span class="text-sm leading-none text-gray-500">
-							{formatMonetaryValue(getIncidenceUnitMonetaryValue(incidencia, category, employee))}
+							{formatMonetaryValue(getIncidenceUnitMonetaryValue(incidence, category, employee))}
 						</span>
 						{#if !isReadOnly.value}
-							<EditIncidence bind:incidencia {category} {updateIncidence} />
+							<EditIncidence bind:incidence {category} {updateIncidence} />
 						{/if}
 					</div>
 					<span class="leading-none text-gray-500">
-						{formatMonetaryValue(getIncidenceTotalMonetaryValue(incidencia, category, employee))}
+						{formatMonetaryValue(getIncidenceTotalMonetaryValue(incidence, category, employee))}
 					</span>
 				</div>
 			</div>

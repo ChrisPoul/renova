@@ -135,7 +135,7 @@
 	<AddCategory />
 	<AddEmployee />
 	<a
-		href="/report"
+		href="/report?weekId={selectedWeek.value.id}"
 		class="mb-4 rounded-lg bg-blue-500 px-3 py-2 text-white hover:bg-blue-600"
 	>
 		Generar Reporte
