@@ -5,7 +5,7 @@ import * as schema from './schema';
 export const db = drizzle('file:local.db', { schema });
 
 // Get all incidence categories
-export async function getAllIncidenceCategories(weekId: string | null) {
+export async function getAllIncidenceCategories(weekId: number | null) {
 	if (!weekId) {
 		return db.query.incidenceCategoriesTable.findMany({
 			orderBy: (table, { desc }) => [desc(table.type)]
@@ -22,14 +22,14 @@ export async function getAllIncidenceCategories(weekId: string | null) {
 					.where(
 						and(
 							eq(schema.categoriesToWeeksTable.categoryId, table.id),
-							eq(schema.categoriesToWeeksTable.weekId, +weekId)
+							eq(schema.categoriesToWeeksTable.weekId, weekId)
 						)
 					)
 			)
 	});
 }
 
-export async function getAllEmployeesWithIncidences(weekId: string | null) {
+export async function getAllEmployeesWithIncidences(weekId: number | null) {
 	const where = weekId ? eq(schema.incidencesTable.weekId, +weekId) : undefined;
 
 	if (!weekId) {
@@ -45,7 +45,7 @@ export async function getAllEmployeesWithIncidences(weekId: string | null) {
 	const employeesInWeek = await db
 		.select({ id: schema.employeesToWeeksTable.employeeId })
 		.from(schema.employeesToWeeksTable)
-		.where(eq(schema.employeesToWeeksTable.weekId, +weekId));
+		.where(eq(schema.employeesToWeeksTable.weekId, weekId));
 
 	const employeeIds = employeesInWeek.map((e) => e.id);
 

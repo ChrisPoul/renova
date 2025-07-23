@@ -9,24 +9,23 @@ import { eq } from 'drizzle-orm';
 
 export async function load({ url }) {
 	const weekId = url.searchParams.get('weekId');
+	
+	let weeks = await db.select().from(weeksTable)
+	const selectedWeekId = weekId ? parseInt(weekId, 10) : weeks[0]?.id;
 
-	let [employees, incidenceCategories, weeks] = await Promise.all([
-		getAllEmployeesWithIncidences(weekId),
-		getAllIncidenceCategories(weekId),
-		db.select().from(weeksTable)
+	let [employees, incidenceCategories] = await Promise.all([
+		getAllEmployeesWithIncidences(selectedWeekId),
+		getAllIncidenceCategories(selectedWeekId),
 	]);
-
 	if (weeks.length === 0) {
 		await makeDummyData();
 		// Re-fetch data after inserting dummy data
 		[employees, incidenceCategories, weeks] = await Promise.all([
-			getAllEmployeesWithIncidences(weekId),
-			getAllIncidenceCategories(weekId),
+			getAllEmployeesWithIncidences(selectedWeekId),
+			getAllIncidenceCategories(selectedWeekId),
 			db.select().from(weeksTable)
 		]);
 	}
-
-	const selectedWeekId = weekId ? parseInt(weekId, 10) : weeks[0]?.id;
 
 	const selectedWeek = await db.query.weeksTable.findFirst({
 		where: eq(weeksTable.id, selectedWeekId)
