@@ -2,7 +2,7 @@
     import MainTable from "../MainTable.svelte";
     import { isReadOnly, selectedWeek, totals, selectedCategoryTypes } from "$lib/stores.svelte";
     import ExcelJS from 'exceljs';
-    import { formatMonetaryValue, getCategoryTypeLabel } from '$lib/utils';
+    import { formatMonetaryValue, getCategoryTypeLabel, getTotalsByCategoryType, getCategoryTypeTotalMonetaryValue, getCategoryTotalMonetaryValueAndAmount } from '$lib/utils';
 
     let { data } = $props();
     let employees = $state(data.employees);
@@ -12,42 +12,7 @@
 
     isReadOnly.value = true;
 
-    function getTotalsByCategoryType() {
-		const totalsByCategoryType = new Map<string, number>([['all', 0]]);
-		for (const categoryType of selectedCategoryTypes.value) {
-			const categoryTypeTotal = getCategoryTypeTotalMonetaryValue(categoryType);
-			totalsByCategoryType.set(categoryType, categoryTypeTotal);
-			const prevTotal = totalsByCategoryType.get('all') ?? 0;
-			if (categoryType === 'deduccion') {
-				totalsByCategoryType.set('all', prevTotal - categoryTypeTotal);
-			} else {
-				totalsByCategoryType.set('all', prevTotal + categoryTypeTotal);
-			}
-		}
-		return totalsByCategoryType;
-	}
-	function getCategoryTypeTotalMonetaryValue(categoryType: string) {
-		let total = 0;
-		const categoryTypeTotals = totals.categoryTypes.get(categoryType);
-		if (!categoryTypeTotals) return 0;
-		for (const [employeeId, employeeCategoryTypeTotal] of categoryTypeTotals) {
-			total += employeeCategoryTypeTotal;
-		}
-		return total;
-	}
-	function getCategoryTotalMonetaryValueAndAmount(categoryId: number) {
-		let total = {
-			monetaryValue: 0,
-			amount: 0
-		};
-		const incidenciaTotalsInCategory = totals.incidences.get(categoryId);
-		if (!incidenciaTotalsInCategory) return total;
-		for (const [employeeId, incidenciaTotal] of incidenciaTotalsInCategory) {
-			total.monetaryValue += incidenciaTotal.monetaryValue;
-			total.amount += incidenciaTotal.amount;
-		}
-		return total;
-	}
+    
 
     function generateExcelReport() {
 		const workbook = new ExcelJS.Workbook();

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { categoryTypes } from '$lib/constants';
 	import { selectedCategoryTypes, totals, selectedWeek } from '$lib/stores.svelte';
-	import { formatMonetaryValue, getCategoryTypeLabel } from '$lib/utils';
+	import { formatMonetaryValue, getCategoryTypeLabel, getTotalsByCategoryType, getCategoryTypeTotalMonetaryValue, getCategoryTotalMonetaryValueAndAmount } from '$lib/utils';
 	import AddCategory from './AddCategory.svelte';
 	import AddEmployee from './AddEmployee.svelte';
 	import MainTable from './MainTable.svelte';
@@ -35,42 +35,7 @@
 		return `${date.getFullYear()}-W${weekNumber}`;
 	}
 
-	function getTotalsByCategoryType() {
-		const totalsByCategoryType = new Map<string, number>([['all', 0]]);
-		for (const categoryType of selectedCategoryTypes.value) {
-			const categoryTypeTotal = getCategoryTypeTotalMonetaryValue(categoryType);
-			totalsByCategoryType.set(categoryType, categoryTypeTotal);
-			const prevTotal = totalsByCategoryType.get('all') ?? 0;
-			if (categoryType === 'deduccion') {
-				totalsByCategoryType.set('all', prevTotal - categoryTypeTotal);
-			} else {
-				totalsByCategoryType.set('all', prevTotal + categoryTypeTotal);
-			}
-		}
-		return totalsByCategoryType;
-	}
-	function getCategoryTypeTotalMonetaryValue(categoryType: string) {
-		let total = 0;
-		const categoryTypeTotals = totals.categoryTypes.get(categoryType);
-		if (!categoryTypeTotals) return 0;
-		for (const [employeeId, employeeCategoryTypeTotal] of categoryTypeTotals) {
-			total += employeeCategoryTypeTotal;
-		}
-		return total;
-	}
-	function getCategoryTotalMonetaryValueAndAmount(categoryId: number) {
-		let total = {
-			monetaryValue: 0,
-			amount: 0
-		};
-		const incidenciaTotalsInCategory = totals.incidences.get(categoryId);
-		if (!incidenciaTotalsInCategory) return total;
-		for (const [employeeId, incidenciaTotal] of incidenciaTotalsInCategory) {
-			total.monetaryValue += incidenciaTotal.monetaryValue;
-			total.amount += incidenciaTotal.amount;
-		}
-		return total;
-	}
+	
 </script>
 
 <div class="fixed top-0 left-0 z-20 flex gap-2 p-2 font-bold text-white">

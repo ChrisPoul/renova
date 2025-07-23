@@ -1,4 +1,5 @@
 import type { CategoryTypesTotals } from '$lib/stores.svelte';
+import { totals, selectedCategoryTypes } from '$lib/stores.svelte';
 
 export function formatMonetaryValue(value: number) {
 	return (
@@ -80,4 +81,43 @@ export function getEmployeeTotalFromCategoryTypeTotals(
 		}
 	}
 	return total;
+}
+
+export function getTotalsByCategoryType() {
+    const totalsByCategoryType = new Map<string, number>([['all', 0]]);
+    for (const categoryType of selectedCategoryTypes.value) {
+        const categoryTypeTotal = getCategoryTypeTotalMonetaryValue(categoryType);
+        totalsByCategoryType.set(categoryType, categoryTypeTotal);
+        const prevTotal = totalsByCategoryType.get('all') ?? 0;
+        if (categoryType === 'deduccion') {
+            totalsByCategoryType.set('all', prevTotal - categoryTypeTotal);
+        } else {
+            totalsByCategoryType.set('all', prevTotal + categoryTypeTotal);
+        }
+    }
+    return totalsByCategoryType;
+}
+
+export function getCategoryTypeTotalMonetaryValue(categoryType: string) {
+    let total = 0;
+    const categoryTypeTotals = totals.categoryTypes.get(categoryType);
+    if (!categoryTypeTotals) return 0;
+    for (const [employeeId, employeeCategoryTypeTotal] of categoryTypeTotals) {
+        total += employeeCategoryTypeTotal;
+    }
+    return total;
+}
+
+export function getCategoryTotalMonetaryValueAndAmount(categoryId: number) {
+    let total = {
+        monetaryValue: 0,
+        amount: 0
+    };
+    const incidenciaTotalsInCategory = totals.incidences.get(categoryId);
+    if (!incidenciaTotalsInCategory) return total;
+    for (const [employeeId, incidenciaTotal] of incidenciaTotalsInCategory) {
+        total.monetaryValue += incidenciaTotal.monetaryValue;
+        total.amount += incidenciaTotal.amount;
+    }
+    return total;
 }
