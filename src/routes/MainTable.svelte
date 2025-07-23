@@ -1,6 +1,6 @@
 <script lang="ts">
 	import EmployeeRow from './EmployeeRow.svelte';
-	import { selectedCategoryTypes } from '$lib/stores.svelte';
+	import { selectedCategoryTypes, isReadOnly } from '$lib/stores.svelte';
 	import { formatMonetaryValue, getCategoryTypeLabel } from '$lib/utils';
 	import EditCategory from './EditCategory.svelte';
 
@@ -48,7 +48,9 @@
 									{formatMonetaryValue(category.unitMonetaryValue)}
 								{/if}
 							</span>
-							<EditCategory {category} />
+							{#if !isReadOnly.value}
+								<EditCategory {category} />
+							{/if}
 						</th>
 					{/if}
 				{/each}

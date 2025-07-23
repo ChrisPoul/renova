@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { selectedCategoryTypes } from '$lib/stores.svelte';
+	import { selectedCategoryTypes, isReadOnly } from '$lib/stores.svelte';
 	import {
 		formatMonetaryValue,
 		getIncidenceTotalMonetaryValue,
@@ -27,6 +27,7 @@
 				<input
 					type="number"
 					step=".01"
+					readonly={isReadOnly.value}
 					bind:value={incidencia.amount}
 					class="rounded-md border border-gray-500 px-2 py-1"
 					oninput={() => {
@@ -45,7 +46,9 @@
 						<span class="text-sm leading-none text-gray-500">
 							{formatMonetaryValue(getIncidenceUnitMonetaryValue(incidencia, category, employee))}
 						</span>
-						<EditIncidence bind:incidencia {category} {updateIncidence} />
+						{#if !isReadOnly.value}
+							<EditIncidence bind:incidencia {category} {updateIncidence} />
+						{/if}
 					</div>
 					<span class="leading-none text-gray-500">
 						{formatMonetaryValue(getIncidenceTotalMonetaryValue(incidencia, category, employee))}

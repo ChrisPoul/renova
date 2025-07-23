@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { selectedCategoryTypes, totals } from '$lib/stores.svelte';
+	import { selectedCategoryTypes, totals, isReadOnly } from '$lib/stores.svelte';
 	import {
 		formatMonetaryValue,
 		getEmployeeTotalUsingCategoryTypes,
@@ -109,7 +109,9 @@
 <tr class="odd:bg-white even:bg-gray-50">
 	<td class="t-cell sticky left-0 bg-gray-200 text-nowrap">
 		{employee.name}
-		<EditEmployee {employee} />
+		{#if !isReadOnly.value}
+			<EditEmployee {employee} />
+		{/if}
 	</td>
 	<td class="t-cell text-nowrap">{employee.area}</td>
 	<td class="t-cell text-nowrap">{employee.puesto}</td>

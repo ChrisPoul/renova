@@ -24,3 +24,5 @@ export const selectedCategoryTypes = $state({
 });
 
 export const selectedWeek = $state({ value: null });
+
+export const isReadOnly = $state({ value: false });
