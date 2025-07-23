@@ -53,7 +53,8 @@
 					amount: incidencia.amount,
 					unit: incidencia.unit,
 					unitMonetaryValue: incidencia.unitMonetaryValue,
-					basedOnCategory: incidencia.basedOnCategory
+					basedOnCategory: incidencia.basedOnCategory,
+					unitValueIsDerived: incidencia.unitValueIsDerived
 				}
 			})
 		});
