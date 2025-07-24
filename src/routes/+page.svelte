@@ -13,7 +13,6 @@
 	selectedWeek.value = data.selectedWeek;
 	let totalsByCategoryType = $derived.by(getTotalsByCategoryType);
 
-		console.log(employees)
 	function getWeekTitle(week) {
 		if (!week) return '';
 

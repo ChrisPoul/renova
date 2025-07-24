@@ -12,7 +12,16 @@
 
     isReadOnly.value = true;
 
-    
+    let startWeek = $state("")
+		let endWeek = $state("")
+
+    async function generateReport() {
+        const response = await fetch(`/api/report?startWeek=${startWeek}&endWeek=${endWeek}`);
+        const responseData = await response.json();
+        employees = responseData.employees;
+				console.log(employees);
+        incidenceCategories = responseData.incidenceCategories;
+    }
 
     function generateExcelReport() {
 		const workbook = new ExcelJS.Workbook();
@@ -186,6 +195,22 @@
 
 <section class="flex flex-col gap-4 p-4">
     <h1 class="text-4xl font-semibold">Report</h1>
+    <div class="flex gap-4">
+        <div>
+            <label for="start-week">Start Week</label>
+            <input type="week" id="start-week" bind:value={startWeek} />
+        </div>
+        <div>
+            <label for="end-week">End Week</label>
+            <input type="week" id="end-week" bind:value={endWeek} />
+        </div>
+        <button
+            class="rounded-lg bg-blue-500 px-3 py-2 text-white hover:bg-blue-600 self-end"
+            onclick={generateReport}
+        >
+            Generate Report
+        </button>
+    </div>
     <MainTable {employees} {incidenceCategories} {getCategoryTotalMonetaryValueAndAmount} {getCategoryTypeTotalMonetaryValue} {totalsByCategoryType} />
     <button
 		class="mb-4 rounded-lg bg-blue-500 px-3 py-2 text-white hover:bg-blue-600 self-start"
