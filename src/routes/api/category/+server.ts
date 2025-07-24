@@ -25,8 +25,8 @@ export async function POST({ request }) {
 		const employees = await tx.select().from(employeesTable);
 
 		const newIncidences = employees.map((emp) => ({
-			employee: emp.id,
-			category: newCategoryId,
+			employeeId: emp.id,
+			categoryId: newCategoryId,
 			amount: 0,
 			weekId
 		}));
@@ -64,15 +64,12 @@ export async function DELETE({ request }) {
 		await tx
 			.delete(categoriesToWeeksTable)
 			.where(
-				and(
-					eq(categoriesToWeeksTable.categoryId, id),
-					eq(categoriesToWeeksTable.weekId, weekId)
-				)
+				and(eq(categoriesToWeeksTable.categoryId, id), eq(categoriesToWeeksTable.weekId, weekId))
 			);
 
 		await tx
 			.delete(incidencesTable)
-			.where(and(eq(incidencesTable.category, id), eq(incidencesTable.weekId, weekId)));
+			.where(and(eq(incidencesTable.categoryId, id), eq(incidencesTable.weekId, weekId)));
 	});
 
 	return json({ success: true });

@@ -36,23 +36,23 @@ export function validateAmount(amount: number) {
 }
 
 export function getIncidenceTotalMonetaryValue(
-	incidencia: Incidence,
+	incidence: Incidence,
 	category: IncidenceCategory,
 	employee: Employee
 ) {
-	const unitMonetaryValue = getIncidenceUnitMonetaryValue(incidencia, category, employee);
-	return incidencia.amount * unitMonetaryValue;
+	const unitMonetaryValue = getIncidenceUnitMonetaryValue(incidence, category, employee);
+	return incidence.amount * unitMonetaryValue;
 }
 
 export function getIncidenceUnitMonetaryValue(
-	incidencia: Incidence,
+	incidence: Incidence,
 	category: IncidenceCategory,
 	employee: Employee
 ) {
-	let unit = incidencia.unit;
-	let unitMonetaryValue = incidencia.unitMonetaryValue;
-	let unitValueIsDerived = incidencia.unitValueIsDerived;
-	if (incidencia.basedOnCategory) {
+	let unit = incidence.unit;
+	let unitMonetaryValue = incidence.unitMonetaryValue;
+	let unitValueIsDerived = incidence.unitValueIsDerived;
+	if (incidence.basedOnCategory) {
 		unit = category.unit;
 		unitMonetaryValue = category.unitMonetaryValue;
 		unitValueIsDerived = category.unitValueIsDerived;
@@ -84,40 +84,40 @@ export function getEmployeeTotalFromCategoryTypeTotals(
 }
 
 export function getTotalsByCategoryType() {
-    const totalsByCategoryType = new Map<string, number>([['all', 0]]);
-    for (const categoryType of selectedCategoryTypes.value) {
-        const categoryTypeTotal = getCategoryTypeTotalMonetaryValue(categoryType);
-        totalsByCategoryType.set(categoryType, categoryTypeTotal);
-        const prevTotal = totalsByCategoryType.get('all') ?? 0;
-        if (categoryType === 'deduccion') {
-            totalsByCategoryType.set('all', prevTotal - categoryTypeTotal);
-        } else {
-            totalsByCategoryType.set('all', prevTotal + categoryTypeTotal);
-        }
-    }
-    return totalsByCategoryType;
+	const totalsByCategoryType = new Map<string, number>([['all', 0]]);
+	for (const categoryType of selectedCategoryTypes.value) {
+		const categoryTypeTotal = getCategoryTypeTotalMonetaryValue(categoryType);
+		totalsByCategoryType.set(categoryType, categoryTypeTotal);
+		const prevTotal = totalsByCategoryType.get('all') ?? 0;
+		if (categoryType === 'deduccion') {
+			totalsByCategoryType.set('all', prevTotal - categoryTypeTotal);
+		} else {
+			totalsByCategoryType.set('all', prevTotal + categoryTypeTotal);
+		}
+	}
+	return totalsByCategoryType;
 }
 
 export function getCategoryTypeTotalMonetaryValue(categoryType: string) {
-    let total = 0;
-    const categoryTypeTotals = totals.categoryTypes.get(categoryType);
-    if (!categoryTypeTotals) return 0;
-    for (const [employeeId, employeeCategoryTypeTotal] of categoryTypeTotals) {
-        total += employeeCategoryTypeTotal;
-    }
-    return total;
+	let total = 0;
+	const categoryTypeTotals = totals.categoryTypes.get(categoryType);
+	if (!categoryTypeTotals) return 0;
+	for (const [employeeId, employeeCategoryTypeTotal] of categoryTypeTotals) {
+		total += employeeCategoryTypeTotal;
+	}
+	return total;
 }
 
 export function getCategoryTotalMonetaryValueAndAmount(categoryId: number) {
-    let total = {
-        monetaryValue: 0,
-        amount: 0
-    };
-    const incidenciaTotalsInCategory = totals.incidences.get(categoryId);
-    if (!incidenciaTotalsInCategory) return total;
-    for (const [employeeId, incidenciaTotal] of incidenciaTotalsInCategory) {
-        total.monetaryValue += incidenciaTotal.monetaryValue;
-        total.amount += incidenciaTotal.amount;
-    }
-    return total;
+	let total = {
+		monetaryValue: 0,
+		amount: 0
+	};
+	const incidenciaTotalsInCategory = totals.incidences.get(categoryId);
+	if (!incidenciaTotalsInCategory) return total;
+	for (const [employeeId, incidenciaTotal] of incidenciaTotalsInCategory) {
+		total.monetaryValue += incidenciaTotal.monetaryValue;
+		total.amount += incidenciaTotal.amount;
+	}
+	return total;
 }

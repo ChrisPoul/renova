@@ -19,8 +19,8 @@ declare global {
 	}
 	interface Incidence {
 		id: number;
-		category: number;
-		employee: number;
+		categoryId: number;
+		employeeId: number;
 		amount: number;
 		basedOnCategory: boolean;
 		unitMonetaryValue: number;
@@ -33,7 +33,7 @@ declare global {
 		salary: number;
 		puesto: string;
 		area: string;
-		incidencias: Incidence[];
+		incidences: Incidence[];
 	}
 }
 

@@ -29,8 +29,8 @@ export async function POST({ request }) {
 			.where(eq(categoriesToWeeksTable.weekId, weekId));
 
 		const newIncidences = categoriesInWeek.map((cat) => ({
-			employee: newEmployeeId,
-			category: cat.id,
+			employeeId: newEmployeeId,
+			categoryId: cat.id,
 			amount: 0,
 			weekId
 		}));
@@ -76,7 +76,7 @@ export async function DELETE({ request }) {
 
 		await tx
 			.delete(incidencesTable)
-			.where(and(eq(incidencesTable.employee, id), eq(incidencesTable.weekId, weekId)));
+			.where(and(eq(incidencesTable.employeeId, id), eq(incidencesTable.weekId, weekId)));
 	});
 
 	return json({ success: true });

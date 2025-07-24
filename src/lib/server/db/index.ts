@@ -35,7 +35,7 @@ export async function getAllEmployeesWithIncidences(weekId: number | null) {
 	if (!weekId) {
 		return db.query.employeesTable.findMany({
 			with: {
-				incidencias: {
+				incidences: {
 					where
 				}
 			}
@@ -52,7 +52,7 @@ export async function getAllEmployeesWithIncidences(weekId: number | null) {
 	return db.query.employeesTable.findMany({
 		where: (table, { inArray }) => inArray(table.id, employeeIds),
 		with: {
-			incidencias: {
+			incidences: {
 				where
 			}
 		}
@@ -68,8 +68,13 @@ export async function updateIncidenceCategory(categoryID: number, data) {
 }
 
 export async function makeDummyData() {
-	// --- Dummy Data ---
-	const weeks = [{ id: 1, startDate: new Date('2024-07-01'), endDate: new Date('2024-07-07') }];
+	
+	const startDate = getMondayOfISOWeek(2025, 29);
+	const endDate = new Date(startDate);
+	endDate.setDate(endDate.getDate() + 6);
+	const weeks = [
+		{ id: 1, startDate: startDate, endDate: endDate }
+	];
 	const incidenceCategories = [
 		{ id: 1, concept: 'Puertas Muy Grandes', type: 'destajo', unit: 'u', unitMonetaryValue: 12 },
 		{ id: 2, concept: 'Corte Junke', type: 'destajo', unit: 'kg', unitMonetaryValue: 20 },
@@ -85,22 +90,22 @@ export async function makeDummyData() {
 		{ id: 2, name: 'Jane Smith', salary: 1200, puesto: 'Supervisor', area: 'Producción' }
 	];
 	const incidences = [
-		{ id: 1, employee: 1, category: 1, amount: 100, weekId: 1 },
-		{ id: 2, employee: 1, category: 2, amount: 15, weekId: 1 },
-		{ id: 3, employee: 1, category: 3, amount: 50, weekId: 1 },
-		{ id: 4, employee: 1, category: 4, amount: 30, weekId: 1 },
-		{ id: 5, employee: 1, category: 5, amount: 10, weekId: 1 },
-		{ id: 6, employee: 1, category: 6, amount: 5, weekId: 1 },
-		{ id: 13, employee: 1, category: 7, amount: 2, weekId: 1 },
-		{ id: 15, employee: 1, category: 8, amount: 3, weekId: 1 },
-		{ id: 7, employee: 2, category: 1, amount: 200, weekId: 1 },
-		{ id: 8, employee: 2, category: 2, amount: 25, weekId: 1 },
-		{ id: 9, employee: 2, category: 3, amount: 60, weekId: 1 },
-		{ id: 10, employee: 2, category: 4, amount: 40, weekId: 1 },
-		{ id: 11, employee: 2, category: 5, amount: 20, weekId: 1 },
-		{ id: 12, employee: 2, category: 6, amount: 10, weekId: 1 },
-		{ id: 14, employee: 2, category: 7, amount: 3, weekId: 1 },
-		{ id: 16, employee: 2, category: 8, amount: 4, weekId: 1 }
+		{ id: 1, employeeId: 1, categoryId: 1, amount: 100, weekId: 1 },
+		{ id: 2, employeeId: 1, categoryId: 2, amount: 15, weekId: 1 },
+		{ id: 3, employeeId: 1, categoryId: 3, amount: 50, weekId: 1 },
+		{ id: 4, employeeId: 1, categoryId: 4, amount: 30, weekId: 1 },
+		{ id: 5, employeeId: 1, categoryId: 5, amount: 10, weekId: 1 },
+		{ id: 6, employeeId: 1, categoryId: 6, amount: 5, weekId: 1 },
+		{ id: 13, employeeId: 1, categoryId: 7, amount: 2, weekId: 1 },
+		{ id: 15, employeeId: 1, categoryId: 8, amount: 3, weekId: 1 },
+		{ id: 7, employeeId: 2, categoryId: 1, amount: 200, weekId: 1 },
+		{ id: 8, employeeId: 2, categoryId: 2, amount: 25, weekId: 1 },
+		{ id: 9, employeeId: 2, categoryId: 3, amount: 60, weekId: 1 },
+		{ id: 10, employeeId: 2, categoryId: 4, amount: 40, weekId: 1 },
+		{ id: 11, employeeId: 2, categoryId: 5, amount: 20, weekId: 1 },
+		{ id: 12, employeeId: 2, categoryId: 6, amount: 10, weekId: 1 },
+		{ id: 14, employeeId: 2, categoryId: 7, amount: 3, weekId: 1 },
+		{ id: 16, employeeId: 2, categoryId: 8, amount: 4, weekId: 1 }
 	];
 
 	const employeesToWeeks = [
@@ -127,4 +132,24 @@ export async function makeDummyData() {
 	await db.insert(schema.categoriesToWeeksTable).values(categoriesToWeeks).run();
 
 	console.log('Dummy data inserted successfully');
+}
+
+function getMondayOfISOWeek(year: number, week: number) {
+	// Set to the first Thursday of the year
+	const simple = new Date(Date.UTC(year, 0, 1 + (week - 1) * 7));
+	const dow = simple.getUTCDay();
+	const ISOweekStart = simple;
+	if (dow <= 4 && dow !== 0) {
+		// Monday to Thursday: back up to Monday
+		ISOweekStart.setUTCDate(simple.getUTCDate() - simple.getUTCDay() + 1);
+	} else {
+		// Friday to Sunday: forward to next Monday
+		ISOweekStart.setUTCDate(simple.getUTCDate() + 8 - simple.getUTCDay());
+	}
+	// Return as local date (remove UTC if you want UTC dates)
+	return new Date(
+		ISOweekStart.getUTCFullYear(),
+		ISOweekStart.getUTCMonth(),
+		ISOweekStart.getUTCDate()
+	);
 }

@@ -44,6 +44,7 @@
 		value={getWeekForInput(selectedWeek.value.startDate)}
 		onchange={async (e) => {
 			const week = e.target.value;
+			console.log(week)
 			const res = await fetch('/api/weeks', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },

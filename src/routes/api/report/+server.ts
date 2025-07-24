@@ -28,13 +28,12 @@ export async function GET({ url }) {
 	console.log(`Fetching report from ${start} to ${end}`);
 
 	const weeks = await db.query.weeksTable.findMany({
-		where: and(gte(weeksTable.startDate, start), lte(weeksTable.endDate, end)),
 		with: {
 			employeesToWeeks: {
 				with: {
 					employee: {
 						with: {
-							incidencias: true
+							incidences: true
 						}
 					}
 				}
@@ -63,9 +62,9 @@ export async function GET({ url }) {
 			const existingEmployee = employeeMap.get(employee.id);
 			existingEmployee.salary += employee.salary;
 
-			for (const incidence of employee.incidencias) {
+			for (const incidence of employee.incidences) {
 				const existingIncidence = existingEmployee.incidences.find(
-					(i) => i.category === incidence.category
+					(i) => i.categoryId === incidence.categoryId
 				);
 				if (existingIncidence) {
 					existingIncidence.amount += incidence.amount;

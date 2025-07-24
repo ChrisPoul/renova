@@ -1,9 +1,6 @@
 <script lang="ts">
 	import { selectedCategoryTypes, isReadOnly, totals } from '$lib/stores.svelte';
-	import {
-		formatMonetaryValue,
-		getIncidenceUnitMonetaryValue
-	} from '$lib/utils';
+	import { formatMonetaryValue, getIncidenceUnitMonetaryValue } from '$lib/utils';
 	import EditIncidence from './EditIncidence.svelte';
 	let {
 		category,
@@ -24,7 +21,7 @@
 		{#if incidence}
 			<div class="flex w-full items-center gap-0.75">
 				{#if isReadOnly.value}
-					{totals.incidences.get(incidence.category)?.get(incidence.employee)?.amount}
+					{totals.incidences.get(incidence.categoryId)?.get(incidence.employeeId)?.amount}
 				{:else}
 					<input
 						type="number"
@@ -54,7 +51,8 @@
 					</div>
 					<span class="leading-none text-gray-500">
 						{formatMonetaryValue(
-							totals.incidences.get(incidence.category)?.get(incidence.employee)?.monetaryValue || 0
+							totals.incidences.get(incidence.categoryId)?.get(incidence.employeeId)
+								?.monetaryValue || 0
 						)}
 					</span>
 				</div>

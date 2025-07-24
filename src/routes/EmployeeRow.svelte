@@ -23,7 +23,7 @@
 		incidenceCategories.map((category) => [category.id, category])
 	);
 	let incidenciasMapByCategory = new Map<number, Incidence>(
-		employee.incidencias.map((incidencia) => [incidencia.category, incidencia])
+		employee.incidences.map((incidence) => [incidence.categoryId, incidence])
 	);
 
 	onMount(() => {
@@ -39,22 +39,22 @@
 		);
 	});
 
-	async function updateIncidence(incidencia: Incidence, category: IncidenceCategory) {
-		incidencia.amount = validateAmount(incidencia.amount);
-		getAndSetIncidenceTotal(incidencia, category);
+	async function updateIncidence(incidence: Incidence, category: IncidenceCategory) {
+		incidence.amount = validateAmount(incidence.amount);
+		getAndSetIncidenceTotal(incidence, category);
 		setEmployeeTotalsByCategoryType();
 		totals.incidences = new Map(totals.incidences);
 		await fetch('/api/incidence', {
 			method: 'PATCH',
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify({
-				id: incidencia.id,
+				id: incidence.id,
 				changes: {
-					amount: incidencia.amount,
-					unit: incidencia.unit,
-					unitMonetaryValue: incidencia.unitMonetaryValue,
-					basedOnCategory: incidencia.basedOnCategory,
-					unitValueIsDerived: incidencia.unitValueIsDerived
+					amount: incidence.amount,
+					unit: incidence.unit,
+					unitMonetaryValue: incidence.unitMonetaryValue,
+					basedOnCategory: incidence.basedOnCategory,
+					unitValueIsDerived: incidence.unitValueIsDerived
 				}
 			})
 		});
@@ -64,8 +64,8 @@
 		for (const categoryType of categoryTypes) {
 			totals.categoryTypes.get(categoryType)?.set(employee.id, 0);
 		}
-		for (const incidencia of employee.incidencias) {
-			const category = incidenceCategoriesMap.get(incidencia.category);
+		for (const incidence of employee.incidences) {
+			const category = incidenceCategoriesMap.get(incidence.categoryId);
 			if (!category) continue;
 			let categoryTypeTotals = totals.categoryTypes.get(category.type);
 			if (!categoryTypeTotals) {
@@ -81,25 +81,20 @@
 		totals.categoryTypes = new Map(totals.categoryTypes);
 	}
 
-	function getAndSetIncidenceTotal(incidencia: Incidence, category: IncidenceCategory) {
+	function getAndSetIncidenceTotal(incidence: Incidence, category: IncidenceCategory) {
 		let incidenciaTotalMonetaryValue = getIncidenceTotalMonetaryValue(
-			incidencia,
+			incidence,
 			category,
 			employee
 		);
-		setIncidenceTotal(
-			category.id,
-			employee.id,
-			incidencia.amount,
-			incidenciaTotalMonetaryValue,
-		);
+		setIncidenceTotal(category.id, employee.id, incidence.amount, incidenciaTotalMonetaryValue);
 	}
 
 	function setIncidenceTotal(
 		categoryId: number,
 		employeeId: number,
 		amount: number,
-		incidenciaTotalMonetaryValue: number,
+		incidenciaTotalMonetaryValue: number
 	) {
 		if (!totals.incidences.get(categoryId)) {
 			totals.incidences.set(categoryId, new Map());
@@ -111,10 +106,10 @@
 	}
 
 	function updateCategoryTotalMonetaryValuesByEmployee(employee: Employee) {
-		for (const incidencia of employee.incidencias) {
-			const category = incidenceCategoriesMap.get(incidencia.category);
+		for (const incidence of employee.incidences) {
+			const category = incidenceCategoriesMap.get(incidence.categoryId);
 			if (!category) continue;
-			getAndSetIncidenceTotal(incidencia, category);
+			getAndSetIncidenceTotal(incidence, category);
 		}
 		totals.incidences = new Map(totals.incidences);
 	}

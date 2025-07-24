@@ -1,29 +1,35 @@
 <script lang="ts">
-    import MainTable from "../MainTable.svelte";
-    import { isReadOnly, selectedWeek, totals, selectedCategoryTypes } from "$lib/stores.svelte";
-    import ExcelJS from 'exceljs';
-    import { formatMonetaryValue, getCategoryTypeLabel, getTotalsByCategoryType, getCategoryTypeTotalMonetaryValue, getCategoryTotalMonetaryValueAndAmount } from '$lib/utils';
+	import MainTable from '../MainTable.svelte';
+	import { isReadOnly, selectedWeek, totals, selectedCategoryTypes } from '$lib/stores.svelte';
+	import ExcelJS from 'exceljs';
+	import {
+		formatMonetaryValue,
+		getCategoryTypeLabel,
+		getTotalsByCategoryType,
+		getCategoryTypeTotalMonetaryValue,
+		getCategoryTotalMonetaryValueAndAmount
+	} from '$lib/utils';
 
-    let { data } = $props();
-    let employees = $state(data.employees);
-    let incidenceCategories = $state(data.incidenceCategories);
-    selectedWeek.value = data.selectedWeek;
-    let totalsByCategoryType = $derived.by(getTotalsByCategoryType);
+	let { data } = $props();
+	let employees = $state(data.employees);
+	let incidenceCategories = $state(data.incidenceCategories);
+	selectedWeek.value = data.selectedWeek;
+	let totalsByCategoryType = $derived.by(getTotalsByCategoryType);
 
-    isReadOnly.value = true;
+	isReadOnly.value = true;
 
-    let startWeek = $state("")
-		let endWeek = $state("")
+	let startWeek = $state('');
+	let endWeek = $state('');
 
-    async function generateReport() {
-        const response = await fetch(`/api/report?startWeek=${startWeek}&endWeek=${endWeek}`);
-        const responseData = await response.json();
-        employees = responseData.employees;
-				console.log(employees);
-        incidenceCategories = responseData.incidenceCategories;
-    }
+	async function generateReport() {
+		const response = await fetch(`/api/report?startWeek=${startWeek}&endWeek=${endWeek}`);
+		const responseData = await response.json();
+		employees = responseData.employees;
+		console.log(employees);
+		incidenceCategories = responseData.incidenceCategories;
+	}
 
-    function generateExcelReport() {
+	function generateExcelReport() {
 		const workbook = new ExcelJS.Workbook();
 		const worksheet = workbook.addWorksheet('Reporte');
 
@@ -91,12 +97,12 @@
 
 			for (const category of incidenceCategories) {
 				if (!selectedCategoryTypes.value.includes(category.type)) continue;
-				const incidencia = employee.incidencias.find((i) => i.category === category.id);
-				if (incidencia) {
-					const unit = incidencia.unit || category.unit;
-					const unitMonetaryValue = incidencia.unitMonetaryValue ?? category.unitMonetaryValue;
-					const total = incidencia.amount * unitMonetaryValue || 0;
-					row.push(`${incidencia.amount} (${formatMonetaryValue(total)})`);
+				const incidence = employee.incidences.find((i) => i.categoryId === category.id);
+				if (incidence) {
+					const unit = incidence.unit || category.unit;
+					const unitMonetaryValue = incidence.unitMonetaryValue ?? category.unitMonetaryValue;
+					const total = incidence.amount * unitMonetaryValue || 0;
+					row.push(`${incidence.amount} (${formatMonetaryValue(total)})`);
 				} else {
 					row.push('');
 				}
@@ -160,7 +166,7 @@
 		excelTotalsRow.getCell(1).fill = {
 			type: 'pattern',
 			pattern: 'solid',
-				fgColor: { argb: 'FFE5E7EB' }
+			fgColor: { argb: 'FFE5E7EB' }
 		};
 
 		// Auto-size columns based on the max length of their contents
@@ -186,34 +192,39 @@
 			URL.revokeObjectURL(url);
 		});
 	}
-
 </script>
 
 <svelte:head>
-    <title>Renova - Report</title>
+	<title>Renova - Report</title>
 </svelte:head>
 
 <section class="flex flex-col gap-4 p-4">
-    <h1 class="text-4xl font-semibold">Report</h1>
-    <div class="flex gap-4">
-        <div>
-            <label for="start-week">Start Week</label>
-            <input type="week" id="start-week" bind:value={startWeek} />
-        </div>
-        <div>
-            <label for="end-week">End Week</label>
-            <input type="week" id="end-week" bind:value={endWeek} />
-        </div>
-        <button
-            class="rounded-lg bg-blue-500 px-3 py-2 text-white hover:bg-blue-600 self-end"
-            onclick={generateReport}
-        >
-            Generate Report
-        </button>
-    </div>
-    <MainTable {employees} {incidenceCategories} {getCategoryTotalMonetaryValueAndAmount} {getCategoryTypeTotalMonetaryValue} {totalsByCategoryType} />
-    <button
-		class="mb-4 rounded-lg bg-blue-500 px-3 py-2 text-white hover:bg-blue-600 self-start"
+	<h1 class="text-4xl font-semibold">Report</h1>
+	<div class="flex gap-4">
+		<div>
+			<label for="start-week">Start Week</label>
+			<input type="week" id="start-week" bind:value={startWeek} />
+		</div>
+		<div>
+			<label for="end-week">End Week</label>
+			<input type="week" id="end-week" bind:value={endWeek} />
+		</div>
+		<button
+			class="self-end rounded-lg bg-blue-500 px-3 py-2 text-white hover:bg-blue-600"
+			onclick={generateReport}
+		>
+			Generate Report
+		</button>
+	</div>
+	<MainTable
+		{employees}
+		{incidenceCategories}
+		{getCategoryTotalMonetaryValueAndAmount}
+		{getCategoryTypeTotalMonetaryValue}
+		{totalsByCategoryType}
+	/>
+	<button
+		class="mb-4 self-start rounded-lg bg-blue-500 px-3 py-2 text-white hover:bg-blue-600"
 		onclick={generateExcelReport}
 	>
 		Generar Reporte
