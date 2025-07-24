@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { categoryTypes } from '$lib/constants';
-	import { selectedCategoryTypes, totals, selectedWeek } from '$lib/stores.svelte';
-	import { formatMonetaryValue, getCategoryTypeLabel, getTotalsByCategoryType, getCategoryTypeTotalMonetaryValue, getCategoryTotalMonetaryValueAndAmount } from '$lib/utils';
+	import { selectedCategoryTypes, selectedWeek } from '$lib/stores.svelte';
+	import { getCategoryTypeLabel } from '$lib/utils';
 	import AddCategory from './AddCategory.svelte';
 	import AddEmployee from './AddEmployee.svelte';
 	import MainTable from './MainTable.svelte';
@@ -11,7 +11,6 @@
 	let employees = $state(data.employees);
 	let incidenceCategories = $state(data.incidenceCategories);
 	selectedWeek.value = data.selectedWeek;
-	let totalsByCategoryType = $derived.by(getTotalsByCategoryType);
 
 	function getWeekTitle(week) {
 		if (!week) return '';
@@ -44,7 +43,6 @@
 		value={getWeekForInput(selectedWeek.value.startDate)}
 		onchange={async (e) => {
 			const week = e.target.value;
-			console.log(week)
 			const res = await fetch('/api/weeks', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
@@ -90,9 +88,6 @@
 	<MainTable
 		{employees}
 		{incidenceCategories}
-		{getCategoryTotalMonetaryValueAndAmount}
-		{getCategoryTypeTotalMonetaryValue}
-		{totalsByCategoryType}
 	/>
 </div>
 

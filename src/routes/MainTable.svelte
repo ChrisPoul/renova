@@ -1,23 +1,15 @@
 <script lang="ts">
 	import EmployeeRow from './EmployeeRow.svelte';
-	import { selectedCategoryTypes, isReadOnly } from '$lib/stores.svelte';
+	import { selectedCategoryTypes, isReadOnly, totals } from '$lib/stores.svelte';
 	import { formatMonetaryValue, getCategoryTypeLabel } from '$lib/utils';
 	import EditCategory from './EditCategory.svelte';
 
 	let {
 		incidenceCategories,
 		employees,
-		getCategoryTotalMonetaryValueAndAmount,
-		totalsByCategoryType
 	}: {
-		incidenceCategories: IncidenceCategory[];
-		employees: Employee[];
-		getTotalSalary: () => number;
-		getCategoryTotalMonetaryValueAndAmount: (categoryId: number) => {
-			monetaryValue: number;
-			amount: number;
-		};
-		totalsByCategoryType: Map<string, number>;
+		incidenceCategories: any[];
+		employees: any[];
 	} = $props();
 
 	function getTotalSalary(employees: Employee[]) {
@@ -75,7 +67,7 @@
 				</td>
 				{#each incidenceCategories as category}
 					{#if selectedCategoryTypes.value.includes(category.type)}
-						{@const total = getCategoryTotalMonetaryValueAndAmount(category.id)}
+						{@const total = totals.value.categoryTotals.get(category.id) ?? { amount: 0, monetaryValue: 0 }}
 						<td class={`t-cell text-nowrap ${category.type}-opaco`}>
 							<div class="flex items-center justify-center gap-1">
 								<span class="text-sm text-gray-500">({total.amount})</span>
@@ -86,11 +78,11 @@
 				{/each}
 				{#each selectedCategoryTypes.value as categoryType}
 					<td class={`t-cell text-nowrap ${categoryType}-opaco`}>
-						{formatMonetaryValue(totalsByCategoryType.get(categoryType) ?? 0)}
+						{formatMonetaryValue(totals.value.categoryTypeGrandTotals.get(categoryType) ?? 0)}
 					</td>
 				{/each}
 				<td class="t-cell sticky right-0 bg-gray-300 text-nowrap">
-					{formatMonetaryValue(totalsByCategoryType.get('all') ?? 0)}
+					{formatMonetaryValue(totals.value.grandTotal)}
 				</td>
 			</tr>
 		</tbody>

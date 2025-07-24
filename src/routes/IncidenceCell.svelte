@@ -1,19 +1,85 @@
 <script lang="ts">
-	import { selectedCategoryTypes, isReadOnly, totals } from '$lib/stores.svelte';
-	import { formatMonetaryValue, getIncidenceUnitMonetaryValue } from '$lib/utils';
+	import { selectedCategoryTypes, isReadOnly, incidenceTotals } from '$lib/stores.svelte';
+	import {
+		formatMonetaryValue,
+		getIncidenceUnitMonetaryValue,
+		validateAmount
+	} from '$lib/utils';
 	import EditIncidence from './EditIncidence.svelte';
+	import { onMount } from 'svelte';
 	let {
 		category,
 		employee,
-		incidenciasMapByCategory,
-		updateIncidence
+		incidenciasMapByCategory
 	}: {
 		category: IncidenceCategory;
 		employee: Employee;
 		incidenciasMapByCategory: Map<number, Incidence>;
-		updateIncidence: (incidence: Incidence, category: IncidenceCategory) => void;
 	} = $props();
 	let incidence = $derived(incidenciasMapByCategory.get(category.id));
+	onMount(() => {
+		if (incidence) {
+			updateIncidence(incidence, category);
+		}
+	});
+
+	async function updateIncidence(incidence: Incidence, category: IncidenceCategory) {
+		incidence.amount = validateAmount(incidence.amount);
+		getAndSetIncidenceTotal(incidence, category);
+		await fetch('/api/incidence', {
+			method: 'PATCH',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({
+				id: incidence.id,
+				changes: {
+					amount: incidence.amount,
+					unit: incidence.unit,
+					unitMonetaryValue: incidence.unitMonetaryValue,
+					basedOnCategory: incidence.basedOnCategory,
+					unitValueIsDerived: incidence.unitValueIsDerived
+				}
+			})
+		});
+	}
+	function getAndSetIncidenceTotal(incidence: Incidence, category: IncidenceCategory) {
+		let incidenciaTotalMonetaryValue = getIncidenceTotalMonetaryValue(
+			incidence,
+			category,
+			employee
+		);
+		setIncidenceTotal(
+			category.id,
+			employee.id,
+			incidence.amount,
+			incidenciaTotalMonetaryValue,
+			category.type
+		);
+	}
+	function setIncidenceTotal(
+		categoryId: number,
+		employeeId: number,
+		amount: number,
+		monetaryValue: number,
+		categoryType: string
+	) {
+		if (!incidenceTotals.value.get(categoryId)) {
+			incidenceTotals.value.set(categoryId, new Map());
+		}
+		incidenceTotals.value.get(categoryId)?.set(employeeId, {
+			monetaryValue: monetaryValue,
+			amount: amount,
+			categoryType: categoryType
+		});
+		incidenceTotals.value = new Map(incidenceTotals.value);
+	}
+	function getIncidenceTotalMonetaryValue(
+		incidence: Incidence,
+		category: IncidenceCategory,
+		employee: Employee
+	) {
+		const unitMonetaryValue = getIncidenceUnitMonetaryValue(incidence, category, employee);
+		return incidence.amount * unitMonetaryValue;
+	}
 </script>
 
 {#if selectedCategoryTypes.value.includes(category.type)}
@@ -21,7 +87,7 @@
 		{#if incidence}
 			<div class="flex w-full items-center gap-0.75">
 				{#if isReadOnly.value}
-					{totals.incidences.get(incidence.categoryId)?.get(incidence.employeeId)?.amount}
+					{incidenceTotals.value.get(incidence.categoryId)?.get(incidence.employeeId)?.amount}
 				{:else}
 					<input
 						type="number"
@@ -51,7 +117,7 @@
 					</div>
 					<span class="leading-none text-gray-500">
 						{formatMonetaryValue(
-							totals.incidences.get(incidence.categoryId)?.get(incidence.employeeId)
+							incidenceTotals.value.get(incidence.categoryId)?.get(incidence.employeeId)
 								?.monetaryValue || 0
 						)}
 					</span>

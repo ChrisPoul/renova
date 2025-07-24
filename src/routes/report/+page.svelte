@@ -5,16 +5,12 @@
 	import {
 		formatMonetaryValue,
 		getCategoryTypeLabel,
-		getTotalsByCategoryType,
-		getCategoryTypeTotalMonetaryValue,
-		getCategoryTotalMonetaryValueAndAmount
 	} from '$lib/utils';
 
 	let { data } = $props();
 	let employees = $state(data.employees);
 	let incidenceCategories = $state(data.incidenceCategories);
 	selectedWeek.value = data.selectedWeek;
-	let totalsByCategoryType = $derived.by(getTotalsByCategoryType);
 
 	isReadOnly.value = true;
 
@@ -30,167 +26,167 @@
 	}
 
 	function generateExcelReport() {
-		const workbook = new ExcelJS.Workbook();
-		const worksheet = workbook.addWorksheet('Reporte');
+		// const workbook = new ExcelJS.Workbook();
+		// const worksheet = workbook.addWorksheet('Reporte');
 
-		const headers = [
-			'Empleado',
-			'Área',
-			'Puesto',
-			'Salario',
-			...incidenceCategories
-				.filter((cat) => selectedCategoryTypes.value.includes(cat.type))
-				.map((cat) => cat.concept),
-			...selectedCategoryTypes.value.map((type) => `Total ${getCategoryTypeLabel(type)}`),
-			'Total'
-		];
+		// const headers = [
+		// 	'Empleado',
+		// 	'Área',
+		// 	'Puesto',
+		// 	'Salario',
+		// 	...incidenceCategories
+		// 		.filter((cat) => selectedCategoryTypes.value.includes(cat.type))
+		// 		.map((cat) => cat.concept),
+		// 	...selectedCategoryTypes.value.map((type) => `Total ${getCategoryTypeLabel(type)}`),
+		// 	'Total'
+		// ];
 
-		const headerRow = worksheet.addRow(headers);
+		// const headerRow = worksheet.addRow(headers);
 
-		// Category type colors matching your CSS
-		const defaultHeaderColor = 'FFE5E7EB'; // light gray
+		// // Category type colors matching your CSS
+		// const defaultHeaderColor = 'FFE5E7EB'; // light gray
 
-		let colIdx = 1;
-		for (const header of headers) {
-			const cat = incidenceCategories.find((c) => c.concept === header);
-			let color = defaultHeaderColor;
-			if (cat && categoryTypeColors[cat.type]) {
-				color = categoryTypeColors[cat.type];
-			}
-			worksheet.getColumn(colIdx).width = Math.max(header.length + 2, 12);
-			const cell = headerRow.getCell(colIdx);
-			cell.fill = {
-				type: 'pattern',
-				pattern: 'solid',
-				fgColor: { argb: color }
-			};
-			cell.font = { bold: true };
-			colIdx++;
-		}
+		// let colIdx = 1;
+		// for (const header of headers) {
+		// 	const cat = incidenceCategories.find((c) => c.concept === header);
+		// 	let color = defaultHeaderColor;
+		// 	if (cat && categoryTypeColors[cat.type]) {
+		// 		color = categoryTypeColors[cat.type];
+		// 	}
+		// 	worksheet.getColumn(colIdx).width = Math.max(header.length + 2, 12);
+		// 	const cell = headerRow.getCell(colIdx);
+		// 	cell.fill = {
+		// 		type: 'pattern',
+		// 		pattern: 'solid',
+		// 		fgColor: { argb: color }
+		// 	};
+		// 	cell.font = { bold: true };
+		// 	colIdx++;
+		// }
 
-		// Find the column indexes for each category type total column
-		const totalColIndexes = selectedCategoryTypes.value.map((type) => {
-			const header = `Total ${getCategoryTypeLabel(type)}`;
-			return headers.indexOf(header) + 1; // exceljs columns are 1-based
-		});
+		// // Find the column indexes for each category type total column
+		// const totalColIndexes = selectedCategoryTypes.value.map((type) => {
+		// 	const header = `Total ${getCategoryTypeLabel(type)}`;
+		// 	return headers.indexOf(header) + 1; // exceljs columns are 1-based
+		// });
 
-		// Color those columns in all rows (including the totals row)
-		worksheet.eachRow((row) => {
-			totalColIndexes.forEach((colIdx, i) => {
-				const cell = row.getCell(colIdx);
-				cell.fill = {
-					type: 'pattern',
-					pattern: 'solid',
-					fgColor: { argb: categoryTypeColors[selectedCategoryTypes.value[i]] }
-				};
-			});
-		});
+		// // Color those columns in all rows (including the totals row)
+		// worksheet.eachRow((row) => {
+		// 	totalColIndexes.forEach((colIdx, i) => {
+		// 		const cell = row.getCell(colIdx);
+		// 		cell.fill = {
+		// 			type: 'pattern',
+		// 			pattern: 'solid',
+		// 			fgColor: { argb: categoryTypeColors[selectedCategoryTypes.value[i]] }
+		// 		};
+		// 	});
+		// });
 
-		// Add data rows
-		for (const employee of employees) {
-			const row = [
-				employee.name,
-				employee.area,
-				employee.puesto,
-				formatMonetaryValue(employee.salary)
-			];
+		// // Add data rows
+		// for (const employee of employees) {
+		// 	const row = [
+		// 		employee.name,
+		// 		employee.area,
+		// 		employee.puesto,
+		// 		formatMonetaryValue(employee.salary)
+		// 	];
 
-			for (const category of incidenceCategories) {
-				if (!selectedCategoryTypes.value.includes(category.type)) continue;
-				const incidence = employee.incidences.find((i) => i.categoryId === category.id);
-				if (incidence) {
-					const unit = incidence.unit || category.unit;
-					const unitMonetaryValue = incidence.unitMonetaryValue ?? category.unitMonetaryValue;
-					const total = incidence.amount * unitMonetaryValue || 0;
-					row.push(`${incidence.amount} (${formatMonetaryValue(total)})`);
-				} else {
-					row.push('');
-				}
-			}
+		// 	for (const category of incidenceCategories) {
+		// 		if (!selectedCategoryTypes.value.includes(category.type)) continue;
+		// 		const incidence = employee.incidences.find((i) => i.categoryId === category.id);
+		// 		if (incidence) {
+		// 			const unit = incidence.unit || category.unit;
+		// 			const unitMonetaryValue = incidence.unitMonetaryValue ?? category.unitMonetaryValue;
+		// 			const total = incidence.amount * unitMonetaryValue || 0;
+		// 			row.push(`${incidence.amount} (${formatMonetaryValue(total)})`);
+		// 		} else {
+		// 			row.push('');
+		// 		}
+		// 	}
 
-			for (const categoryType of selectedCategoryTypes.value) {
-				const typeTotal = totals.categoryTypes.get(categoryType)?.get(employee.id) ?? 0;
-				row.push(formatMonetaryValue(typeTotal));
-			}
+		// 	for (const categoryType of selectedCategoryTypes.value) {
+		// 		const typeTotal = totals.categoryTypes.get(categoryType)?.get(employee.id) ?? 0;
+		// 		row.push(formatMonetaryValue(typeTotal));
+		// 	}
 
-			const employeeTotal = (() => {
-				let total = 0;
-				for (const categoryType of selectedCategoryTypes.value) {
-					const categoryTypeTotal = totals.categoryTypes.get(categoryType)?.get(employee.id) ?? 0;
-					if (categoryType === 'deduccion') {
-						total -= categoryTypeTotal;
-					} else {
-						total += categoryTypeTotal;
-					}
-				}
-				return formatMonetaryValue(total);
-			})();
-			row.push(employeeTotal);
+		// 	const employeeTotal = (() => {
+		// 		let total = 0;
+		// 		for (const categoryType of selectedCategoryTypes.value) {
+		// 			const categoryTypeTotal = totals.categoryTypes.get(categoryType)?.get(employee.id) ?? 0;
+		// 			if (categoryType === 'deduccion') {
+		// 				total -= categoryTypeTotal;
+		// 			} else {
+		// 				total += categoryTypeTotal;
+		// 			}
+		// 		}
+		// 		return formatMonetaryValue(total);
+		// 	})();
+		// 	row.push(employeeTotal);
 
-			worksheet.addRow(row);
-		}
+		// 	worksheet.addRow(row);
+		// }
 
-		// --- Add totals row at the end ---
-		const totalsRow = [
-			'Total',
-			'', // Área
-			'', // Puesto
-			formatMonetaryValue(getTotalSalary())
-		];
+		// // --- Add totals row at the end ---
+		// const totalsRow = [
+		// 	'Total',
+		// 	'', // Área
+		// 	'', // Puesto
+		// 	formatMonetaryValue(getTotalSalary())
+		// ];
 
-		for (const category of incidenceCategories) {
-			if (!selectedCategoryTypes.value.includes(category.type)) continue;
-			const { amount, monetaryValue } = getCategoryTotalMonetaryValueAndAmount(category.id);
-			totalsRow.push(`${amount} (${formatMonetaryValue(monetaryValue)})`);
-		}
+		// for (const category of incidenceCategories) {
+		// 	if (!selectedCategoryTypes.value.includes(category.type)) continue;
+		// 	const { amount, monetaryValue } = getCategoryTotalMonetaryValueAndAmount(category.id);
+		// 	totalsRow.push(`${amount} (${formatMonetaryValue(monetaryValue)})`);
+		// }
 
-		for (const categoryType of selectedCategoryTypes.value) {
-			totalsRow.push(formatMonetaryValue(totalsByCategoryType.get(categoryType) ?? 0));
-		}
+		// for (const categoryType of selectedCategoryTypes.value) {
+		// 	totalsRow.push(formatMonetaryValue(totalsByCategoryType.get(categoryType) ?? 0));
+		// }
 
-		// Grand total (all)
-		totalsRow.push(formatMonetaryValue(totalsByCategoryType.get('all') ?? 0));
+		// // Grand total (all)
+		// totalsRow.push(formatMonetaryValue(totalsByCategoryType.get('all') ?? 0));
 
-		const excelTotalsRow = worksheet.addRow(totalsRow);
+		// const excelTotalsRow = worksheet.addRow(totalsRow);
 
-		// Color the entire totals row in gray
-		excelTotalsRow.eachCell((cell) => {
-			cell.fill = {
-				type: 'pattern',
-				pattern: 'solid',
-				fgColor: { argb: 'FFE5E7EB' } // light gray
-			};
-		});
+		// // Color the entire totals row in gray
+		// excelTotalsRow.eachCell((cell) => {
+		// 	cell.fill = {
+		// 		type: 'pattern',
+		// 		pattern: 'solid',
+		// 		fgColor: { argb: 'FFE5E7EB' } // light gray
+		// 	};
+		// });
 
-		// Optionally, color the "Total" cell
-		excelTotalsRow.getCell(1).fill = {
-			type: 'pattern',
-			pattern: 'solid',
-			fgColor: { argb: 'FFE5E7EB' }
-		};
+		// // Optionally, color the "Total" cell
+		// excelTotalsRow.getCell(1).fill = {
+		// 	type: 'pattern',
+		// 	pattern: 'solid',
+		// 	fgColor: { argb: 'FFE5E7EB' }
+		// };
 
-		// Auto-size columns based on the max length of their contents
-		worksheet.columns.forEach((column) => {
-			let maxLength = 10; // minimum width
-			column.eachCell({ includeEmpty: true }, (cell) => {
-				const cellValue = cell.value ? cell.value.toString() : '';
-				maxLength = Math.max(maxLength, cellValue.length + 2);
-			});
-			column.width = maxLength;
-		});
+		// // Auto-size columns based on the max length of their contents
+		// worksheet.columns.forEach((column) => {
+		// 	let maxLength = 10; // minimum width
+		// 	column.eachCell({ includeEmpty: true }, (cell) => {
+		// 		const cellValue = cell.value ? cell.value.toString() : '';
+		// 		maxLength = Math.max(maxLength, cellValue.length + 2);
+		// 	});
+		// 	column.width = maxLength;
+		// });
 
-		// Download the file in the browser
-		workbook.xlsx.writeBuffer().then((buffer) => {
-			const blob = new Blob([buffer], {
-				type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-			});
-			const url = URL.createObjectURL(blob);
-			const a = document.createElement('a');
-			a.href = url;
-			a.download = 'reporte.xlsx';
-			a.click();
-			URL.revokeObjectURL(url);
-		});
+		// // Download the file in the browser
+		// workbook.xlsx.writeBuffer().then((buffer) => {
+		// 	const blob = new Blob([buffer], {
+		// 		type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+		// 	});
+		// 	const url = URL.createObjectURL(blob);
+		// 	const a = document.createElement('a');
+		// 	a.href = url;
+		// 	a.download = 'reporte.xlsx';
+		// 	a.click();
+		// 	URL.revokeObjectURL(url);
+		// });
 	}
 </script>
 
@@ -219,8 +215,6 @@
 	<MainTable
 		{employees}
 		{incidenceCategories}
-		{getCategoryTotalMonetaryValueAndAmount}
-		{getCategoryTypeTotalMonetaryValue}
 		{totalsByCategoryType}
 	/>
 	<button
