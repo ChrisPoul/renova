@@ -1,7 +1,8 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import { categoryTypes } from '$lib/constants';
 	import { isReadOnly, selectedCategoryTypes, selectedWeek } from '$lib/stores.svelte';
-	import { getCategoryTypeLabel } from '$lib/utils';
+	import { getCategoryTypeLabel, updateAllTotals } from '$lib/utils';
 	import AddCategory from './AddCategory.svelte';
 	import AddEmployee from './AddEmployee.svelte';
 	import MainTable from './MainTable.svelte';
@@ -12,6 +13,10 @@
 	let incidenceCategories = $state(data.incidenceCategories);
 	selectedWeek.value = data.selectedWeek;
 	isReadOnly.value = false;
+
+	onMount(() => {
+		updateAllTotals(employees, incidenceCategories);
+	});
 
 	function getWeekTitle(week) {
 		if (!week) return '';

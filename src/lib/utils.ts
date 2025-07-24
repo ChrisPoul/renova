@@ -1,3 +1,4 @@
+import { incidenceTotals } from './stores.svelte';
 
 export function formatMonetaryValue(value: number) {
 	return (
@@ -33,6 +34,15 @@ export function validateAmount(amount: number) {
 	return parseFloat(truncatedString);
 }
 
+export function getIncidenceTotalMonetaryValue(
+	incidence: Incidence,
+	category: IncidenceCategory,
+	employee: Employee
+) {
+	const unitMonetaryValue = getIncidenceUnitMonetaryValue(incidence, category, employee);
+	return incidence.amount * unitMonetaryValue;
+}
+
 export function getIncidenceUnitMonetaryValue(
 	incidence: Incidence,
 	category: IncidenceCategory,
@@ -54,3 +64,47 @@ export function getIncidenceUnitMonetaryValue(
 	return unitMonetaryValue;
 }
 
+function setIncidenceTotal(
+	categoryId: number,
+	employeeId: number,
+	amount: number,
+	monetaryValue: number,
+	categoryType: string
+) {
+	if (!incidenceTotals.value.get(categoryId)) {
+		incidenceTotals.value.set(categoryId, new Map());
+	}
+	incidenceTotals.value.get(categoryId)?.set(employeeId, {
+		monetaryValue: monetaryValue,
+		amount: amount,
+		categoryType: categoryType
+	});
+}
+
+export function getAndSetIncidenceTotal(incidence: Incidence, category: IncidenceCategory, employee: Employee) {
+	let incidenciaTotalMonetaryValue = getIncidenceTotalMonetaryValue(
+		incidence,
+		category,
+		employee
+	);
+	setIncidenceTotal(
+		category.id,
+		employee.id,
+		incidence.amount,
+		incidenciaTotalMonetaryValue,
+		category.type
+	);
+}
+
+export function updateAllTotals(employees: Employee[], incidenceCategories: IncidenceCategory[]) {
+	const categoryMap = new Map(incidenceCategories.map((c) => [c.id, c]));
+
+	for (const employee of employees) {
+		for (const incidence of employee.incidences) {
+			const category = categoryMap.get(incidence.categoryId);
+			if (!category) continue;
+			getAndSetIncidenceTotal(incidence, category, employee);
+		}
+	}
+	incidenceTotals.value = new Map(incidenceTotals.value);
+}

@@ -5,6 +5,7 @@
 	import {
 		formatMonetaryValue,
 		getCategoryTypeLabel,
+		updateAllTotals
 	} from '$lib/utils';
 
 	let { data } = $props();
@@ -21,8 +22,8 @@
 		const response = await fetch(`/api/report?startWeek=${startWeek}&endWeek=${endWeek}`);
 		const responseData = await response.json();
 		employees = responseData.employees;
-		console.log(employees);
 		incidenceCategories = responseData.incidenceCategories;
+		updateAllTotals(employees, incidenceCategories);
 	}
 
 	function generateExcelReport() {

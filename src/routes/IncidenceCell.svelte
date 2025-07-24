@@ -3,10 +3,10 @@
 	import {
 		formatMonetaryValue,
 		getIncidenceUnitMonetaryValue,
-		validateAmount
+		validateAmount,
+		getAndSetIncidenceTotal
 	} from '$lib/utils';
 	import EditIncidence from './EditIncidence.svelte';
-	import { onMount } from 'svelte';
 	let {
 		category,
 		employee,
@@ -17,15 +17,11 @@
 		incidenciasMapByCategory: Map<number, Incidence>;
 	} = $props();
 	let incidence = $derived(incidenciasMapByCategory.get(category.id));
-	onMount(() => {
-		if (incidence) {
-			updateIncidence(incidence, category);
-		}
-	});
 
 	async function updateIncidence(incidence: Incidence, category: IncidenceCategory) {
 		incidence.amount = validateAmount(incidence.amount);
-		getAndSetIncidenceTotal(incidence, category);
+		getAndSetIncidenceTotal(incidence, category, employee);
+		incidenceTotals.value = new Map(incidenceTotals.value); // Trigger reactivity
 		await fetch('/api/incidence', {
 			method: 'PATCH',
 			headers: { 'Content-Type': 'application/json' },
@@ -40,45 +36,6 @@
 				}
 			})
 		});
-	}
-	function getAndSetIncidenceTotal(incidence: Incidence, category: IncidenceCategory) {
-		let incidenciaTotalMonetaryValue = getIncidenceTotalMonetaryValue(
-			incidence,
-			category,
-			employee
-		);
-		setIncidenceTotal(
-			category.id,
-			employee.id,
-			incidence.amount,
-			incidenciaTotalMonetaryValue,
-			category.type
-		);
-	}
-	function setIncidenceTotal(
-		categoryId: number,
-		employeeId: number,
-		amount: number,
-		monetaryValue: number,
-		categoryType: string
-	) {
-		if (!incidenceTotals.value.get(categoryId)) {
-			incidenceTotals.value.set(categoryId, new Map());
-		}
-		incidenceTotals.value.get(categoryId)?.set(employeeId, {
-			monetaryValue: monetaryValue,
-			amount: amount,
-			categoryType: categoryType
-		});
-		incidenceTotals.value = new Map(incidenceTotals.value);
-	}
-	function getIncidenceTotalMonetaryValue(
-		incidence: Incidence,
-		category: IncidenceCategory,
-		employee: Employee
-	) {
-		const unitMonetaryValue = getIncidenceUnitMonetaryValue(incidence, category, employee);
-		return incidence.amount * unitMonetaryValue;
 	}
 </script>
 
