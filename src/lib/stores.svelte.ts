@@ -6,15 +6,17 @@ type employeeCategoryTypeTotal = number;
 type CategoryType = string;
 
 // The shape of the object holding totals for a single incidence
-interface IncidenceTotal {
+export interface IncidenceCell {
 	amount: number;
 	monetaryValue: number;
+	unitMonetaryValue: number;
 	categoryType: CategoryType;
+	unit: string
 }
 
 // The main reactive state for all incidence data
-type IncidenceTotals = Map<CategoryId, Map<employeeID, IncidenceTotal>>;
-export const incidenceTotals = $state<{value: IncidenceTotals}>({
+type IncidenceCells = Map<CategoryId, Map<employeeID, IncidenceCell>>;
+export const incidenceCells = $state<{value: IncidenceCells}>({
 	value: new Map()
 })
 
@@ -35,9 +37,9 @@ const derivedTotals = $derived.by(() => {
 	};
 	console.log('Calculating totals...');
 	// Loop through all incidences to calculate the totals
-	for (const [categoryId, employeeIncidences] of incidenceTotals.value) {
-		for (const [employeeId, incidence] of employeeIncidences) {
-			const { amount, monetaryValue, categoryType } = incidence;
+	for (const [categoryId, categoryIncidenceCells] of incidenceCells.value) {
+		for (const [employeeId, incidenceCell] of categoryIncidenceCells) {
+			const { amount, monetaryValue, categoryType } = incidenceCell;
 
 			// 1. Aggregate totals per category (for the table footer)
 			const currentCategoryTotal = newTotals.categoryTotals.get(categoryId) ?? {

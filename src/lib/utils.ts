@@ -1,6 +1,9 @@
-import { incidenceTotals } from './stores.svelte';
+import { incidenceCells } from './stores.svelte';
 
-export function formatMonetaryValue(value: number) {
+export function formatMonetaryValue(value: number | undefined) {
+	if (value === undefined) {
+		value = 0;
+	}
 	return (
 		value.toLocaleString('en-US', {
 			minimumFractionDigits: 2,
@@ -64,34 +67,46 @@ export function getIncidenceUnitMonetaryValue(
 	return unitMonetaryValue;
 }
 
-function setIncidenceTotal(
+function setIncidenceCell(
 	categoryId: number,
 	employeeId: number,
 	amount: number,
 	monetaryValue: number,
+	unitMonetaryValue: number,
+	unit: string,
 	categoryType: string
 ) {
-	if (!incidenceTotals.value.get(categoryId)) {
-		incidenceTotals.value.set(categoryId, new Map());
+	if (!incidenceCells.value.get(categoryId)) {
+		incidenceCells.value.set(categoryId, new Map());
 	}
-	incidenceTotals.value.get(categoryId)?.set(employeeId, {
+	incidenceCells.value.get(categoryId)?.set(employeeId, {
 		monetaryValue: monetaryValue,
 		amount: amount,
-		categoryType: categoryType
+		categoryType: categoryType,
+		unitMonetaryValue: unitMonetaryValue,
+		unit: unit
 	});
 }
 
-export function getAndSetIncidenceTotal(incidence: Incidence, category: IncidenceCategory, employee: Employee) {
-	let incidenciaTotalMonetaryValue = getIncidenceTotalMonetaryValue(
+export function getAndSetIncidenceTotal(
+	incidence: Incidence,
+	category: IncidenceCategory,
+	employee: Employee
+) {
+	const incidenciaTotalMonetaryValue = getIncidenceTotalMonetaryValue(
 		incidence,
 		category,
 		employee
 	);
-	setIncidenceTotal(
+	const unitMonetaryValue = getIncidenceUnitMonetaryValue(incidence, category, employee);
+	const unit = incidence.basedOnCategory ? category.unit : incidence.unit
+	setIncidenceCell(
 		category.id,
 		employee.id,
 		incidence.amount,
 		incidenciaTotalMonetaryValue,
+		unitMonetaryValue,
+		unit,
 		category.type
 	);
 }
@@ -106,5 +121,5 @@ export function updateAllTotals(employees: Employee[], incidenceCategories: Inci
 			getAndSetIncidenceTotal(incidence, category, employee);
 		}
 	}
-	incidenceTotals.value = new Map(incidenceTotals.value);
+	incidenceCells.value = new Map(incidenceCells.value);
 }

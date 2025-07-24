@@ -28,7 +28,10 @@
 	<td class="t-cell text-nowrap">{employee.puesto}</td>
 	<td class="t-cell text-nowrap">{formatMonetaryValue(employee.salary)}</td>
 	{#each incidenceCategories as category}
-		<IncidenceCell {category} {employee} {incidenciasMapByCategory} />
+	{@const incidence = incidenciasMapByCategory.get(category.id)}
+		{#if incidence}
+		<IncidenceCell {category} {employee} {incidence} />
+		{/if}
 	{/each}
 	{#each selectedCategoryTypes.value as categoryType}
 		<td class="t-cell text-nowrap">
