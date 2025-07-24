@@ -1,6 +1,6 @@
 <script lang="ts">
 	import MainTable from '../MainTable.svelte';
-	import { isReadOnly, selectedWeek, totals, selectedCategoryTypes } from '$lib/stores.svelte';
+	import { isReadOnly, selectedWeek } from '$lib/stores.svelte';
 	import ExcelJS from 'exceljs';
 	import {
 		formatMonetaryValue,
@@ -215,7 +215,6 @@
 	<MainTable
 		{employees}
 		{incidenceCategories}
-		{totalsByCategoryType}
 	/>
 	<button
 		class="mb-4 self-start rounded-lg bg-blue-500 px-3 py-2 text-white hover:bg-blue-600"

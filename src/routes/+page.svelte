@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { categoryTypes } from '$lib/constants';
-	import { selectedCategoryTypes, selectedWeek } from '$lib/stores.svelte';
+	import { isReadOnly, selectedCategoryTypes, selectedWeek } from '$lib/stores.svelte';
 	import { getCategoryTypeLabel } from '$lib/utils';
 	import AddCategory from './AddCategory.svelte';
 	import AddEmployee from './AddEmployee.svelte';
@@ -11,6 +11,7 @@
 	let employees = $state(data.employees);
 	let incidenceCategories = $state(data.incidenceCategories);
 	selectedWeek.value = data.selectedWeek;
+	isReadOnly.value = false;
 
 	function getWeekTitle(week) {
 		if (!week) return '';

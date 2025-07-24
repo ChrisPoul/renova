@@ -33,6 +33,7 @@ const derivedTotals = $derived.by(() => {
 		categoryTotals: new Map<CategoryId, CategoryTotal>(),
 		employeeTotals: new Map<employeeID, number>()
 	};
+	console.log('Calculating totals...');
 	// Loop through all incidences to calculate the totals
 	for (const [categoryId, employeeIncidences] of incidenceTotals.value) {
 		for (const [employeeId, incidence] of employeeIncidences) {
