@@ -1,7 +1,12 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { categoryTypes } from '$lib/constants';
-	import { incidenceCells, isReadOnly, selectedCategoryTypes, selectedWeek } from '$lib/stores.svelte';
+	import {
+		incidenceCells,
+		isReadOnly,
+		selectedCategoryTypes,
+		selectedWeek
+	} from '$lib/stores.svelte';
 	import { getCategoryTypeLabel, getInitiatedIncidenceCells } from '$lib/utils';
 	import AddCategory from './AddCategory.svelte';
 	import AddEmployee from './AddEmployee.svelte';
@@ -14,7 +19,7 @@
 	isReadOnly.value = false;
 
 	onMount(() => {
-		incidenceCells.value = getInitiatedIncidenceCells(employees, incidenceCategories);
+		incidenceCells.value = getInitiatedIncidenceCells(new Map(), employees, incidenceCategories);
 	});
 
 	function getWeekTitle(week) {
@@ -95,7 +100,7 @@
 	<AddCategory />
 	<AddEmployee />
 	<a
-		href="/report?weekId={selectedWeek.value.id}"
+		href={`/report?startWeek=${getWeekForInput(selectedWeek.value.startDate)}&endWeek=${getWeekForInput(selectedWeek.value.startDate)}`}
 		class="mb-4 rounded-lg bg-blue-500 px-3 py-2 text-white hover:bg-blue-600"
 	>
 		Generar Reporte

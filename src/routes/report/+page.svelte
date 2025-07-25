@@ -1,25 +1,20 @@
 <script lang="ts">
 	import MainTable from '../MainTable.svelte';
-	import { isReadOnly, selectedWeek } from '$lib/stores.svelte';
+	import { incidenceCells, isReadOnly } from '$lib/stores.svelte';
 	import ExcelJS from 'exceljs';
-	import { formatMonetaryValue, getCategoryTypeLabel, initiateIncidenceCells } from '$lib/utils';
 
 	let { data } = $props();
 	let employees = $state(data.employees);
 	let incidenceCategories = $state(data.incidenceCategories);
-	selectedWeek.value = data.selectedWeek;
+	incidenceCells.value = data.incidenceCells
 
 	isReadOnly.value = true;
 
 	let startWeek = $state('');
 	let endWeek = $state('');
 
-	async function generateReport() {
-		const response = await fetch(`/api/report?startWeek=${startWeek}&endWeek=${endWeek}`);
-		const responseData = await response.json();
-		employees = responseData.employees;
-		incidenceCategories = responseData.incidenceCategories;
-		initiateIncidenceCells(employees, incidenceCategories);
+	function generateReport() {
+		window.location.href = `/report?startWeek=${startWeek}&endWeek=${endWeek}`;
 	}
 
 	function generateExcelReport() {

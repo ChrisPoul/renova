@@ -8,7 +8,8 @@ export const weeksTable = sqliteTable('weeks', {
 });
 export const weeksRelations = relations(weeksTable, ({ many }) => ({
 	employeesToWeeks: many(employeesToWeeksTable),
-	categoriesToWeeks: many(categoriesToWeeksTable)
+	categoriesToWeeks: many(categoriesToWeeksTable),
+	incidences: many(incidencesTable)
 }));
 
 export const employeesTable = sqliteTable('employees', {

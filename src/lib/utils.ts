@@ -1,4 +1,4 @@
-import { incidenceCells, type IncidenceCell, type IncidenceCells } from './stores.svelte';
+import { type IncidenceCell, type IncidenceCells } from './stores.svelte';
 
 export function formatMonetaryValue(value: number | undefined) {
 	if (value === undefined) {
@@ -101,10 +101,10 @@ export function getIncidenceTotalMonetaryValue(incidenceAmount: number, unitMone
 }
 
 export function getInitiatedIncidenceCells(
+	incidenceCells: IncidenceCells,
 	employees: Employee[],
 	incidenceCategories: IncidenceCategory[],
 ) {
-	const incidenceCells: IncidenceCells = new Map();
 	const categoryMap = new Map(incidenceCategories.map((c) => [c.id, c]));
 
 	for (const employee of employees) {
