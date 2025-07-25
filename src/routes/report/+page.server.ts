@@ -14,20 +14,20 @@ function getDateFromWeekString(weekString: string): Date {
 }
 
 export async function load({ url }) {
-	// const startWeek = url.searchParams.get('startWeek');
-	// const endWeek = url.searchParams.get('endWeek');
+	const startWeek = url.searchParams.get('startWeek');
+	const endWeek = url.searchParams.get('endWeek');
 
-	// if (!startWeek || !endWeek) {
-	// 	return { employees: [], incidenceCategories: [], incidenceCells: new Map() };
-	// }
+	if (!startWeek || !endWeek) {
+		return { employees: [], incidenceCategories: [], incidenceCells: new Map() };
+	}
 
-	// const start = getDateFromWeekString(startWeek);
-	// const end = getDateFromWeekString(endWeek);
-	// // Set the end date to the end of the week to include all days
-	// end.setDate(end.getDate() + 6);
+	const start = getDateFromWeekString(startWeek);
+	const end = getDateFromWeekString(endWeek);
+	// Set the end date to the end of the week to include all days
+	end.setDate(end.getDate() + 6);
 
 	const weeks = await db.query.weeksTable.findMany({
-		// where: and(gte(weeksTable.startDate, start), lte(weeksTable.endDate, end)),
+		where: and(gte(weeksTable.startDate, start), lte(weeksTable.endDate, end)),
 		with: {
 			incidences: true,
 			employeesToWeeks: {
