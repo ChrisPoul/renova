@@ -31,7 +31,7 @@
 
 <div>
 	<label class="mb-1 block text-left text-sm font-medium" for="unit">Unidad</label>
-	<select name="unit" bind:value={unit} class="w-full rounded border border-gray-300 px-2 py-1">
+	<select id="unit" bind:value={unit} class="w-full rounded border border-gray-300 px-2 py-1">
 		{#each unitOptions as option}
 			<option value={option}>
 				{#if option === 'u'}
@@ -49,7 +49,7 @@
 			>Derivar Valor de Unidad</label
 		>
 		<input
-			name="unitValueIsDerived"
+			id="unitValueIsDerived"
 			type="checkbox"
 			bind:checked={unitValueIsDerived}
 			class="rounded border border-gray-300 px-2 py-1"
@@ -61,7 +61,7 @@
 		>Valor Monetario por Unidad</label
 	>
 	<input
-		name="unitMonetaryValue"
+		id="unitMonetaryValue"
 		type={unitValueIsDerived ? 'text' : 'number'}
 		step="0.01"
 		bind:value={unitMonetaryValue}

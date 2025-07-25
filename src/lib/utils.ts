@@ -23,7 +23,7 @@ export function getCategoryTypeLabel(category: string) {
 	return category;
 }
 
-export function validateAmount(amount: number) {
+export function validateAmount(amount: number | null ) {
 	if (!amount) return amount;
 	if (isNaN(amount)) return 0;
 	if (amount < 0) return 0;

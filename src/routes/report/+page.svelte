@@ -6,7 +6,7 @@
 	let { data } = $props();
 	let employees = $state(data.employees);
 	let incidenceCategories = $state(data.incidenceCategories);
-	incidenceCells.value = data.incidenceCells
+	incidenceCells.value = data.incidenceCells;
 
 	isReadOnly.value = true;
 
@@ -167,22 +167,30 @@
 </svelte:head>
 
 <section class="flex flex-col gap-4 p-4">
-	<h1 class="text-4xl font-semibold">Report</h1>
-	<div class="flex gap-4">
-		<div>
-			<label for="start-week">Start Week</label>
-			<input type="week" id="start-week" bind:value={startWeek} />
-		</div>
-		<div>
-			<label for="end-week">End Week</label>
-			<input type="week" id="end-week" bind:value={endWeek} />
-		</div>
-		<button
-			class="self-end rounded-lg bg-blue-500 px-3 py-2 text-white hover:bg-blue-600"
-			onclick={generateReport}
+	<div class="relative">
+		<a
+			href="/"
+			class="absolute top-0 left-0 rounded-lg bg-gray-200 px-3 py-2 text-gray-700 hover:bg-gray-300"
 		>
-			Generate Report
-		</button>
+			← Back
+		</a>
+		<h1 class="pb-4 text-center text-4xl font-semibold">Reporte</h1>
+		<div class="flex gap-4">
+			<div>
+				<label for="start-week">Start Week</label>
+				<input type="week" id="start-week" bind:value={startWeek} />
+			</div>
+			<div>
+				<label for="end-week">End Week</label>
+				<input type="week" id="end-week" bind:value={endWeek} />
+			</div>
+			<button
+				class="self-end rounded-lg bg-blue-500 px-3 py-2 text-white hover:bg-blue-600"
+				onclick={generateReport}
+			>
+				Generate Report
+			</button>
+		</div>
 	</div>
 	<MainTable {employees} {incidenceCategories} />
 	<button

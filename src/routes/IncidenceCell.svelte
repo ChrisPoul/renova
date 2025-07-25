@@ -1,6 +1,11 @@
 <script lang="ts">
 	import { isReadOnly, incidenceCells, type IncidenceCell } from '$lib/stores.svelte';
-	import { formatMonetaryValue, validateAmount, getIncidenceTotalMonetaryValue } from '$lib/utils';
+	import {
+		formatMonetaryValue,
+		validateAmount,
+		getIncidenceTotalMonetaryValue,
+		setIncidenceCell
+	} from '$lib/utils';
 	import EditIncidence from './EditIncidence.svelte';
 	let {
 		categoryId,
@@ -10,16 +15,21 @@
 		employeeId: number;
 	} = $props();
 	let incidenceCell = $derived(incidenceCells.value.get(categoryId)?.get(employeeId));
-	let incidenceAmount = $derived(incidenceCell?.amount || 0);
+	let incidenceAmount = $derived(incidenceCell?.amount === undefined ? null : incidenceCell.amount);
 
 	async function updateIncidenceAmount() {
 		if (!incidenceCell) return;
 		incidenceAmount = validateAmount(incidenceAmount);
-		incidenceCell.amount = incidenceAmount;
-		incidenceCell.monetaryValue = getIncidenceTotalMonetaryValue(
+		if (incidenceAmount === null) return
+		const monetaryValue = getIncidenceTotalMonetaryValue(
 			incidenceAmount,
 			incidenceCell.unitMonetaryValue
 		);
+		setIncidenceCell(incidenceCells.value, categoryId, employeeId, {
+			...incidenceCell,
+			amount: incidenceAmount,
+			monetaryValue
+		});
 		incidenceCells.value = new Map(incidenceCells.value); // Trigger reactivity
 		await fetch('/api/incidence', {
 			method: 'PATCH',
@@ -47,7 +57,7 @@
 				oninput={() => {
 					updateIncidenceAmount();
 				}}
-				style="width: {`${(incidenceCell?.amount.toString().length || 1) + 4}ch`}; min-width: 8ch;"
+				style="width: {`${(incidenceCell?.amount?.toString().length || 1) + 4}ch`}; min-width: 8ch;"
 			/>
 		{/if}
 		{incidenceCell?.unit}
@@ -58,14 +68,12 @@
 				</span>
 				{#if !isReadOnly.value}
 					{#if incidenceCell}
-						<EditIncidence {incidenceCell} />
+						<EditIncidence {categoryId} {employeeId} {incidenceCell} />
 					{/if}
 				{/if}
 			</div>
 			<span class="leading-none text-gray-500">
-				{formatMonetaryValue(
-					incidenceCells.value.get(categoryId)?.get(employeeId)?.monetaryValue || 0
-				)}
+				{formatMonetaryValue(incidenceCell?.monetaryValue || 0)}
 			</span>
 		</div>
 	</div>

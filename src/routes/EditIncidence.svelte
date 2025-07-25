@@ -1,11 +1,16 @@
 <script lang="ts">
-	import type { IncidenceCell } from '$lib/stores.svelte';
+	import { incidenceCells, type IncidenceCell } from '$lib/stores.svelte';
+	import { getIncidenceTotalMonetaryValue, setIncidenceCell } from '$lib/utils';
 	import ModalMenu from './ModalMenu.svelte';
 	import UnitInputs from './UnitInputs.svelte';
 
 	let {
+		categoryId,
+		employeeId,
 		incidenceCell
 	}: {
+		categoryId: number;
+		employeeId: number;
 		incidenceCell: IncidenceCell;
 	} = $props();
 
@@ -14,10 +19,19 @@
 	let unitValueIsDerived = $state(incidenceCell.unitValueIsDerived);
 
 	async function acceptChanges() {
-		incidenceCell.unit = unit;
-		incidenceCell.unitValueIsDerived = unitValueIsDerived;
-		incidenceCell.unitMonetaryValue = unitMonetaryValue;
-		incidenceCell.basedOnCategory = false;
+		const monetaryValue = getIncidenceTotalMonetaryValue(
+			incidenceCell.amount,
+			unitMonetaryValue
+		);
+		setIncidenceCell(incidenceCells.value, categoryId, employeeId, {
+			...incidenceCell,
+			unit,
+			unitMonetaryValue,
+			unitValueIsDerived,
+			monetaryValue,
+			basedOnCategory: false
+		});
+		incidenceCells.value = new Map(incidenceCells.value); // Trigger reactivity
 		await fetch('/api/incidence', {
 			method: 'PATCH',
 			headers: { 'Content-Type': 'application/json' },
