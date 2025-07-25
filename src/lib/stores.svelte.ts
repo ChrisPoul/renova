@@ -7,18 +7,21 @@ type CategoryType = string;
 
 // The shape of the object holding totals for a single incidence
 export interface IncidenceCell {
+	incidenceId: number;
 	amount: number;
 	monetaryValue: number;
 	unitMonetaryValue: number;
 	categoryType: CategoryType;
-	unit: string
+	unit: string;
+	unitValueIsDerived: boolean;
+	basedOnCategory: boolean
 }
 
 // The main reactive state for all incidence data
 type IncidenceCells = Map<CategoryId, Map<employeeID, IncidenceCell>>;
-export const incidenceCells = $state<{value: IncidenceCells}>({
+export const incidenceCells = $state<{ value: IncidenceCells }>({
 	value: new Map()
-})
+});
 
 // The shape of the object holding the aggregated total for a single category
 type CategoryTotal = {

@@ -2,11 +2,10 @@
 	import { onMount } from 'svelte';
 	import { categoryTypes } from '$lib/constants';
 	import { isReadOnly, selectedCategoryTypes, selectedWeek } from '$lib/stores.svelte';
-	import { getCategoryTypeLabel, updateAllTotals } from '$lib/utils';
+	import { getCategoryTypeLabel, initiateIncidenceCells } from '$lib/utils';
 	import AddCategory from './AddCategory.svelte';
 	import AddEmployee from './AddEmployee.svelte';
 	import MainTable from './MainTable.svelte';
-	
 
 	let { data } = $props();
 	let employees = $state(data.employees);
@@ -15,7 +14,7 @@
 	isReadOnly.value = false;
 
 	onMount(() => {
-		updateAllTotals(employees, incidenceCategories);
+		initiateIncidenceCells(employees, incidenceCategories);
 	});
 
 	function getWeekTitle(week) {
@@ -38,8 +37,6 @@
 		const weekNumber = Math.ceil(((d - yearStart) / 86400000 + 1) / 7);
 		return `${date.getFullYear()}-W${weekNumber}`;
 	}
-
-	
 </script>
 
 <div class="fixed top-0 left-0 z-20 flex gap-2 p-2 font-bold text-white">
@@ -91,10 +88,7 @@
 
 <div class="pt-16">
 	<h1 class="text-center text-2xl font-bold">{getWeekTitle(selectedWeek.value)}</h1>
-	<MainTable
-		{employees}
-		{incidenceCategories}
-	/>
+	<MainTable {employees} {incidenceCategories} />
 </div>
 
 <div class="p-2">

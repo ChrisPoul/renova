@@ -1,35 +1,36 @@
 <script lang="ts">
+	import type { IncidenceCell } from '$lib/stores.svelte';
 	import ModalMenu from './ModalMenu.svelte';
 	import UnitInputs from './UnitInputs.svelte';
 
 	let {
-		incidence = $bindable(),
-		category,
-		updateIncidence
+		incidenceCell
 	}: {
-		incidence: Incidence;
-		category: IncidenceCategory;
-		updateIncidence: (incidence: Incidence, category: IncidenceCategory) => void;
+		incidenceCell: IncidenceCell;
 	} = $props();
 
-	let unitMonetaryValue = $state(
-		incidence.basedOnCategory ? category.unitMonetaryValue : incidence.unitMonetaryValue
-	);
-	let unit = $state(incidence.basedOnCategory ? category.unit : incidence.unit);
-	let unitValueIsDerived = $state(
-		incidence.basedOnCategory ? category.unitValueIsDerived : incidence.unitValueIsDerived
-	);
+	let unitMonetaryValue = $state(incidenceCell.unitMonetaryValue);
+	let unit = $state(incidenceCell.unit);
+	let unitValueIsDerived = $state(incidenceCell.unitValueIsDerived);
 
-	function acceptChanges() {
-		incidence.unit = unit;
-		incidence.unitValueIsDerived = unitValueIsDerived;
-		if (unitValueIsDerived) {
-			unitMonetaryValue = 1;
-		}
-		incidence.unitMonetaryValue = unitMonetaryValue;
-		incidence.basedOnCategory = false;
-
-		updateIncidence(incidence, category);
+	async function acceptChanges() {
+		incidenceCell.unit = unit;
+		incidenceCell.unitValueIsDerived = unitValueIsDerived;
+		incidenceCell.unitMonetaryValue = unitMonetaryValue;
+		incidenceCell.basedOnCategory = false;
+		await fetch('/api/incidence', {
+			method: 'PATCH',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({
+				id: incidenceCell.incidenceId,
+				changes: {
+					unit: unit,
+					unitMonetaryValue: unitMonetaryValue,
+					unitValueIsDerived: unitValueIsDerived,
+					basedOnCategory: false
+				}
+			})
+		});
 	}
 </script>
 

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { selectedCategoryTypes, totals, isReadOnly } from '$lib/stores.svelte';
+	import { selectedCategoryTypes, totals, isReadOnly, incidenceCells } from '$lib/stores.svelte';
 	import { formatMonetaryValue } from '$lib/utils';
 	import IncidenceCell from './IncidenceCell.svelte';
 	import EditEmployee from './EditEmployee.svelte';
@@ -11,10 +11,6 @@
 		employee: Employee;
 		incidenceCategories: IncidenceCategory[];
 	} = $props();
-
-	let incidenciasMapByCategory = new Map<number, Incidence>(
-		employee.incidences.map((incidence) => [incidence.categoryId, incidence])
-	);
 </script>
 
 <tr class="odd:bg-white even:bg-gray-50">
@@ -28,9 +24,8 @@
 	<td class="t-cell text-nowrap">{employee.puesto}</td>
 	<td class="t-cell text-nowrap">{formatMonetaryValue(employee.salary)}</td>
 	{#each incidenceCategories as category}
-	{@const incidence = incidenciasMapByCategory.get(category.id)}
-		{#if incidence}
-		<IncidenceCell {category} {employee} {incidence} />
+		{#if selectedCategoryTypes.value.includes(category.type)}
+			<IncidenceCell categoryId={category.id} employeeId={employee.id} />
 		{/if}
 	{/each}
 	{#each selectedCategoryTypes.value as categoryType}

@@ -1,4 +1,4 @@
-import { incidenceCells } from './stores.svelte';
+import { incidenceCells, type IncidenceCell } from './stores.svelte';
 
 export function formatMonetaryValue(value: number | undefined) {
 	if (value === undefined) {
@@ -37,15 +37,6 @@ export function validateAmount(amount: number) {
 	return parseFloat(truncatedString);
 }
 
-export function getIncidenceTotalMonetaryValue(
-	incidence: Incidence,
-	category: IncidenceCategory,
-	employee: Employee
-) {
-	const unitMonetaryValue = getIncidenceUnitMonetaryValue(incidence, category, employee);
-	return incidence.amount * unitMonetaryValue;
-}
-
 export function getIncidenceUnitMonetaryValue(
 	incidence: Incidence,
 	category: IncidenceCategory,
@@ -67,58 +58,57 @@ export function getIncidenceUnitMonetaryValue(
 	return unitMonetaryValue;
 }
 
-function setIncidenceCell(
+export function setIncidenceCell(
 	categoryId: number,
 	employeeId: number,
-	amount: number,
-	monetaryValue: number,
-	unitMonetaryValue: number,
-	unit: string,
-	categoryType: string
+	newIncidenceCell: IncidenceCell
 ) {
 	if (!incidenceCells.value.get(categoryId)) {
 		incidenceCells.value.set(categoryId, new Map());
 	}
-	incidenceCells.value.get(categoryId)?.set(employeeId, {
-		monetaryValue: monetaryValue,
-		amount: amount,
-		categoryType: categoryType,
-		unitMonetaryValue: unitMonetaryValue,
-		unit: unit
-	});
+	incidenceCells.value.get(categoryId)?.set(employeeId, newIncidenceCell);
 }
 
-export function getAndSetIncidenceTotal(
+export function initiateIncidenceCell(
 	incidence: Incidence,
 	category: IncidenceCategory,
 	employee: Employee
 ) {
-	const incidenciaTotalMonetaryValue = getIncidenceTotalMonetaryValue(
-		incidence,
-		category,
-		employee
-	);
 	const unitMonetaryValue = getIncidenceUnitMonetaryValue(incidence, category, employee);
-	const unit = incidence.basedOnCategory ? category.unit : incidence.unit
-	setIncidenceCell(
-		category.id,
-		employee.id,
-		incidence.amount,
-		incidenciaTotalMonetaryValue,
+	const monetaryValue = getIncidenceTotalMonetaryValue(incidence.amount, unitMonetaryValue);
+	let unit = incidence.unit;
+	let unitValueIsDerived = incidence.unitValueIsDerived;
+	if (incidence.basedOnCategory) {
+		unit = category.unit;
+		unitValueIsDerived = category.unitValueIsDerived;
+	}
+	setIncidenceCell(category.id, employee.id, {
+		incidenceId: incidence.id,
 		unitMonetaryValue,
+		monetaryValue,
 		unit,
-		category.type
-	);
+		amount: incidence.amount,
+		categoryType: category.type,
+		unitValueIsDerived,
+		basedOnCategory: incidence.basedOnCategory
+	});
 }
 
-export function updateAllTotals(employees: Employee[], incidenceCategories: IncidenceCategory[]) {
+export function getIncidenceTotalMonetaryValue(incidenceAmount: number, unitMonetaryValue: number) {
+	return incidenceAmount * unitMonetaryValue;
+}
+
+export function initiateIncidenceCells(
+	employees: Employee[],
+	incidenceCategories: IncidenceCategory[]
+) {
 	const categoryMap = new Map(incidenceCategories.map((c) => [c.id, c]));
 
 	for (const employee of employees) {
 		for (const incidence of employee.incidences) {
 			const category = categoryMap.get(incidence.categoryId);
 			if (!category) continue;
-			getAndSetIncidenceTotal(incidence, category, employee);
+			initiateIncidenceCell(incidence, category, employee);
 		}
 	}
 	incidenceCells.value = new Map(incidenceCells.value);

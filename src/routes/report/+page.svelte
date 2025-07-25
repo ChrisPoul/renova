@@ -2,11 +2,7 @@
 	import MainTable from '../MainTable.svelte';
 	import { isReadOnly, selectedWeek } from '$lib/stores.svelte';
 	import ExcelJS from 'exceljs';
-	import {
-		formatMonetaryValue,
-		getCategoryTypeLabel,
-		updateAllTotals
-	} from '$lib/utils';
+	import { formatMonetaryValue, getCategoryTypeLabel, initiateIncidenceCells } from '$lib/utils';
 
 	let { data } = $props();
 	let employees = $state(data.employees);
@@ -23,13 +19,12 @@
 		const responseData = await response.json();
 		employees = responseData.employees;
 		incidenceCategories = responseData.incidenceCategories;
-		updateAllTotals(employees, incidenceCategories);
+		initiateIncidenceCells(employees, incidenceCategories);
 	}
 
 	function generateExcelReport() {
 		// const workbook = new ExcelJS.Workbook();
 		// const worksheet = workbook.addWorksheet('Reporte');
-
 		// const headers = [
 		// 	'Empleado',
 		// 	'Área',
@@ -41,12 +36,9 @@
 		// 	...selectedCategoryTypes.value.map((type) => `Total ${getCategoryTypeLabel(type)}`),
 		// 	'Total'
 		// ];
-
 		// const headerRow = worksheet.addRow(headers);
-
 		// // Category type colors matching your CSS
 		// const defaultHeaderColor = 'FFE5E7EB'; // light gray
-
 		// let colIdx = 1;
 		// for (const header of headers) {
 		// 	const cat = incidenceCategories.find((c) => c.concept === header);
@@ -64,13 +56,11 @@
 		// 	cell.font = { bold: true };
 		// 	colIdx++;
 		// }
-
 		// // Find the column indexes for each category type total column
 		// const totalColIndexes = selectedCategoryTypes.value.map((type) => {
 		// 	const header = `Total ${getCategoryTypeLabel(type)}`;
 		// 	return headers.indexOf(header) + 1; // exceljs columns are 1-based
 		// });
-
 		// // Color those columns in all rows (including the totals row)
 		// worksheet.eachRow((row) => {
 		// 	totalColIndexes.forEach((colIdx, i) => {
@@ -82,7 +72,6 @@
 		// 		};
 		// 	});
 		// });
-
 		// // Add data rows
 		// for (const employee of employees) {
 		// 	const row = [
@@ -91,7 +80,6 @@
 		// 		employee.puesto,
 		// 		formatMonetaryValue(employee.salary)
 		// 	];
-
 		// 	for (const category of incidenceCategories) {
 		// 		if (!selectedCategoryTypes.value.includes(category.type)) continue;
 		// 		const incidence = employee.incidences.find((i) => i.categoryId === category.id);
@@ -104,12 +92,10 @@
 		// 			row.push('');
 		// 		}
 		// 	}
-
 		// 	for (const categoryType of selectedCategoryTypes.value) {
 		// 		const typeTotal = totals.categoryTypes.get(categoryType)?.get(employee.id) ?? 0;
 		// 		row.push(formatMonetaryValue(typeTotal));
 		// 	}
-
 		// 	const employeeTotal = (() => {
 		// 		let total = 0;
 		// 		for (const categoryType of selectedCategoryTypes.value) {
@@ -123,10 +109,8 @@
 		// 		return formatMonetaryValue(total);
 		// 	})();
 		// 	row.push(employeeTotal);
-
 		// 	worksheet.addRow(row);
 		// }
-
 		// // --- Add totals row at the end ---
 		// const totalsRow = [
 		// 	'Total',
@@ -134,22 +118,17 @@
 		// 	'', // Puesto
 		// 	formatMonetaryValue(getTotalSalary())
 		// ];
-
 		// for (const category of incidenceCategories) {
 		// 	if (!selectedCategoryTypes.value.includes(category.type)) continue;
 		// 	const { amount, monetaryValue } = getCategoryTotalMonetaryValueAndAmount(category.id);
 		// 	totalsRow.push(`${amount} (${formatMonetaryValue(monetaryValue)})`);
 		// }
-
 		// for (const categoryType of selectedCategoryTypes.value) {
 		// 	totalsRow.push(formatMonetaryValue(totalsByCategoryType.get(categoryType) ?? 0));
 		// }
-
 		// // Grand total (all)
 		// totalsRow.push(formatMonetaryValue(totalsByCategoryType.get('all') ?? 0));
-
 		// const excelTotalsRow = worksheet.addRow(totalsRow);
-
 		// // Color the entire totals row in gray
 		// excelTotalsRow.eachCell((cell) => {
 		// 	cell.fill = {
@@ -158,14 +137,12 @@
 		// 		fgColor: { argb: 'FFE5E7EB' } // light gray
 		// 	};
 		// });
-
 		// // Optionally, color the "Total" cell
 		// excelTotalsRow.getCell(1).fill = {
 		// 	type: 'pattern',
 		// 	pattern: 'solid',
 		// 	fgColor: { argb: 'FFE5E7EB' }
 		// };
-
 		// // Auto-size columns based on the max length of their contents
 		// worksheet.columns.forEach((column) => {
 		// 	let maxLength = 10; // minimum width
@@ -175,7 +152,6 @@
 		// 	});
 		// 	column.width = maxLength;
 		// });
-
 		// // Download the file in the browser
 		// workbook.xlsx.writeBuffer().then((buffer) => {
 		// 	const blob = new Blob([buffer], {
@@ -213,10 +189,7 @@
 			Generate Report
 		</button>
 	</div>
-	<MainTable
-		{employees}
-		{incidenceCategories}
-	/>
+	<MainTable {employees} {incidenceCategories} />
 	<button
 		class="mb-4 self-start rounded-lg bg-blue-500 px-3 py-2 text-white hover:bg-blue-600"
 		onclick={generateExcelReport}
