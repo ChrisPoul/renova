@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { categoryTypes } from '$lib/constants';
-	import { isReadOnly, selectedCategoryTypes, selectedWeek } from '$lib/stores.svelte';
-	import { getCategoryTypeLabel, initiateIncidenceCells } from '$lib/utils';
+	import { incidenceCells, isReadOnly, selectedCategoryTypes, selectedWeek } from '$lib/stores.svelte';
+	import { getCategoryTypeLabel, getInitiatedIncidenceCells } from '$lib/utils';
 	import AddCategory from './AddCategory.svelte';
 	import AddEmployee from './AddEmployee.svelte';
 	import MainTable from './MainTable.svelte';
@@ -14,7 +14,7 @@
 	isReadOnly.value = false;
 
 	onMount(() => {
-		initiateIncidenceCells(employees, incidenceCategories);
+		incidenceCells.value = getInitiatedIncidenceCells(employees, incidenceCategories);
 	});
 
 	function getWeekTitle(week) {

@@ -18,7 +18,7 @@ export interface IncidenceCell {
 }
 
 // The main reactive state for all incidence data
-type IncidenceCells = Map<CategoryId, Map<employeeID, IncidenceCell>>;
+export type IncidenceCells = Map<CategoryId, Map<employeeID, IncidenceCell>>;
 export const incidenceCells = $state<{ value: IncidenceCells }>({
 	value: new Map()
 });

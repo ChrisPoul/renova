@@ -48,7 +48,7 @@ export const incidenceCategoriesTable = sqliteTable('incidence_categories', {
 	type: text().notNull(),
 	unit: text().notNull(),
 	unitMonetaryValue: real().notNull(),
-	unitValueIsDerived: int({ mode: 'boolean' }).default(false)
+	unitValueIsDerived: int({ mode: 'boolean' }).notNull().default(false)
 });
 export const incidenceCategoriesRelations = relations(incidenceCategoriesTable, ({ many }) => ({
 	categoriesToWeeks: many(categoriesToWeeksTable)
@@ -86,10 +86,10 @@ export const incidencesTable = sqliteTable('incidences', {
 		.notNull()
 		.references(() => employeesTable.id, { onDelete: 'cascade' }),
 	amount: real('amount').notNull(),
-	basedOnCategory: int({ mode: 'boolean' }).default(true),
-	unit: text().default('kg'),
-	unitMonetaryValue: real().default(1),
-	unitValueIsDerived: int({ mode: 'boolean' })
+	basedOnCategory: int({ mode: 'boolean' }).notNull().default(true),
+	unit: text().notNull().default('kg'),
+	unitMonetaryValue: real().notNull().default(1),
+	unitValueIsDerived: int({ mode: 'boolean' }).notNull().default(false)
 });
 export const incidencesRelations = relations(incidencesTable, ({ one }) => ({
 	employee: one(employeesTable, {

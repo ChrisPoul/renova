@@ -1,4 +1,4 @@
-import { incidenceCells, type IncidenceCell } from './stores.svelte';
+import { incidenceCells, type IncidenceCell, type IncidenceCells } from './stores.svelte';
 
 export function formatMonetaryValue(value: number | undefined) {
 	if (value === undefined) {
@@ -59,17 +59,19 @@ export function getIncidenceUnitMonetaryValue(
 }
 
 export function setIncidenceCell(
+	incidenceCells: IncidenceCells,
 	categoryId: number,
 	employeeId: number,
 	newIncidenceCell: IncidenceCell
 ) {
-	if (!incidenceCells.value.get(categoryId)) {
-		incidenceCells.value.set(categoryId, new Map());
+	if (!incidenceCells.get(categoryId)) {
+		incidenceCells.set(categoryId, new Map());
 	}
-	incidenceCells.value.get(categoryId)?.set(employeeId, newIncidenceCell);
+	incidenceCells.get(categoryId)?.set(employeeId, newIncidenceCell);
 }
 
 export function initiateIncidenceCell(
+	incidenceCells: IncidenceCells,
 	incidence: Incidence,
 	category: IncidenceCategory,
 	employee: Employee
@@ -82,7 +84,7 @@ export function initiateIncidenceCell(
 		unit = category.unit;
 		unitValueIsDerived = category.unitValueIsDerived;
 	}
-	setIncidenceCell(category.id, employee.id, {
+	setIncidenceCell(incidenceCells, category.id, employee.id, {
 		incidenceId: incidence.id,
 		unitMonetaryValue,
 		monetaryValue,
@@ -98,18 +100,19 @@ export function getIncidenceTotalMonetaryValue(incidenceAmount: number, unitMone
 	return incidenceAmount * unitMonetaryValue;
 }
 
-export function initiateIncidenceCells(
+export function getInitiatedIncidenceCells(
 	employees: Employee[],
-	incidenceCategories: IncidenceCategory[]
+	incidenceCategories: IncidenceCategory[],
 ) {
+	const incidenceCells: IncidenceCells = new Map();
 	const categoryMap = new Map(incidenceCategories.map((c) => [c.id, c]));
 
 	for (const employee of employees) {
 		for (const incidence of employee.incidences) {
 			const category = categoryMap.get(incidence.categoryId);
 			if (!category) continue;
-			initiateIncidenceCell(incidence, category, employee);
+			initiateIncidenceCell(incidenceCells,incidence, category, employee);
 		}
 	}
-	incidenceCells.value = new Map(incidenceCells.value);
+	return incidenceCells
 }
