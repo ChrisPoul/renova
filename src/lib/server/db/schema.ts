@@ -90,7 +90,7 @@ export const incidencesTable = sqliteTable('incidences', {
 	employeeId: int('employee')
 		.notNull()
 		.references(() => employeesTable.id, { onDelete: 'cascade' }),
-	amount: real('amount').notNull(),
+	amount: real('amount').notNull().default(0),
 	basedOnCategory: int({ mode: 'boolean' }).notNull().default(true),
 	unit: text().notNull().default('kg'),
 	unitMonetaryValue: real().notNull().default(1),

@@ -1,7 +1,8 @@
 <script lang="ts">
 	import { categoryTypes } from '$lib/constants';
 	import CategoryForm from './CategoryForm.svelte';
-	import { selectedWeek } from '$lib/stores.svelte';
+	import { employees, incidenceCategories, incidenceCells, selectedWeek } from '$lib/stores.svelte';
+	import { initiateIncidenceCell } from '$lib/utils';
 
 	let concept = $state('');
 	let type = $state(categoryTypes[0]);
@@ -10,10 +11,7 @@
 	let unitValueIsDerived = $state(false);
 
 	async function acceptChanges() {
-		if (unitValueIsDerived) {
-			unitMonetaryValue = 1;
-		}
-		await fetch('/api/category', {
+		const response = await fetch('/api/category', {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify({
@@ -22,10 +20,17 @@
 				unit,
 				unitMonetaryValue,
 				unitValueIsDerived,
-				weekId: selectedWeek.value.id
+				weekId: selectedWeek.value!.id
 			})
 		});
-		location.reload();
+		let {category, incidences} = await response.json()
+		incidenceCategories.value.set(category.id, category)
+		for (const incidence of incidences) {
+			const employee = employees.value.get(incidence.employeeId)
+			initiateIncidenceCell(incidenceCells.value, incidence, category, employee!)
+		}
+		incidenceCategories.value = new Map(incidenceCategories.value)
+		incidenceCells.value = new Map(incidenceCells.value)
 	}
 </script>
 

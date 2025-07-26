@@ -17,9 +17,6 @@
 	let unitValueIsDerived = $state(category.unitValueIsDerived);
 
 	async function acceptChanges() {
-		if (unitValueIsDerived) {
-			unitMonetaryValue = 1;
-		}
 		const changes = {
 			concept,
 			type,

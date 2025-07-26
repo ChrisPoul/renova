@@ -11,32 +11,33 @@ import { and, eq } from 'drizzle-orm';
 export async function POST({ request }) {
 	const body = await request.json();
 	const { weekId, ...categoryData } = body;
+	let category
+	let incidences
 
 	await db.transaction(async (tx) => {
 		const [newCategory] = await tx
 			.insert(incidenceCategoriesTable)
 			.values(categoryData)
-			.returning({ id: incidenceCategoriesTable.id });
+			.returning()
+		category = newCategory
 
-		const newCategoryId = newCategory.id;
-
-		await tx.insert(categoriesToWeeksTable).values({ categoryId: newCategoryId, weekId });
+		await tx.insert(categoriesToWeeksTable).values({ categoryId: newCategory.id, weekId });
 
 		const employees = await tx.select().from(employeesTable);
 
 		const newIncidences = employees.map((emp) => ({
 			employeeId: emp.id,
-			categoryId: newCategoryId,
-			amount: 0,
+			categoryId: newCategory.id,
 			weekId
 		}));
 
 		if (newIncidences.length > 0) {
-			await tx.insert(incidencesTable).values(newIncidences);
+			incidences = await tx.insert(incidencesTable).values(newIncidences).returning()
 		}
 	});
+	console.log(incidences)
 
-	return json({ success: true });
+	return json({category, incidences});
 }
 
 export async function PATCH({ request }) {
