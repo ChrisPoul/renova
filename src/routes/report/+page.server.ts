@@ -1,6 +1,6 @@
 import { db } from '$lib/server/db';
 import { and, eq, gte, lte } from 'drizzle-orm';
-import { weeksTable, type Incidence } from '$lib/server/db/schema';
+import { weeksTable, type Employee, type Incidence } from '$lib/server/db/schema';
 import { getInitiatedIncidenceCells } from '$lib/utils.js';
 
 function getDateFromWeekString(weekString: string): Date {
@@ -56,7 +56,7 @@ export async function load({ url }) {
 			}
 			incidencesByEmployee.get(employeeId)!.push(incidence);
 		}
-		const weekEmployees = [];
+		const weekEmployees: Employee[] = [];
 		for (const employeeToWeek of week.employeesToWeeks) {
 			const employee = employeeToWeek.employee;
 			weekEmployees.push({

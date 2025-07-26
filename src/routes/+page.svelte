@@ -18,10 +18,7 @@
 	let incidenceCategories = $state(data.incidenceCategories);
 	selectedWeek.value = data.selectedWeek;
 	isReadOnly.value = false;
-
-	onMount(() => {
-		incidenceCells.value = getInitiatedIncidenceCells(new Map(), employees, incidenceCategories);
-	});
+	incidenceCells.value = data.incidenceCells;
 
 	function getWeekTitle(week: Week | undefined) {
 		if (!week) return '';

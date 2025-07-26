@@ -1,63 +1,7 @@
 import { drizzle } from 'drizzle-orm/libsql';
-import { and, eq } from 'drizzle-orm';
 import * as schema from './schema';
 
 export const db = drizzle('file:local.db', { schema });
-
-// Get all incidence categories
-export async function getAllIncidenceCategories(weekId: number | null) {
-	if (!weekId) {
-		return db.query.incidenceCategoriesTable.findMany({
-			orderBy: (table, { desc }) => [desc(table.type)]
-		});
-	}
-
-	return db.query.incidenceCategoriesTable.findMany({
-		orderBy: (table, { desc }) => [desc(table.type)],
-		where: (table, { exists }) =>
-			exists(
-				db
-					.select()
-					.from(schema.categoriesToWeeksTable)
-					.where(
-						and(
-							eq(schema.categoriesToWeeksTable.categoryId, table.id),
-							eq(schema.categoriesToWeeksTable.weekId, weekId)
-						)
-					)
-			)
-	});
-}
-
-export async function getAllEmployeesWithIncidences(weekId: number | null) {
-	const where = weekId ? eq(schema.incidencesTable.weekId, +weekId) : undefined;
-
-	if (!weekId) {
-		return db.query.employeesTable.findMany({
-			with: {
-				incidences: {
-					where
-				}
-			}
-		});
-	}
-
-	const employeesInWeek = await db
-		.select({ id: schema.employeesToWeeksTable.employeeId })
-		.from(schema.employeesToWeeksTable)
-		.where(eq(schema.employeesToWeeksTable.weekId, weekId));
-
-	const employeeIds = employeesInWeek.map((e) => e.id);
-
-	return db.query.employeesTable.findMany({
-		where: (table, { inArray }) => inArray(table.id, employeeIds),
-		with: {
-			incidences: {
-				where
-			}
-		}
-	});
-}
 
 export async function makeDummyData() {
 	
