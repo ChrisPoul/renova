@@ -1,4 +1,5 @@
-import { type IncidenceCell, type IncidenceCells } from './stores.svelte';
+import type { Employee, Incidence, IncidenceCategory } from './server/db/schema';
+import type {IncidenceCell, IncidenceCells } from './stores.svelte';
 
 export function formatMonetaryValue(value: number | undefined) {
 	if (value === undefined) {

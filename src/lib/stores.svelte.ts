@@ -1,4 +1,5 @@
 import { categoryTypes } from './constants';
+import type { Week } from './server/db/schema';
 
 type CategoryId = number;
 type employeeID = number;
@@ -13,7 +14,7 @@ export interface IncidenceCell {
 	categoryType: CategoryType;
 	unit: string;
 	unitValueIsDerived: boolean;
-	basedOnCategory: boolean
+	basedOnCategory: boolean;
 }
 
 // The main reactive state for all incidence data
@@ -100,6 +101,8 @@ export const selectedCategoryTypes = $state({
 	value: categoryTypes
 });
 
-export const selectedWeek = $state({ value: null });
+export const selectedWeek = $state<{ value: Week | undefined }>({
+	value: undefined
+});
 
 export const isReadOnly = $state({ value: false });

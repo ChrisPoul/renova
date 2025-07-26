@@ -11,6 +11,7 @@
 	import AddCategory from './AddCategory.svelte';
 	import AddEmployee from './AddEmployee.svelte';
 	import MainTable from './MainTable.svelte';
+	import type { Week } from '$lib/server/db/schema';
 
 	let { data } = $props();
 	let employees = $state(data.employees);
@@ -22,7 +23,7 @@
 		incidenceCells.value = getInitiatedIncidenceCells(new Map(), employees, incidenceCategories);
 	});
 
-	function getWeekTitle(week) {
+	function getWeekTitle(week: Week | undefined) {
 		if (!week) return '';
 
 		const startDate = new Date(week.startDate);
@@ -34,12 +35,13 @@
 		return `Del ${startDay} al ${endDay} de ${month} de ${year}`;
 	}
 
-	function getWeekForInput(date: Date) {
+	function getWeekForInput(date: Date | undefined) {
+		if (!date) return '';
 		const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
 		const dayNum = d.getUTCDay() || 7;
 		d.setUTCDate(d.getUTCDate() + 4 - dayNum);
 		const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
-		const weekNumber = Math.ceil(((d - yearStart) / 86400000 + 1) / 7);
+		const weekNumber = Math.ceil(((d.getTime() - yearStart.getTime()) / 86400000 + 1) / 7);
 		return `${date.getFullYear()}-W${weekNumber}`;
 	}
 </script>
@@ -48,9 +50,9 @@
 	<input
 		type="week"
 		class="text-black"
-		value={getWeekForInput(selectedWeek.value.startDate)}
-		onchange={async (e) => {
-			const week = e.target.value;
+		value={getWeekForInput(selectedWeek.value?.startDate)}
+		onchange={async (e: Event) => {
+			const week = (e.target as HTMLInputElement).value;
 			const res = await fetch('/api/weeks', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
@@ -100,7 +102,7 @@
 	<AddCategory />
 	<AddEmployee />
 	<a
-		href={`/report?startWeek=${getWeekForInput(selectedWeek.value.startDate)}&endWeek=${getWeekForInput(selectedWeek.value.startDate)}`}
+		href={`/report?startWeek=${getWeekForInput(selectedWeek.value?.startDate)}&endWeek=${getWeekForInput(selectedWeek.value?.startDate)}`}
 		class="mb-4 rounded-lg bg-blue-500 px-3 py-2 text-white hover:bg-blue-600"
 	>
 		Generar Reporte

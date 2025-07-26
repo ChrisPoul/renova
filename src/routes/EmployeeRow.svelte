@@ -1,8 +1,9 @@
 <script lang="ts">
-	import { selectedCategoryTypes, totals, isReadOnly, incidenceCells } from '$lib/stores.svelte';
+	import { selectedCategoryTypes, totals, isReadOnly } from '$lib/stores.svelte';
 	import { formatMonetaryValue } from '$lib/utils';
 	import IncidenceCell from './IncidenceCell.svelte';
 	import EditEmployee from './EditEmployee.svelte';
+	import type { Employee, IncidenceCategory } from '$lib/server/db/schema';
 
 	let {
 		employee,

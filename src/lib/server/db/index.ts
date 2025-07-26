@@ -59,14 +59,6 @@ export async function getAllEmployeesWithIncidences(weekId: number | null) {
 	});
 }
 
-export async function updateIncidenceCategory(categoryID: number, data) {
-	await db
-		.update(schema.incidenceCategoriesTable)
-		.set(data)
-		.where(eq(schema.incidenceCategoriesTable.id, categoryID))
-		.run();
-}
-
 export async function makeDummyData() {
 	
 	const startDate = getMondayOfISOWeek(2025, 29);

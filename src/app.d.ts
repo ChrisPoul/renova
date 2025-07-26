@@ -9,23 +9,6 @@ declare global {
 		// interface PageState {}
 		// interface Platform {}
 	}
-	interface IncidenceCategory {
-		id: number;
-		concept: string;
-		type: string;
-		unit: string;
-		unitMonetaryValue: number;
-		unitValueIsDerived: boolean;
-	}
-	type Incidence = typeof import('$lib/server/db/schema').incidencesTable.$inferSelect;
-	interface Employee {
-		id: number;
-		name: string;
-		salary: number;
-		puesto: string;
-		area: string;
-		incidences: Incidence[];
-	}
 }
 
 export {};

@@ -3,6 +3,7 @@
 	import { selectedCategoryTypes, isReadOnly, totals } from '$lib/stores.svelte';
 	import { formatMonetaryValue, getCategoryTypeLabel } from '$lib/utils';
 	import EditCategory from './EditCategory.svelte';
+	import type { Employee } from '$lib/server/db/schema';
 
 	let {
 		incidenceCategories,

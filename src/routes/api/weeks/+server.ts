@@ -30,11 +30,6 @@ function getMondayOfISOWeek(year: number, week: number) {
 	);
 }
 
-export async function GET() {
-	const weeks = await db.select().from(weeksTable);
-	return json(weeks);
-}
-
 export async function POST({ request }) {
 	const { week } = await request.json();
 	const [year, weekNumber] = week.split('-W').map(Number);

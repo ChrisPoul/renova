@@ -1,6 +1,6 @@
 import { db } from '$lib/server/db';
 import { and, eq, gte, lte } from 'drizzle-orm';
-import { weeksTable } from '$lib/server/db/schema';
+import { weeksTable, type Incidence } from '$lib/server/db/schema';
 import { getInitiatedIncidenceCells } from '$lib/utils.js';
 
 function getDateFromWeekString(weekString: string): Date {
