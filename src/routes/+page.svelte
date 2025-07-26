@@ -16,11 +16,11 @@
 	let { data } = $props();
 	let employees = $state(data.employees);
 	let incidenceCategories = $state(data.incidenceCategories);
-	selectedWeek.value = data.selectedWeek;
+	selectedWeek.value = data.week;
 	isReadOnly.value = false;
 	incidenceCells.value = data.incidenceCells;
 
-	function getWeekTitle(week: Week | undefined) {
+	function getWeekTitle(week: Week | null) {
 		if (!week) return '';
 
 		const startDate = new Date(week.startDate);

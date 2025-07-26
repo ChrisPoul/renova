@@ -101,8 +101,8 @@ export const selectedCategoryTypes = $state({
 	value: categoryTypes
 });
 
-export const selectedWeek = $state<{ value: Week | undefined }>({
-	value: undefined
+export const selectedWeek = $state<{ value: Week | null }>({
+	value: null
 });
 
 export const isReadOnly = $state({ value: false });
