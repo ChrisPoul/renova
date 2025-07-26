@@ -1,6 +1,11 @@
 import { db } from '$lib/server/db';
 import { and, gte, lte } from 'drizzle-orm';
-import { weeksTable, type Employee, type Incidence, type IncidenceCategory } from '$lib/server/db/schema';
+import {
+	weeksTable,
+	type Employee,
+	type Incidence,
+	type IncidenceCategory
+} from '$lib/server/db/schema';
 import { getInitiatedIncidenceCells } from '$lib/utils.js';
 import type { IncidenceCells } from '$lib/stores.svelte.js';
 
@@ -18,8 +23,16 @@ export async function load({ url }) {
 	const startWeek = url.searchParams.get('startWeek');
 	const endWeek = url.searchParams.get('endWeek');
 
+	const finalIncidenceCells: IncidenceCells = new Map();
+	const finalEmployees: Employees = new Map();
+	const finalCategories: IncidenceCategories = new Map();
+
 	if (!startWeek || !endWeek) {
-		return { employees: [], incidenceCategories: [], incidenceCells: new Map() };
+		return {
+			employees: finalEmployees,
+			incidenceCategories: finalCategories,
+			incidenceCells: finalIncidenceCells
+		};
 	}
 
 	const start = getDateFromWeekString(startWeek);
@@ -45,11 +58,8 @@ export async function load({ url }) {
 	});
 	console.log(`Found ${weeks.length} weeks in the specified range`);
 
-	const finalIncidenceCells: IncidenceCells = new Map();
-	const finalEmployees: Employees = new Map();
-	const finalCategories: IncidenceCategories = new Map();
 	for (const week of weeks) {
-		const weekEmployees: Map<EmployeeId, Employee> = new Map()
+		const weekEmployees: Map<EmployeeId, Employee> = new Map();
 		for (const employeeToWeek of week.employeesToWeeks) {
 			const employee = employeeToWeek.employee;
 			weekEmployees.set(employee.id, employee);
@@ -60,7 +70,7 @@ export async function load({ url }) {
 				previousEmployee.salary += employee.salary;
 			}
 		}
-		const weekCategories: Map<CategoryId, IncidenceCategory> = new Map()
+		const weekCategories: Map<CategoryId, IncidenceCategory> = new Map();
 		for (const categoryToWeek of week.categoriesToWeeks) {
 			const category = categoryToWeek.category;
 			weekCategories.set(category.id, category);
@@ -69,7 +79,11 @@ export async function load({ url }) {
 			}
 		}
 
-		const weekIncidenceCell = getInitiatedIncidenceCells(weekEmployees, weekCategories, week.incidences);
+		const weekIncidenceCell = getInitiatedIncidenceCells(
+			weekEmployees,
+			weekCategories,
+			week.incidences
+		);
 
 		for (const [categoryId, categoryIncidenceCells] of weekIncidenceCell) {
 			if (!finalIncidenceCells.has(categoryId)) {
@@ -81,12 +95,15 @@ export async function load({ url }) {
 				if (!finalCategoryIncidenceCells!.has(employeeId)) {
 					finalCategoryIncidenceCells!.set(employeeId, {
 						...incidenceCell,
-						amount: 0,
+						incidence: {
+							...incidenceCell.incidence,
+							amount: 0
+						},
 						totalMonetaryValue: 0
 					});
 				}
 				const finalIncidenceCell = finalCategoryIncidenceCells!.get(employeeId);
-				finalIncidenceCell!.amount += incidenceCell.amount;
+				finalIncidenceCell!.incidence.amount += incidenceCell.incidence.amount;
 				finalIncidenceCell!.totalMonetaryValue += incidenceCell.totalMonetaryValue;
 			}
 		}

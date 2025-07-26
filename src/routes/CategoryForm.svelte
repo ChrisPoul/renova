@@ -42,7 +42,10 @@
 		</label>
 		<UnitInputs bind:unit bind:unitMonetaryValue bind:unitValueIsDerived />
 		{#if deleteCategory}
-			<button onclick={deleteCategory} class="rounded-lg bg-red-400 px-4 py-2">Delete</button>
+			<button onclick={() => {
+				deleteCategory()
+				
+			}} class="rounded-lg bg-red-400 px-4 py-2">Delete</button>
 		{/if}
 	</div>
 </ModalMenu>

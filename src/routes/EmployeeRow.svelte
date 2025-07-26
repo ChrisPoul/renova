@@ -1,16 +1,14 @@
 <script lang="ts">
-	import { selectedCategoryTypes, totals, isReadOnly } from '$lib/stores.svelte';
+	import { selectedCategoryTypes, totals, isReadOnly, incidenceCategories } from '$lib/stores.svelte';
 	import { formatMonetaryValue } from '$lib/utils';
 	import IncidenceCell from './IncidenceCell.svelte';
 	import EditEmployee from './EditEmployee.svelte';
-	import type { Employee, IncidenceCategory } from '$lib/server/db/schema';
+	import type { Employee } from '$lib/server/db/schema';
 
 	let {
 		employee,
-		incidenceCategories
 	}: {
 		employee: Employee;
-		incidenceCategories: IncidenceCategories;
 	} = $props();
 </script>
 
@@ -24,7 +22,7 @@
 	<td class="t-cell text-nowrap">{employee.area}</td>
 	<td class="t-cell text-nowrap">{employee.puesto}</td>
 	<td class="t-cell text-nowrap">{formatMonetaryValue(employee.salary)}</td>
-	{#each incidenceCategories as [_,category]}
+	{#each incidenceCategories.value as [_,category]}
 		{#if selectedCategoryTypes.value.includes(category.type)}
 			<IncidenceCell categoryId={category.id} employeeId={employee.id} />
 		{/if}

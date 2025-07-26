@@ -1,11 +1,11 @@
 <script lang="ts">
 	import MainTable from '../MainTable.svelte';
-	import { incidenceCells, isReadOnly } from '$lib/stores.svelte';
+	import { employees, incidenceCategories, incidenceCells, isReadOnly } from '$lib/stores.svelte';
 	import ExcelJS from 'exceljs';
 
 	let { data } = $props();
-	let employees = $state(data.employees);
-	let incidenceCategories = $state(data.incidenceCategories);
+	employees.value = data.employees
+	incidenceCategories.value = data.incidenceCategories
 	incidenceCells.value = data.incidenceCells;
 
 	isReadOnly.value = true;
@@ -172,7 +172,7 @@
 			href="/"
 			class="absolute top-0 left-0 rounded-lg bg-gray-200 px-3 py-2 text-gray-700 hover:bg-gray-300"
 		>
-			← Back
+			← Regresar
 		</a>
 		<h1 class="pb-4 text-center text-4xl font-semibold">Reporte</h1>
 		<div class="flex gap-4">
@@ -192,7 +192,7 @@
 			</button>
 		</div>
 	</div>
-	<MainTable {employees} {incidenceCategories} />
+	<MainTable />
 	<button
 		class="mb-4 self-start rounded-lg bg-blue-500 px-3 py-2 text-white hover:bg-blue-600"
 		onclick={generateExcelReport}

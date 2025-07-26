@@ -2,6 +2,8 @@
 	import { onMount } from 'svelte';
 	import { categoryTypes } from '$lib/constants';
 	import {
+		employees,
+		incidenceCategories,
 		incidenceCells,
 		isReadOnly,
 		selectedCategoryTypes,
@@ -14,8 +16,8 @@
 	import type { Week } from '$lib/server/db/schema';
 
 	let { data } = $props();
-	let employees = $state(data.employees);
-	let incidenceCategories = $state(data.incidenceCategories);
+	employees.value = data.employees;
+	incidenceCategories.value = data.incidenceCategories;
 	selectedWeek.value = data.week;
 	isReadOnly.value = false;
 	incidenceCells.value = data.incidenceCells;
@@ -92,7 +94,7 @@
 
 <div class="pt-16">
 	<h1 class="text-center text-2xl font-bold">{getWeekTitle(selectedWeek.value)}</h1>
-	<MainTable {employees} {incidenceCategories} />
+	<MainTable />
 </div>
 
 <div class="p-2">

@@ -1,5 +1,5 @@
 import type { Employee, Incidence, IncidenceCategory } from './server/db/schema';
-import type {IncidenceCell, IncidenceCells } from './stores.svelte';
+import type { IncidenceCell, IncidenceCells } from './stores.svelte';
 
 export function formatMonetaryValue(value: number | undefined) {
 	if (value === undefined) {
@@ -38,7 +38,7 @@ export function validateAmount(amount: number | null) {
 	return parseFloat(truncatedString);
 }
 
-export function getIncidenceCellUnitMonetaryValue(
+export function getIncidenceUnitMonetaryValue(
 	incidence: Incidence,
 	category: IncidenceCategory,
 	employee: Employee
@@ -77,8 +77,11 @@ export function initiateIncidenceCell(
 	category: IncidenceCategory,
 	employee: Employee
 ) {
-	const unitMonetaryValue = getIncidenceCellUnitMonetaryValue(incidence, category, employee);
-	const totalMonetaryValue = getIncidenceCellTotalMonetaryValue(incidence.amount, unitMonetaryValue);
+	const unitMonetaryValue = getIncidenceUnitMonetaryValue(incidence, category, employee);
+	const totalMonetaryValue = getIncidenceCellTotalMonetaryValue(
+		incidence.amount,
+		unitMonetaryValue
+	);
 	let unit = incidence.unit;
 	let unitValueIsDerived = incidence.unitValueIsDerived;
 	if (incidence.basedOnCategory) {
@@ -86,21 +89,13 @@ export function initiateIncidenceCell(
 		unitValueIsDerived = category.unitValueIsDerived;
 	}
 	setIncidenceCell(incidenceCells, category.id, employee.id, {
-		incidenceId: incidence.id,
-		unitMonetaryValue,
+		incidence: { ...incidence, unit, unitMonetaryValue, unitValueIsDerived },
 		totalMonetaryValue,
-		unit,
-		amount: incidence.amount,
-		categoryType: category.type,
-		unitValueIsDerived,
-		basedOnCategory: incidence.basedOnCategory
+		categoryType: category.type
 	});
 }
 
-export function getIncidenceCellTotalMonetaryValue(
-	amount: number,
-	unitMonetaryValue: number
-) {
+export function getIncidenceCellTotalMonetaryValue(amount: number, unitMonetaryValue: number) {
 	return amount * unitMonetaryValue;
 }
 
@@ -109,13 +104,13 @@ export function getInitiatedIncidenceCells(
 	incidenceCategories: Map<CategoryId, IncidenceCategory>,
 	incidences: Incidence[]
 ) {
-	const incidenceCells: IncidenceCells = new Map()
-		for (const incidence of incidences) {
-			const category = incidenceCategories.get(incidence.categoryId)
-			const employee = employees.get(incidence.employeeId)
-			if (!category || !employee) continue;
-			initiateIncidenceCell(incidenceCells, incidence, category, employee);
-		}
+	const incidenceCells: IncidenceCells = new Map();
+	for (const incidence of incidences) {
+		const category = incidenceCategories.get(incidence.categoryId);
+		const employee = employees.get(incidence.employeeId);
+		if (!category || !employee) continue;
+		initiateIncidenceCell(incidenceCells, incidence, category, employee);
+	}
 
 	return incidenceCells;
 }

@@ -15,7 +15,9 @@
 		employeeId: number;
 	} = $props();
 	let incidenceCell = $derived(incidenceCells.value.get(categoryId)?.get(employeeId));
-	let incidenceAmount = $derived(incidenceCell?.amount === undefined ? null : incidenceCell.amount);
+	let incidenceAmount = $derived(
+		incidenceCell?.incidence.amount === undefined ? null : incidenceCell.incidence.amount
+	);
 
 	async function updateIncidenceAmount() {
 		if (!incidenceCell) return;
@@ -23,11 +25,11 @@
 		if (incidenceAmount === null) return;
 		const totalMonetaryValue = getIncidenceCellTotalMonetaryValue(
 			incidenceAmount,
-			incidenceCell.unitMonetaryValue
+			incidenceCell.incidence.unitMonetaryValue
 		);
 		setIncidenceCell(incidenceCells.value, categoryId, employeeId, {
 			...incidenceCell,
-			amount: incidenceAmount,
+			incidence: { ...incidenceCell.incidence, amount: incidenceAmount },
 			totalMonetaryValue
 		});
 		incidenceCells.value = new Map(incidenceCells.value); // Trigger reactivity
@@ -35,7 +37,7 @@
 			method: 'PATCH',
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify({
-				id: incidenceCell.incidenceId,
+				id: incidenceCell.incidence.id,
 				changes: {
 					amount: incidenceAmount
 				}
@@ -47,7 +49,7 @@
 <td class="t-cell text-nowrap">
 	<div class="flex w-full items-center gap-0.75">
 		{#if isReadOnly.value}
-			{incidenceCell?.amount}
+			{incidenceCell?.incidence.amount}
 		{:else}
 			<input
 				type="number"
@@ -57,14 +59,14 @@
 				oninput={() => {
 					updateIncidenceAmount();
 				}}
-				style="width: {`${(incidenceCell?.amount?.toString().length || 1) + 4}ch`}; min-width: 8ch;"
+				style="width: {`${(incidenceCell?.incidence.amount?.toString().length || 1) + 4}ch`}; min-width: 8ch;"
 			/>
 		{/if}
-		{incidenceCell?.unit}
+		{incidenceCell?.incidence.unit}
 		<div class="ml-auto flex flex-col">
 			<div class="ml-auto flex items-center">
 				<span class="text-sm leading-none text-gray-500">
-					{formatMonetaryValue(incidenceCell?.unitMonetaryValue)}
+					{formatMonetaryValue(incidenceCell?.incidence.unitMonetaryValue)}
 				</span>
 				{#if !isReadOnly.value}
 					{#if incidenceCell}

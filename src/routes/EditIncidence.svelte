@@ -14,29 +14,31 @@
 		incidenceCell: IncidenceCell;
 	} = $props();
 
-	let unitMonetaryValue = $state(incidenceCell.unitMonetaryValue);
-	let unit = $state(incidenceCell.unit);
-	let unitValueIsDerived = $state(incidenceCell.unitValueIsDerived);
+	let unitMonetaryValue = $state(incidenceCell.incidence.unitMonetaryValue);
+	let unit = $state(incidenceCell.incidence.unit);
+	let unitValueIsDerived = $state(incidenceCell.incidence.unitValueIsDerived);
 
 	async function acceptChanges() {
 		const totalMonetaryValue = getIncidenceCellTotalMonetaryValue(
-			incidenceCell.amount,
+			incidenceCell.incidence.amount,
 			unitMonetaryValue
 		);
 		setIncidenceCell(incidenceCells.value, categoryId, employeeId, {
 			...incidenceCell,
-			unit,
-			unitMonetaryValue,
-			unitValueIsDerived,
-			totalMonetaryValue,
-			basedOnCategory: false
+			incidence: {...incidenceCell.incidence,
+				unit,
+				unitMonetaryValue,
+				unitValueIsDerived,
+				basedOnCategory: false
+			},
+			totalMonetaryValue
 		});
 		incidenceCells.value = new Map(incidenceCells.value); // Trigger reactivity
 		await fetch('/api/incidence', {
 			method: 'PATCH',
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify({
-				id: incidenceCell.incidenceId,
+				id: incidenceCell.incidence.id,
 				changes: {
 					unit: unit,
 					unitMonetaryValue: unitMonetaryValue,
