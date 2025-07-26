@@ -23,7 +23,7 @@
 				weekId: selectedWeek.value!.id
 			})
 		});
-		let {category, incidences} = await response.json()
+		const {category, incidences} = await response.json()
 		incidenceCategories.value.set(category.id, category)
 		for (const incidence of incidences) {
 			const employee = employees.value.get(incidence.employeeId)

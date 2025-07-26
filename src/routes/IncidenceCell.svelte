@@ -1,4 +1,5 @@
 <script lang="ts">
+	import type { Employee, IncidenceCategory } from '$lib/server/db/schema';
 	import { isReadOnly, incidenceCells, type IncidenceCell } from '$lib/stores.svelte';
 	import {
 		formatMonetaryValue,
@@ -7,17 +8,15 @@
 		setIncidenceCell
 	} from '$lib/utils';
 	import EditIncidence from './EditIncidence.svelte';
-	let {
-		categoryId,
-		employeeId
+	const {
+		category,
+		employee,
 	}: {
-		categoryId: number;
-		employeeId: number;
+		category: IncidenceCategory;
+		employee: Employee;
 	} = $props();
-	let incidenceCell = $derived(incidenceCells.value.get(categoryId)?.get(employeeId));
-	let incidenceAmount = $derived(
-		incidenceCell?.incidence.amount === undefined ? null : incidenceCell.incidence.amount
-	);
+	let incidenceCell = $derived(incidenceCells.value.get(category.id)?.get(employee.id));
+	let incidenceAmount: null | number = $derived(incidenceCell!.incidence.amount);
 
 	async function updateIncidenceAmount() {
 		if (!incidenceCell) return;
@@ -27,7 +26,7 @@
 			incidenceAmount,
 			incidenceCell.incidence.unitMonetaryValue
 		);
-		setIncidenceCell(incidenceCells.value, categoryId, employeeId, {
+		setIncidenceCell(incidenceCells.value, category.id, employee.id, {
 			...incidenceCell,
 			incidence: { ...incidenceCell.incidence, amount: incidenceAmount },
 			totalMonetaryValue
@@ -70,7 +69,7 @@
 				</span>
 				{#if !isReadOnly.value}
 					{#if incidenceCell}
-						<EditIncidence {categoryId} {employeeId} {incidenceCell} />
+						<EditIncidence {category} {employee} {incidenceCell} />
 					{/if}
 				{/if}
 			</div>

@@ -12,12 +12,14 @@ import { and, eq } from 'drizzle-orm';
 export async function POST({ request }) {
 	const body = await request.json();
 	const { weekId, ...employeeData } = body;
+	let employee
+	let incidences
 
 	await db.transaction(async (tx) => {
 		const [newEmployee] = await tx
 			.insert(employeesTable)
 			.values(employeeData)
-			.returning({ id: employeesTable.id });
+			.returning();
 
 		const newEmployeeId = newEmployee.id;
 
@@ -36,11 +38,11 @@ export async function POST({ request }) {
 		}));
 
 		if (newIncidences.length > 0) {
-			await tx.insert(incidencesTable).values(newIncidences);
+			incidences = await tx.insert(incidencesTable).values(newIncidences).returning()
 		}
 	});
 
-	return json({ success: true });
+	return json({employee, incidences});
 }
 
 export async function PATCH({ request }) {

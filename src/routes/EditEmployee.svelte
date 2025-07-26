@@ -1,8 +1,10 @@
 <script lang="ts">
-	import { selectedWeek } from '$lib/stores.svelte';
+	import type { Employee } from '$lib/server/db/schema';
+	import { employees, incidenceCategories, incidenceCells, selectedWeek } from '$lib/stores.svelte';
+	import { initiateIncidenceCell } from '$lib/utils';
 	import EmployeeForm from './EmployeeForm.svelte';
 
-	const {
+	let {
 		employee
 	}: {
 		employee: Employee;
@@ -14,24 +16,32 @@
 	let area = $state(employee.area);
 
 	async function acceptChanges() {
+		const changes = { name, salary, puesto, area };
 		await fetch('/api/employee', {
 			method: 'PATCH',
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify({
 				id: employee.id,
-				changes: { name, salary, puesto, area }
+				changes: changes
 			})
 		});
-		location.reload();
+		employee = { ...employee, ...changes };
+		employees.value.set(employee.id, employee);
+		for (const [categoryId, categoryIncidenceCells] of incidenceCells.value) {
+			const category = incidenceCategories.value.get(categoryId);
+			const incidenceCell = categoryIncidenceCells.get(employee.id);
+			initiateIncidenceCell(incidenceCells.value, incidenceCell!.incidence, category!, employee);
+		}
+		employees.value = new Map(employees.value);
+		incidenceCells.value = new Map(incidenceCells.value);
 	}
 
 	async function deleteEmployee() {
 		await fetch('/api/employee', {
 			method: 'DELETE',
 			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ id: employee.id, weekId: selectedWeek.value.id })
+			body: JSON.stringify({ id: employee.id, weekId: selectedWeek.value!.id })
 		});
-		location.reload();
 	}
 </script>
 

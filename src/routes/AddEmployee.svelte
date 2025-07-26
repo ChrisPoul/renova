@@ -1,6 +1,7 @@
 <script lang="ts">
 	import EmployeeForm from './EmployeeForm.svelte';
-	import { selectedWeek } from '$lib/stores.svelte';
+	import { employees, incidenceCategories, incidenceCells, selectedWeek } from '$lib/stores.svelte';
+	import { initiateIncidenceCell } from '$lib/utils';
 
 	let name = $state('');
 	let salary = $state(0);
@@ -8,12 +9,19 @@
 	let area = $state('');
 
 	async function acceptChanges() {
-		await fetch('/api/employee', {
+		const response = await fetch('/api/employee', {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ name, salary, puesto, area, weekId: selectedWeek.value.id })
+			body: JSON.stringify({ name, salary, puesto, area, weekId: selectedWeek.value!.id })
 		});
-		location.reload();
+		const { newEmployee, incidences } = await response.json();
+		employees.value.set(newEmployee.id, newEmployee);
+		for (const incidence of incidences) {
+			const category = incidenceCategories.value.get(incidence.employeeId);
+			initiateIncidenceCell(incidenceCells.value, incidence, category!, newEmployee);
+		}
+		employees.value = new Map(employees.value);
+		incidenceCells.value = new Map(incidenceCells.value);
 	}
 </script>
 
@@ -24,4 +32,3 @@
 		</span>
 	{/snippet}
 </EmployeeForm>
-

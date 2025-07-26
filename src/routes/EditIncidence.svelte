@@ -1,16 +1,21 @@
 <script lang="ts">
+	import type { Employee, IncidenceCategory } from '$lib/server/db/schema';
 	import { incidenceCells, type IncidenceCell } from '$lib/stores.svelte';
-	import { getIncidenceCellTotalMonetaryValue, setIncidenceCell } from '$lib/utils';
+	import {
+		getIncidenceCellTotalMonetaryValue,
+		getIncidenceUnitMonetaryValue,
+		setIncidenceCell
+	} from '$lib/utils';
 	import ModalMenu from './ModalMenu.svelte';
 	import UnitInputs from './UnitInputs.svelte';
 
-	let {
-		categoryId,
-		employeeId,
+	const {
+		category,
+		employee,
 		incidenceCell
 	}: {
-		categoryId: number;
-		employeeId: number;
+		category: IncidenceCategory;
+		employee: Employee;
 		incidenceCell: IncidenceCell;
 	} = $props();
 
@@ -19,32 +24,29 @@
 	let unitValueIsDerived = $state(incidenceCell.incidence.unitValueIsDerived);
 
 	async function acceptChanges() {
+		const changes = {
+			unit,
+			unitMonetaryValue,
+			unitValueIsDerived,
+			basedOnCategory: false
+		};
+		incidenceCell.incidence = { ...incidenceCell.incidence, ...changes };
+		unitMonetaryValue = getIncidenceUnitMonetaryValue(incidenceCell.incidence, category, employee);
 		const totalMonetaryValue = getIncidenceCellTotalMonetaryValue(
 			incidenceCell.incidence.amount,
 			unitMonetaryValue
 		);
-		setIncidenceCell(incidenceCells.value, categoryId, employeeId, {
-			...incidenceCell,
-			incidence: {...incidenceCell.incidence,
-				unit,
-				unitMonetaryValue,
-				unitValueIsDerived,
-				basedOnCategory: false
-			},
-			totalMonetaryValue
-		});
+		incidenceCell.incidence.unitMonetaryValue = unitMonetaryValue;
+		incidenceCell.totalMonetaryValue = totalMonetaryValue;
+		changes.unitMonetaryValue = unitMonetaryValue
+		setIncidenceCell(incidenceCells.value, category.id, employee.id, {...incidenceCell});
 		incidenceCells.value = new Map(incidenceCells.value); // Trigger reactivity
 		await fetch('/api/incidence', {
 			method: 'PATCH',
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify({
 				id: incidenceCell.incidence.id,
-				changes: {
-					unit: unit,
-					unitMonetaryValue: unitMonetaryValue,
-					unitValueIsDerived: unitValueIsDerived,
-					basedOnCategory: false
-				}
+				changes: changes
 			})
 		});
 	}

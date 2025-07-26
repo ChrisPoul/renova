@@ -24,7 +24,7 @@
 	<td class="t-cell text-nowrap">{formatMonetaryValue(employee.salary)}</td>
 	{#each incidenceCategories.value as [_,category]}
 		{#if selectedCategoryTypes.value.includes(category.type)}
-			<IncidenceCell categoryId={category.id} employeeId={employee.id} />
+			<IncidenceCell {category} {employee} />
 		{/if}
 	{/each}
 	{#each selectedCategoryTypes.value as categoryType}
