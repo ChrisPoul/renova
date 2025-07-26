@@ -23,7 +23,7 @@ export function getCategoryTypeLabel(category: string) {
 	return category;
 }
 
-export function validateAmount(amount: number | null ) {
+export function validateAmount(amount: number | null) {
 	if (!amount) return amount;
 	if (isNaN(amount)) return 0;
 	if (amount < 0) return 0;
@@ -37,7 +37,7 @@ export function validateAmount(amount: number | null ) {
 	return parseFloat(truncatedString);
 }
 
-export function getIncidenceUnitMonetaryValue(
+export function getIncidenceCellUnitMonetaryValue(
 	incidence: Incidence,
 	category: IncidenceCategory,
 	employee: Employee
@@ -76,8 +76,8 @@ export function initiateIncidenceCell(
 	category: IncidenceCategory,
 	employee: Employee
 ) {
-	const unitMonetaryValue = getIncidenceUnitMonetaryValue(incidence, category, employee);
-	const monetaryValue = getIncidenceTotalMonetaryValue(incidence.amount, unitMonetaryValue);
+	const unitMonetaryValue = getIncidenceCellUnitMonetaryValue(incidence, category, employee);
+	const totalMonetaryValue = getIncidenceCellTotalMonetaryValue(incidence.amount, unitMonetaryValue);
 	let unit = incidence.unit;
 	let unitValueIsDerived = incidence.unitValueIsDerived;
 	if (incidence.basedOnCategory) {
@@ -87,7 +87,7 @@ export function initiateIncidenceCell(
 	setIncidenceCell(incidenceCells, category.id, employee.id, {
 		incidenceId: incidence.id,
 		unitMonetaryValue,
-		monetaryValue,
+		totalMonetaryValue,
 		unit,
 		amount: incidence.amount,
 		categoryType: category.type,
@@ -96,14 +96,17 @@ export function initiateIncidenceCell(
 	});
 }
 
-export function getIncidenceTotalMonetaryValue(incidenceAmount: number, unitMonetaryValue: number) {
-	return incidenceAmount * unitMonetaryValue;
+export function getIncidenceCellTotalMonetaryValue(
+	amount: number,
+	unitMonetaryValue: number
+) {
+	return amount * unitMonetaryValue;
 }
 
 export function getInitiatedIncidenceCells(
 	incidenceCells: IncidenceCells,
 	employees: Employee[],
-	incidenceCategories: IncidenceCategory[],
+	incidenceCategories: IncidenceCategory[]
 ) {
 	const categoryMap = new Map(incidenceCategories.map((c) => [c.id, c]));
 
@@ -111,8 +114,8 @@ export function getInitiatedIncidenceCells(
 		for (const incidence of employee.incidences) {
 			const category = categoryMap.get(incidence.categoryId);
 			if (!category) continue;
-			initiateIncidenceCell(incidenceCells,incidence, category, employee);
+			initiateIncidenceCell(incidenceCells, incidence, category, employee);
 		}
 	}
-	return incidenceCells
+	return incidenceCells;
 }

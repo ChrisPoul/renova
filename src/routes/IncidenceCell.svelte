@@ -3,7 +3,7 @@
 	import {
 		formatMonetaryValue,
 		validateAmount,
-		getIncidenceTotalMonetaryValue,
+		getIncidenceCellTotalMonetaryValue,
 		setIncidenceCell
 	} from '$lib/utils';
 	import EditIncidence from './EditIncidence.svelte';
@@ -20,15 +20,15 @@
 	async function updateIncidenceAmount() {
 		if (!incidenceCell) return;
 		incidenceAmount = validateAmount(incidenceAmount);
-		if (incidenceAmount === null) return
-		const monetaryValue = getIncidenceTotalMonetaryValue(
+		if (incidenceAmount === null) return;
+		const totalMonetaryValue = getIncidenceCellTotalMonetaryValue(
 			incidenceAmount,
 			incidenceCell.unitMonetaryValue
 		);
 		setIncidenceCell(incidenceCells.value, categoryId, employeeId, {
 			...incidenceCell,
 			amount: incidenceAmount,
-			monetaryValue
+			totalMonetaryValue
 		});
 		incidenceCells.value = new Map(incidenceCells.value); // Trigger reactivity
 		await fetch('/api/incidence', {
@@ -73,7 +73,7 @@
 				{/if}
 			</div>
 			<span class="leading-none text-gray-500">
-				{formatMonetaryValue(incidenceCell?.monetaryValue || 0)}
+				{formatMonetaryValue(incidenceCell?.totalMonetaryValue || 0)}
 			</span>
 		</div>
 	</div>

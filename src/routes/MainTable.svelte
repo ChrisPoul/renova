@@ -6,7 +6,7 @@
 
 	let {
 		incidenceCategories,
-		employees,
+		employees
 	}: {
 		incidenceCategories: any[];
 		employees: any[];
@@ -67,7 +67,10 @@
 				</td>
 				{#each incidenceCategories as category}
 					{#if selectedCategoryTypes.value.includes(category.type)}
-						{@const total = totals.value.categoryTotals.get(category.id) ?? { amount: 0, monetaryValue: 0 }}
+						{@const total = totals.value.categoryTotals.get(category.id) ?? {
+							amount: 0,
+							monetaryValue: 0
+						}}
 						<td class={`t-cell text-nowrap ${category.type}-opaco`}>
 							<div class="flex items-center justify-center gap-1">
 								<span class="text-sm text-gray-500">({total.amount})</span>

@@ -17,16 +17,7 @@ declare global {
 		unitMonetaryValue: number;
 		unitValueIsDerived: boolean;
 	}
-	interface Incidence {
-		id: number;
-		categoryId: number;
-		employeeId: number;
-		amount: number;
-		basedOnCategory: boolean;
-		unitMonetaryValue: number;
-		unit: string;
-		unitValueIsDerived: boolean;
-	}
+	type Incidence = typeof import('$lib/server/db/schema').incidencesTable.$inferSelect;
 	interface Employee {
 		id: number;
 		name: string;

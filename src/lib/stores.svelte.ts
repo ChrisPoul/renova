@@ -5,11 +5,10 @@ type employeeID = number;
 type employeeCategoryTypeTotal = number;
 type CategoryType = string;
 
-// The shape of the object holding totals for a single incidence
 export interface IncidenceCell {
 	incidenceId: number;
 	amount: number;
-	monetaryValue: number;
+	totalMonetaryValue: number;
 	unitMonetaryValue: number;
 	categoryType: CategoryType;
 	unit: string;
@@ -42,7 +41,7 @@ const derivedTotals = $derived.by(() => {
 	// Loop through all incidences to calculate the totals
 	for (const [categoryId, categoryIncidenceCells] of incidenceCells.value) {
 		for (const [employeeId, incidenceCell] of categoryIncidenceCells) {
-			const { amount, monetaryValue, categoryType } = incidenceCell;
+			const { amount, totalMonetaryValue, categoryType } = incidenceCell;
 
 			// 1. Aggregate totals per category (for the table footer)
 			const currentCategoryTotal = newTotals.categoryTotals.get(categoryId) ?? {
@@ -50,7 +49,7 @@ const derivedTotals = $derived.by(() => {
 				monetaryValue: 0
 			};
 			currentCategoryTotal.amount += amount;
-			currentCategoryTotal.monetaryValue += monetaryValue;
+			currentCategoryTotal.monetaryValue += totalMonetaryValue;
 			newTotals.categoryTotals.set(categoryId, currentCategoryTotal);
 
 			// 2. Aggregate totals per employee per category type (for the employee row totals)
@@ -61,29 +60,29 @@ const derivedTotals = $derived.by(() => {
 				newTotals.categoryTypeTotals.get(categoryType)!.get(employeeId) ?? 0;
 			newTotals.categoryTypeTotals
 				.get(categoryType)!
-				.set(employeeId, employeeCategoryTypeTotal + monetaryValue);
+				.set(employeeId, employeeCategoryTypeTotal + totalMonetaryValue);
 
 			// 3. Aggregate grand totals per category type (for the table footer)
 			const currentCategoryTypeGrandTotal =
 				newTotals.categoryTypeGrandTotals.get(categoryType) ?? 0;
 			newTotals.categoryTypeGrandTotals.set(
 				categoryType,
-				currentCategoryTypeGrandTotal + monetaryValue
+				currentCategoryTypeGrandTotal + totalMonetaryValue
 			);
 
 			// 4. Aggregate totals per employee
 			const currentEmployeeTotal = newTotals.employeeTotals.get(employeeId) ?? 0;
 			if (categoryType === 'deduccion') {
-				newTotals.employeeTotals.set(employeeId, currentEmployeeTotal - monetaryValue);
+				newTotals.employeeTotals.set(employeeId, currentEmployeeTotal - totalMonetaryValue);
 			} else {
-				newTotals.employeeTotals.set(employeeId, currentEmployeeTotal + monetaryValue);
+				newTotals.employeeTotals.set(employeeId, currentEmployeeTotal + totalMonetaryValue);
 			}
 
 			// 5. Calculate the final grand total, subtracting deductions
 			if (categoryType === 'deduccion') {
-				newTotals.grandTotal -= monetaryValue;
+				newTotals.grandTotal -= totalMonetaryValue;
 			} else {
-				newTotals.grandTotal += monetaryValue;
+				newTotals.grandTotal += totalMonetaryValue;
 			}
 		}
 	}

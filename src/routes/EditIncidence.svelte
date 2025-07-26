@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { incidenceCells, type IncidenceCell } from '$lib/stores.svelte';
-	import { getIncidenceTotalMonetaryValue, setIncidenceCell } from '$lib/utils';
+	import { getIncidenceCellTotalMonetaryValue, setIncidenceCell } from '$lib/utils';
 	import ModalMenu from './ModalMenu.svelte';
 	import UnitInputs from './UnitInputs.svelte';
 
@@ -19,7 +19,7 @@
 	let unitValueIsDerived = $state(incidenceCell.unitValueIsDerived);
 
 	async function acceptChanges() {
-		const monetaryValue = getIncidenceTotalMonetaryValue(
+		const totalMonetaryValue = getIncidenceCellTotalMonetaryValue(
 			incidenceCell.amount,
 			unitMonetaryValue
 		);
@@ -28,7 +28,7 @@
 			unit,
 			unitMonetaryValue,
 			unitValueIsDerived,
-			monetaryValue,
+			totalMonetaryValue,
 			basedOnCategory: false
 		});
 		incidenceCells.value = new Map(incidenceCells.value); // Trigger reactivity

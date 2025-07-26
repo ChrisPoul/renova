@@ -92,12 +92,12 @@ export async function load({ url }) {
 					finalCategoryIncidenceCells.set(employeeId, {
 						...incidenceCell,
 						amount: 0,
-						monetaryValue: 0
+						totalMonetaryValue: 0
 					});
 				}
-				const finalIncidence = finalCategoryIncidenceCells.get(employeeId);
-				finalIncidence.amount += incidenceCell.amount;
-				finalIncidence.monetaryValue += incidenceCell.monetaryValue;
+				const finalIncidenceCell = finalCategoryIncidenceCells.get(employeeId);
+				finalIncidenceCell.amount += incidenceCell.amount;
+				finalIncidenceCell.totalMonetaryValue += incidenceCell.totalMonetaryValue;
 			}
 		}
 	}
