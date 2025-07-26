@@ -47,7 +47,6 @@ export async function load({ url }) {
 		week.categoriesToWeeks.map((ctw) => [ctw.categoryId, ctw.category])
 	);
 	incidenceCells = getInitiatedIncidenceCells(
-		incidenceCells,
 		employees,
 		incidenceCategories,
 		week.incidences

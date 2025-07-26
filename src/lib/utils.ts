@@ -105,11 +105,11 @@ export function getIncidenceCellTotalMonetaryValue(
 }
 
 export function getInitiatedIncidenceCells(
-	incidenceCells: IncidenceCells,
 	employees: Map<EmployeeId, Employee>,
 	incidenceCategories: Map<CategoryId, IncidenceCategory>,
 	incidences: Incidence[]
 ) {
+	const incidenceCells: IncidenceCells = new Map()
 		for (const incidence of incidences) {
 			const category = incidenceCategories.get(incidence.categoryId)
 			const employee = employees.get(incidence.employeeId)

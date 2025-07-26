@@ -69,7 +69,7 @@ export async function load({ url }) {
 			}
 		}
 
-		const weekIncidenceCell = getInitiatedIncidenceCells(new Map(), weekEmployees, weekCategories, week.incidences);
+		const weekIncidenceCell = getInitiatedIncidenceCells(weekEmployees, weekCategories, week.incidences);
 
 		for (const [categoryId, categoryIncidenceCells] of weekIncidenceCell) {
 			if (!finalIncidenceCells.has(categoryId)) {
