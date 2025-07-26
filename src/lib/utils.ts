@@ -106,17 +106,16 @@ export function getIncidenceCellTotalMonetaryValue(
 
 export function getInitiatedIncidenceCells(
 	incidenceCells: IncidenceCells,
-	employees: Employee[],
-	incidenceCategories: IncidenceCategory[]
+	employees: Map<EmployeeId, Employee>,
+	incidenceCategories: Map<CategoryId, IncidenceCategory>,
+	incidences: Incidence[]
 ) {
-	const categoryMap = new Map(incidenceCategories.map((c) => [c.id, c]));
-
-	for (const employee of employees) {
-		for (const incidence of employee.incidences) {
-			const category = categoryMap.get(incidence.categoryId);
-			if (!category) continue;
+		for (const incidence of incidences) {
+			const category = incidenceCategories.get(incidence.categoryId)
+			const employee = employees.get(incidence.employeeId)
+			if (!category || !employee) continue;
 			initiateIncidenceCell(incidenceCells, incidence, category, employee);
 		}
-	}
+
 	return incidenceCells;
 }

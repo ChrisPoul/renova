@@ -1,6 +1,8 @@
 // See https://svelte.dev/docs/kit/types#app.d.ts
 // for information about these interfaces
 
+import type { Employee, IncidenceCategory } from "$lib/server/db/schema";
+
 declare global {
 	namespace App {
 		// interface Error {}
@@ -9,6 +11,10 @@ declare global {
 		// interface PageState {}
 		// interface Platform {}
 	}
+	type EmployeeId = number
+	type CategoryId = number
+	type Employees = Map<EmployeeId, Employee>
+	type IncidenceCategories = Map<CategoryId, IncidenceCategory>
 }
 
 export {};

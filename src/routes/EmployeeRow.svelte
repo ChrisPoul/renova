@@ -10,7 +10,7 @@
 		incidenceCategories
 	}: {
 		employee: Employee;
-		incidenceCategories: IncidenceCategory[];
+		incidenceCategories: IncidenceCategories;
 	} = $props();
 </script>
 
@@ -24,7 +24,7 @@
 	<td class="t-cell text-nowrap">{employee.area}</td>
 	<td class="t-cell text-nowrap">{employee.puesto}</td>
 	<td class="t-cell text-nowrap">{formatMonetaryValue(employee.salary)}</td>
-	{#each incidenceCategories as category}
+	{#each incidenceCategories as [_,category]}
 		{#if selectedCategoryTypes.value.includes(category.type)}
 			<IncidenceCell categoryId={category.id} employeeId={employee.id} />
 		{/if}

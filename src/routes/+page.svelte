@@ -7,7 +7,7 @@
 		selectedCategoryTypes,
 		selectedWeek
 	} from '$lib/stores.svelte';
-	import { getCategoryTypeLabel, getInitiatedIncidenceCells } from '$lib/utils';
+	import { getCategoryTypeLabel } from '$lib/utils';
 	import AddCategory from './AddCategory.svelte';
 	import AddEmployee from './AddEmployee.svelte';
 	import MainTable from './MainTable.svelte';

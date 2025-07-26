@@ -3,19 +3,18 @@
 	import { selectedCategoryTypes, isReadOnly, totals } from '$lib/stores.svelte';
 	import { formatMonetaryValue, getCategoryTypeLabel } from '$lib/utils';
 	import EditCategory from './EditCategory.svelte';
-	import type { Employee } from '$lib/server/db/schema';
 
 	let {
 		incidenceCategories,
 		employees
 	}: {
-		incidenceCategories: any[];
-		employees: any[];
+		incidenceCategories: IncidenceCategories;
+		employees: Employees;
 	} = $props();
 
-	function getTotalSalary(employees: Employee[]) {
+	function getTotalSalary() {
 		let total = 0;
-		for (const employee of employees) {
+		for (const [_, employee] of employees) {
 			total += employee.salary;
 		}
 		return total;
@@ -30,7 +29,7 @@
 				<th class="t-cell bg-gray-200">Área</th>
 				<th class="t-cell bg-gray-200">Puesto</th>
 				<th class="t-cell bg-gray-200">Salario</th>
-				{#each incidenceCategories as category}
+				{#each incidenceCategories as [_,category]}
 					{#if selectedCategoryTypes.value.includes(category.type)}
 						<th class={`t-cell ${category.type}`}>
 							{category.concept}
@@ -56,7 +55,7 @@
 			</tr>
 		</thead>
 		<tbody>
-			{#each employees as employee}
+			{#each employees as [_,employee]}
 				<EmployeeRow {employee} {incidenceCategories} />
 			{/each}
 			<tr class="bg-gray-100">
@@ -64,9 +63,9 @@
 				<td class="t-cell bg-gray-200"></td>
 				<td class="t-cell bg-gray-200"></td>
 				<td class="t-cell bg-gray-200 text-nowrap">
-					{formatMonetaryValue(getTotalSalary(employees))}
+					{formatMonetaryValue(getTotalSalary())}
 				</td>
-				{#each incidenceCategories as category}
+				{#each incidenceCategories as [_,category]}
 					{#if selectedCategoryTypes.value.includes(category.type)}
 						{@const total = totals.value.categoryTotals.get(category.id) ?? {
 							amount: 0,

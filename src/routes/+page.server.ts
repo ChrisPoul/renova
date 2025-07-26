@@ -1,30 +1,27 @@
 import { db } from '$lib/server/db';
-import {
-	makeDummyData
-} from '$lib/server/db/index';
+import { makeDummyData } from '$lib/server/db/index';
 import {
 	weeksTable,
-	type Employee,
-	type Incidence,
-	type IncidenceCategory
 } from '$lib/server/db/schema';
 import type { IncidenceCells } from '$lib/stores.svelte.js';
 import { getInitiatedIncidenceCells } from '$lib/utils.js';
 import { eq } from 'drizzle-orm';
 
 export async function load({ url }) {
-	const weekId = url.searchParams.get('weekId');
+	let weekId: string | number | null = url.searchParams.get('weekId');
 	let incidenceCells: IncidenceCells = new Map();
-	let employees: Employee[] = [];
-	let incidenceCategories: IncidenceCategory[] = [];
+	let employees: Employees = new Map();
+	let incidenceCategories: IncidenceCategories = new Map();
 
-	const weeks = await db.query.weeksTable.findMany()
+	let weeks = await db.query.weeksTable.findMany();
 	if (weeks.length === 0) {
-		await makeDummyData()
+		await makeDummyData();
+		weeks = await db.query.weeksTable.findMany();
 	}
 
 	if (!weekId) {
-		// If no weekId is provided, we should get the current week, so taking todays date as refernece we pull that week, use the weeks api 
+		// If no weekId is provided, we should get the current week, so taking todays date as refernece we pull that week, use the weeks api
+		weekId = weeks[0].id
 	}
 	const week = await db.query.weeksTable.findFirst({
 		where: eq(weeksTable.id, +weekId),
@@ -45,23 +42,16 @@ export async function load({ url }) {
 	if (!week) {
 		return { employees, incidenceCategories, incidenceCells, week: null };
 	}
-	const incidencesByEmployee = new Map<number, Incidence[]>();
-	for (const incidence of week.incidences) {
-		const employeeId = incidence.employeeId;
-		if (!incidencesByEmployee.has(employeeId)) {
-			incidencesByEmployee.set(employeeId, []);
-		}
-		incidencesByEmployee.get(employeeId)!.push(incidence);
-	}
-	for (const employeeToWeek of week.employeesToWeeks) {
-		const employee = employeeToWeek.employee;
-		employees.push({
-			...employee,
-			incidences: incidencesByEmployee.get(employee.id) || []
-		});
-	}
-	incidenceCategories = week.categoriesToWeeks.map((ctw) => ctw.category);
-	incidenceCells = getInitiatedIncidenceCells(incidenceCells, employees, incidenceCategories);
+	employees = new Map(week.employeesToWeeks.map((etw) => [etw.employeeId, etw.employee]));
+	incidenceCategories = new Map(
+		week.categoriesToWeeks.map((ctw) => [ctw.categoryId, ctw.category])
+	);
+	incidenceCells = getInitiatedIncidenceCells(
+		incidenceCells,
+		employees,
+		incidenceCategories,
+		week.incidences
+	);
 	return {
 		employees,
 		incidenceCategories,

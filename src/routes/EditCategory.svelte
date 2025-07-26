@@ -1,4 +1,5 @@
 <script lang="ts">
+	import type { IncidenceCategory } from '$lib/server/db/schema';
 	import { selectedWeek } from '$lib/stores.svelte';
 	import CategoryForm from './CategoryForm.svelte';
 
@@ -35,6 +36,7 @@
 		location.reload();
 	}
 	async function deleteCategory() {
+		if (!selectedWeek.value) return
 		await fetch('/api/category', {
 			method: 'DELETE',
 			headers: { 'Content-Type': 'application/json' },

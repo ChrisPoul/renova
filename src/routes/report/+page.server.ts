@@ -1,7 +1,8 @@
 import { db } from '$lib/server/db';
-import { and, eq, gte, lte } from 'drizzle-orm';
-import { weeksTable, type Employee, type Incidence } from '$lib/server/db/schema';
+import { and, gte, lte } from 'drizzle-orm';
+import { weeksTable, type Employee, type Incidence, type IncidenceCategory } from '$lib/server/db/schema';
 import { getInitiatedIncidenceCells } from '$lib/utils.js';
+import type { IncidenceCells } from '$lib/stores.svelte.js';
 
 function getDateFromWeekString(weekString: string): Date {
 	const [year, week] = weekString.split('-W').map(Number);
@@ -44,25 +45,14 @@ export async function load({ url }) {
 	});
 	console.log(`Found ${weeks.length} weeks in the specified range`);
 
-	const finalIncidenceCells = new Map();
-	const finalEmployees = new Map();
-	const finalCategories = new Map();
+	const finalIncidenceCells: IncidenceCells = new Map();
+	const finalEmployees: Employees = new Map();
+	const finalCategories: IncidenceCategories = new Map();
 	for (const week of weeks) {
-		const incidencesByEmployee = new Map<number, Incidence[]>();
-		for (const incidence of week.incidences) {
-			const employeeId = incidence.employeeId;
-			if (!incidencesByEmployee.has(employeeId)) {
-				incidencesByEmployee.set(employeeId, []);
-			}
-			incidencesByEmployee.get(employeeId)!.push(incidence);
-		}
-		const weekEmployees: Employee[] = [];
+		const weekEmployees: Map<EmployeeId, Employee> = new Map()
 		for (const employeeToWeek of week.employeesToWeeks) {
 			const employee = employeeToWeek.employee;
-			weekEmployees.push({
-					...employee,
-					incidences: incidencesByEmployee.get(employee.id) || []
-				});
+			weekEmployees.set(employee.id, employee);
 			const previousEmployee = finalEmployees.get(employee.id);
 			if (!previousEmployee) {
 				finalEmployees.set(employee.id, employee);
@@ -70,16 +60,16 @@ export async function load({ url }) {
 				previousEmployee.salary += employee.salary;
 			}
 		}
-		const weekCategories = [];
+		const weekCategories: Map<CategoryId, IncidenceCategory> = new Map()
 		for (const categoryToWeek of week.categoriesToWeeks) {
 			const category = categoryToWeek.category;
-			weekCategories.push(category);
+			weekCategories.set(category.id, category);
 			if (!finalCategories.has(category.id)) {
 				finalCategories.set(category.id, category);
 			}
 		}
 
-		const weekIncidenceCell = getInitiatedIncidenceCells(new Map(), weekEmployees, weekCategories);
+		const weekIncidenceCell = getInitiatedIncidenceCells(new Map(), weekEmployees, weekCategories, week.incidences);
 
 		for (const [categoryId, categoryIncidenceCells] of weekIncidenceCell) {
 			if (!finalIncidenceCells.has(categoryId)) {
@@ -88,23 +78,23 @@ export async function load({ url }) {
 			const finalCategoryIncidenceCells = finalIncidenceCells.get(categoryId);
 
 			for (const [employeeId, incidenceCell] of categoryIncidenceCells) {
-				if (!finalCategoryIncidenceCells.has(employeeId)) {
-					finalCategoryIncidenceCells.set(employeeId, {
+				if (!finalCategoryIncidenceCells!.has(employeeId)) {
+					finalCategoryIncidenceCells!.set(employeeId, {
 						...incidenceCell,
 						amount: 0,
 						totalMonetaryValue: 0
 					});
 				}
-				const finalIncidenceCell = finalCategoryIncidenceCells.get(employeeId);
-				finalIncidenceCell.amount += incidenceCell.amount;
-				finalIncidenceCell.totalMonetaryValue += incidenceCell.totalMonetaryValue;
+				const finalIncidenceCell = finalCategoryIncidenceCells!.get(employeeId);
+				finalIncidenceCell!.amount += incidenceCell.amount;
+				finalIncidenceCell!.totalMonetaryValue += incidenceCell.totalMonetaryValue;
 			}
 		}
 	}
 
 	return {
-		employees: Array.from(finalEmployees.values()),
-		incidenceCategories: Array.from(finalCategories.values()),
+		employees: finalEmployees,
+		incidenceCategories: finalCategories,
 		incidenceCells: finalIncidenceCells
 	};
 }
