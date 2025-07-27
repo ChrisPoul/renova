@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { is } from 'drizzle-orm';
 	import ModalMenu from './ModalMenu.svelte';
 	import type { Snippet } from 'svelte';
 
@@ -19,6 +20,7 @@
 		acceptChanges: () => void;
 		triggerButton: Snippet;
 	} = $props();
+	let isMenuOpen = $state(false);
 </script>
 
 <ModalMenu title="Empleado" onAccept={acceptChanges} {triggerButton}>
@@ -40,7 +42,10 @@
 			<input type="text" bind:value={area} class="rounded border p-1" />
 		</label>
 		{#if deleteEmployee}
-			<button onclick={deleteEmployee} class="rounded-lg bg-red-400 px-4 py-2">Eliminar</button>
+			<button onclick={() => {
+				deleteEmployee()
+				isMenuOpen = false;
+			}} class="rounded-lg bg-red-400 px-4 py-2">Eliminar</button>
 		{/if}
 	</div>
 </ModalMenu>

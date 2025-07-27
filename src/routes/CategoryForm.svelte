@@ -24,6 +24,7 @@
 		acceptChanges: () => void;
 		triggerButton: Snippet;
 	} = $props();
+	let isMenuOpen = $state(false);
 </script>
 
 <ModalMenu title="Editar Categoría" onAccept={acceptChanges} {triggerButton}>
@@ -44,7 +45,7 @@
 		{#if deleteCategory}
 			<button onclick={() => {
 				deleteCategory()
-				
+				isMenuOpen = false;
 			}} class="rounded-lg bg-red-400 px-4 py-2">Delete</button>
 		{/if}
 	</div>

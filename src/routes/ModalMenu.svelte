@@ -6,16 +6,17 @@
 		triggerButton,
 		title,
 		onAccept = () => {},
-		onCancel = () => {}
+		onCancel = () => {},
+		isMenuOpen = false
 	}: {
 		children: Snippet;
 		triggerButton: Snippet;
 		title: string;
 		onAccept?: () => void;
 		onCancel?: () => void;
+		isMenuOpen?: boolean;
 	} = $props();
 
-	let isMenuOpen = $state(false);
 
 	function toggleMenu() {
 		isMenuOpen = !isMenuOpen;
@@ -36,7 +37,16 @@
 {#if isMenuOpen}
 	<button aria-label="Close Menu" onclick={toggleMenu} class="fixed inset-0 z-40 bg-black/50"
 	></button>
-	<div class="fixed top-1/2 left-1/2 z-50 -translate-1/2">
+	<div
+		class="fixed top-1/2 left-1/2 z-50 -translate-1/2"
+		role="dialog"
+		aria-modal="true"
+		tabindex="0"
+		onkeydown={(e) => {
+			if (e.key === 'Enter') accept();
+			if (e.key === 'Escape') cancel();
+		}}
+	>
 		<div class="relative w-full max-w-md rounded-lg bg-white px-6 py-4 shadow-xl">
 			<button
 				class="absolute top-0.5 right-2 text-gray-500 hover:text-gray-700"
