@@ -11,15 +11,17 @@
 	import EditCategory from './EditCategory.svelte';
 
 	const categoriesByType = $derived.by(() => {
-		const categoriesByType = new Map<CategoryType, Category[]>();
+		const categoriesByType = new Map<CategoryType, Category[]>(
+			selectedCategoryTypes.value.map((categoryType) => [categoryType, []])
+		);
 		for (const category of categories.value.values()) {
-			if (!selectedCategoryTypes.value.includes(category.type)) continue
+			if (!selectedCategoryTypes.value.includes(category.type)) continue;
 			let categoriesInType = categoriesByType.get(category.type);
 			if (categoriesInType === undefined) {
 				categoriesInType = [];
 			}
 			categoriesInType.push(category);
-			categoriesByType.set(category.type, categoriesInType)
+			categoriesByType.set(category.type, categoriesInType);
 		}
 		return categoriesByType;
 	});
