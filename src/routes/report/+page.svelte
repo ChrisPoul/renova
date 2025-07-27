@@ -1,11 +1,11 @@
 <script lang="ts">
 	import MainTable from '../MainTable.svelte';
-	import { employees, incidenceCategories, incidenceCells, isReadOnly } from '$lib/stores.svelte';
+	import { employees, categories, incidenceCells, isReadOnly } from '$lib/stores.svelte';
 	import ExcelJS from 'exceljs';
 
 	let { data } = $props();
-	employees.value = data.employees
-	incidenceCategories.value = data.incidenceCategories
+	employees.value = data.employees;
+	categories.value = data.categories;
 	incidenceCells.value = data.incidenceCells;
 
 	isReadOnly.value = true;
@@ -25,7 +25,7 @@
 		// 	'Área',
 		// 	'Puesto',
 		// 	'Salario',
-		// 	...incidenceCategories
+		// 	...categories
 		// 		.filter((cat) => selectedCategoryTypes.value.includes(cat.type))
 		// 		.map((cat) => cat.concept),
 		// 	...selectedCategoryTypes.value.map((type) => `Total ${getCategoryTypeLabel(type)}`),
@@ -36,7 +36,7 @@
 		// const defaultHeaderColor = 'FFE5E7EB'; // light gray
 		// let colIdx = 1;
 		// for (const header of headers) {
-		// 	const cat = incidenceCategories.find((c) => c.concept === header);
+		// 	const cat = categories.find((c) => c.concept === header);
 		// 	let color = defaultHeaderColor;
 		// 	if (cat && categoryTypeColors[cat.type]) {
 		// 		color = categoryTypeColors[cat.type];
@@ -75,7 +75,7 @@
 		// 		employee.puesto,
 		// 		formatMonetaryValue(employee.salary)
 		// 	];
-		// 	for (const category of incidenceCategories) {
+		// 	for (const category of categories) {
 		// 		if (!selectedCategoryTypes.value.includes(category.type)) continue;
 		// 		const incidence = employee.incidences.find((i) => i.categoryId === category.id);
 		// 		if (incidence) {
@@ -113,7 +113,7 @@
 		// 	'', // Puesto
 		// 	formatMonetaryValue(getTotalSalary())
 		// ];
-		// for (const category of incidenceCategories) {
+		// for (const category of categories) {
 		// 	if (!selectedCategoryTypes.value.includes(category.type)) continue;
 		// 	const { amount, monetaryValue } = getCategoryTotalMonetaryValueAndAmount(category.id);
 		// 	totalsRow.push(`${amount} (${formatMonetaryValue(monetaryValue)})`);

@@ -1,8 +1,6 @@
 import { db } from '$lib/server/db';
 import { makeDummyData } from '$lib/server/db/index';
-import {
-	weeksTable,
-} from '$lib/server/db/schema';
+import { weeksTable } from '$lib/server/db/schema';
 import type { IncidenceCells } from '$lib/stores.svelte.js';
 import { getInitiatedIncidenceCells } from '$lib/utils.js';
 import { eq } from 'drizzle-orm';
@@ -11,7 +9,7 @@ export async function load({ url }) {
 	let weekId: string | number | null = url.searchParams.get('weekId');
 	let incidenceCells: IncidenceCells = new Map();
 	let employees: Employees = new Map();
-	let incidenceCategories: IncidenceCategories = new Map();
+	let categories: Categories = new Map();
 
 	let weeks = await db.query.weeksTable.findMany();
 	if (weeks.length === 0) {
@@ -21,7 +19,7 @@ export async function load({ url }) {
 
 	if (!weekId) {
 		// If no weekId is provided, we should get the current week, so taking todays date as refernece we pull that week, use the weeks api
-		weekId = weeks[0].id
+		weekId = weeks[0].id;
 	}
 	const week = await db.query.weeksTable.findFirst({
 		where: eq(weeksTable.id, +weekId),
@@ -40,20 +38,14 @@ export async function load({ url }) {
 		}
 	});
 	if (!week) {
-		return { employees, incidenceCategories, incidenceCells, week: null };
+		return { employees, categories, incidenceCells, week: null };
 	}
 	employees = new Map(week.employeesToWeeks.map((etw) => [etw.employeeId, etw.employee]));
-	incidenceCategories = new Map(
-		week.categoriesToWeeks.map((ctw) => [ctw.categoryId, ctw.category])
-	);
-	incidenceCells = getInitiatedIncidenceCells(
-		employees,
-		incidenceCategories,
-		week.incidences
-	);
+	categories = new Map(week.categoriesToWeeks.map((ctw) => [ctw.categoryId, ctw.category]));
+	incidenceCells = getInitiatedIncidenceCells(employees, categories, week.incidences);
 	return {
 		employees,
-		incidenceCategories,
+		categories,
 		incidenceCells,
 		week
 	};

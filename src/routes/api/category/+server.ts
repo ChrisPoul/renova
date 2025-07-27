@@ -2,7 +2,7 @@ import { db } from '$lib/server/db/index';
 import {
 	categoriesToWeeksTable,
 	employeesTable,
-	incidenceCategoriesTable,
+	categoriesTable,
 	incidencesTable
 } from '$lib/server/db/schema';
 import { json } from '@sveltejs/kit';
@@ -11,15 +11,12 @@ import { and, eq } from 'drizzle-orm';
 export async function POST({ request }) {
 	const body = await request.json();
 	const { weekId, ...categoryData } = body;
-	let category
-	let incidences
+	let category;
+	let incidences;
 
 	await db.transaction(async (tx) => {
-		const [newCategory] = await tx
-			.insert(incidenceCategoriesTable)
-			.values(categoryData)
-			.returning()
-		category = newCategory
+		const [newCategory] = await tx.insert(categoriesTable).values(categoryData).returning();
+		category = newCategory;
 
 		await tx.insert(categoriesToWeeksTable).values({ categoryId: newCategory.id, weekId });
 
@@ -32,23 +29,19 @@ export async function POST({ request }) {
 		}));
 
 		if (newIncidences.length > 0) {
-			incidences = await tx.insert(incidencesTable).values(newIncidences).returning()
+			incidences = await tx.insert(incidencesTable).values(newIncidences).returning();
 		}
 	});
-	console.log(incidences)
+	console.log(incidences);
 
-	return json({category, incidences});
+	return json({ category, incidences });
 }
 
 export async function PATCH({ request }) {
 	const body = await request.json();
 
 	const { id, changes } = body;
-	await db
-		.update(incidenceCategoriesTable)
-		.set(changes)
-		.where(eq(incidenceCategoriesTable.id, id))
-		.run();
+	await db.update(categoriesTable).set(changes).where(eq(categoriesTable.id, id)).run();
 
 	return json({ success: true });
 }

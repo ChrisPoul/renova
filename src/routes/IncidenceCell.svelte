@@ -9,9 +9,9 @@
 	import EditIncidence from './EditIncidence.svelte';
 	const {
 		category,
-		employee,
+		employee
 	}: {
-		category: IncidenceCategory;
+		category: Category;
 		employee: Employee;
 	} = $props();
 	let incidenceCell = $derived(incidenceCells.value.get(category.id)?.get(employee.id));

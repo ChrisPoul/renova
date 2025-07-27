@@ -1,6 +1,12 @@
 <script lang="ts">
 	import EmployeeRow from './EmployeeRow.svelte';
-	import { selectedCategoryTypes, isReadOnly, totals, employees, incidenceCategories } from '$lib/stores.svelte';
+	import {
+		selectedCategoryTypes,
+		isReadOnly,
+		totals,
+		employees,
+		categories
+	} from '$lib/stores.svelte';
 	import { formatMonetaryValue, getCategoryTypeLabel } from '$lib/utils';
 	import EditCategory from './EditCategory.svelte';
 
@@ -21,7 +27,7 @@
 				<th class="t-cell bg-gray-200">Área</th>
 				<th class="t-cell bg-gray-200">Puesto</th>
 				<th class="t-cell bg-gray-200">Salario</th>
-				{#each incidenceCategories.value as [_,category]}
+				{#each categories.value as [_, category]}
 					{#if selectedCategoryTypes.value.includes(category.type)}
 						<th class={`t-cell ${category.type}`}>
 							{category.concept}
@@ -47,7 +53,7 @@
 			</tr>
 		</thead>
 		<tbody>
-			{#each employees.value as [_,employee]}
+			{#each employees.value as [_, employee]}
 				<EmployeeRow {employee} />
 			{/each}
 			<tr class="bg-gray-100">
@@ -57,7 +63,7 @@
 				<td class="t-cell bg-gray-200 text-nowrap">
 					{formatMonetaryValue(getTotalSalary())}
 				</td>
-				{#each incidenceCategories.value as [_,category]}
+				{#each categories.value as [_, category]}
 					{#if selectedCategoryTypes.value.includes(category.type)}
 						{@const total = totals.value.categoryTotals.get(category.id) ?? {
 							amount: 0,

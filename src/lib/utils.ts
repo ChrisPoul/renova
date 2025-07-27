@@ -1,4 +1,3 @@
-import type { Employee, Incidence, IncidenceCategory } from './server/db/schema';
 import type { IncidenceCell, IncidenceCells } from './stores.svelte';
 
 export function formatMonetaryValue(value: number | undefined) {
@@ -40,7 +39,7 @@ export function validateAmount(amount: number | null) {
 
 export function getIncidenceUnitMonetaryValue(
 	incidence: Incidence,
-	category: IncidenceCategory,
+	category: Category,
 	employee: Employee
 ) {
 	let unit = incidence.unit;
@@ -74,7 +73,7 @@ export function setIncidenceCell(
 export function initiateIncidenceCell(
 	incidenceCells: IncidenceCells,
 	incidence: Incidence,
-	category: IncidenceCategory,
+	category: Category,
 	employee: Employee
 ) {
 	const unitMonetaryValue = getIncidenceUnitMonetaryValue(incidence, category, employee);
@@ -101,12 +100,12 @@ export function getIncidenceCellTotalMonetaryValue(amount: number, unitMonetaryV
 
 export function getInitiatedIncidenceCells(
 	employees: Map<EmployeeId, Employee>,
-	incidenceCategories: Map<CategoryId, IncidenceCategory>,
+	categories: Map<CategoryId, Category>,
 	incidences: Incidence[]
 ) {
 	const incidenceCells: IncidenceCells = new Map();
 	for (const incidence of incidences) {
-		const category = incidenceCategories.get(incidence.categoryId);
+		const category = categories.get(incidence.categoryId);
 		const employee = employees.get(incidence.employeeId);
 		if (!category || !employee) continue;
 		initiateIncidenceCell(incidenceCells, incidence, category, employee);

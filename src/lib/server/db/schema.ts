@@ -7,7 +7,6 @@ export const weeksTable = sqliteTable('weeks', {
 	endDate: int('end_date', { mode: 'timestamp' }).notNull()
 });
 
-export type Week = typeof weeksTable.$inferSelect;
 export const weeksRelations = relations(weeksTable, ({ many }) => ({
 	employeesToWeeks: many(employeesToWeeksTable),
 	categoriesToWeeks: many(categoriesToWeeksTable),
@@ -45,7 +44,7 @@ export const employeesToWeeksRelations = relations(employeesToWeeksTable, ({ one
 	})
 }));
 
-export const incidenceCategoriesTable = sqliteTable('incidence_categories', {
+export const categoriesTable = sqliteTable('incidence_categories', {
 	id: int().primaryKey(),
 	concept: text().notNull(),
 	type: text().notNull(),
@@ -53,14 +52,14 @@ export const incidenceCategoriesTable = sqliteTable('incidence_categories', {
 	unitMonetaryValue: real().notNull(),
 	unitValueIsDerived: int({ mode: 'boolean' }).notNull().default(false)
 });
-export const incidenceCategoriesRelations = relations(incidenceCategoriesTable, ({ many }) => ({
+export const categoriesRelations = relations(categoriesTable, ({ many }) => ({
 	categoriesToWeeks: many(categoriesToWeeksTable)
 }));
 
 export const categoriesToWeeksTable = sqliteTable('categories_to_weeks', {
 	categoryId: int('category_id')
 		.notNull()
-		.references(() => incidenceCategoriesTable.id),
+		.references(() => categoriesTable.id),
 	weekId: int('week_id')
 		.notNull()
 		.references(() => weeksTable.id)
@@ -70,12 +69,11 @@ export const categoriesToWeeksRelations = relations(categoriesToWeeksTable, ({ o
 		fields: [categoriesToWeeksTable.weekId],
 		references: [weeksTable.id]
 	}),
-	category: one(incidenceCategoriesTable, {
+	category: one(categoriesTable, {
 		fields: [categoriesToWeeksTable.categoryId],
-		references: [incidenceCategoriesTable.id]
+		references: [categoriesTable.id]
 	})
 }));
-
 
 export const incidencesTable = sqliteTable('incidences', {
 	id: int('id').primaryKey(),
@@ -84,7 +82,7 @@ export const incidencesTable = sqliteTable('incidences', {
 		.references(() => weeksTable.id),
 	categoryId: int()
 		.notNull()
-		.references(() => incidenceCategoriesTable.id, { onDelete: 'cascade' }),
+		.references(() => categoriesTable.id, { onDelete: 'cascade' }),
 	employeeId: int('employee')
 		.notNull()
 		.references(() => employeesTable.id, { onDelete: 'cascade' }),
@@ -101,9 +99,9 @@ export const incidencesRelations = relations(incidencesTable, ({ one }) => ({
 		references: [employeesTable.id],
 		relationName: 'employee'
 	}),
-	category: one(incidenceCategoriesTable, {
+	category: one(categoriesTable, {
 		fields: [incidencesTable.categoryId],
-		references: [incidenceCategoriesTable.id],
+		references: [categoriesTable.id],
 		relationName: 'category'
 	}),
 	week: one(weeksTable, {

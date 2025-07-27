@@ -1,8 +1,6 @@
 import { db } from '$lib/server/db';
 import { and, gte, lte } from 'drizzle-orm';
-import {
-	weeksTable
-} from '$lib/server/db/schema';
+import { weeksTable } from '$lib/server/db/schema';
 import { getInitiatedIncidenceCells } from '$lib/utils.js';
 import type { IncidenceCells } from '$lib/stores.svelte.js';
 
@@ -22,12 +20,12 @@ export async function load({ url }) {
 
 	const finalIncidenceCells: IncidenceCells = new Map();
 	const finalEmployees: Employees = new Map();
-	const finalCategories: IncidenceCategories = new Map();
+	const finalCategories: Categories = new Map();
 
 	if (!startWeek || !endWeek) {
 		return {
 			employees: finalEmployees,
-			incidenceCategories: finalCategories,
+			categories: finalCategories,
 			incidenceCells: finalIncidenceCells
 		};
 	}
@@ -67,7 +65,7 @@ export async function load({ url }) {
 				previousEmployee.salary += employee.salary;
 			}
 		}
-		const weekCategories: Map<CategoryId, IncidenceCategory> = new Map();
+		const weekCategories: Map<CategoryId, Category> = new Map();
 		for (const categoryToWeek of week.categoriesToWeeks) {
 			const category = categoryToWeek.category;
 			weekCategories.set(category.id, category);
@@ -108,7 +106,7 @@ export async function load({ url }) {
 
 	return {
 		employees: finalEmployees,
-		incidenceCategories: finalCategories,
+		categories: finalCategories,
 		incidenceCells: finalIncidenceCells
 	};
 }

@@ -2,7 +2,6 @@ import { db } from '$lib/server/db/index';
 import {
 	employeesTable,
 	employeesToWeeksTable,
-	incidenceCategoriesTable,
 	incidencesTable,
 	categoriesToWeeksTable
 } from '$lib/server/db/schema';
@@ -12,14 +11,11 @@ import { and, eq } from 'drizzle-orm';
 export async function POST({ request }) {
 	const body = await request.json();
 	const { weekId, ...employeeData } = body;
-	let employee
-	let incidences
+	let employee;
+	let incidences;
 
 	await db.transaction(async (tx) => {
-		const [newEmployee] = await tx
-			.insert(employeesTable)
-			.values(employeeData)
-			.returning();
+		const [newEmployee] = await tx.insert(employeesTable).values(employeeData).returning();
 
 		const newEmployeeId = newEmployee.id;
 
@@ -38,12 +34,12 @@ export async function POST({ request }) {
 		}));
 
 		if (newIncidences.length > 0) {
-			incidences = await tx.insert(incidencesTable).values(newIncidences).returning()
+			incidences = await tx.insert(incidencesTable).values(newIncidences).returning();
 		}
-		employee = newEmployee
+		employee = newEmployee;
 	});
 
-	return json({employee, incidences});
+	return json({ employee, incidences });
 }
 
 export async function PATCH({ request }) {
@@ -71,10 +67,7 @@ export async function DELETE({ request }) {
 		await tx
 			.delete(employeesToWeeksTable)
 			.where(
-				and(
-					eq(employeesToWeeksTable.employeeId, id),
-					eq(employeesToWeeksTable.weekId, weekId)
-				)
+				and(eq(employeesToWeeksTable.employeeId, id), eq(employeesToWeeksTable.weekId, weekId))
 			);
 
 		await tx

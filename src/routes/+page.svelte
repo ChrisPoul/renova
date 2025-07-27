@@ -2,7 +2,7 @@
 	import { categoryTypes } from '$lib/constants';
 	import {
 		employees,
-		incidenceCategories,
+		categories,
 		incidenceCells,
 		isReadOnly,
 		selectedCategoryTypes,
@@ -12,11 +12,10 @@
 	import AddCategory from './AddCategory.svelte';
 	import AddEmployee from './AddEmployee.svelte';
 	import MainTable from './MainTable.svelte';
-	import type { Week } from '$lib/server/db/schema';
 
 	let { data } = $props();
 	employees.value = data.employees;
-	incidenceCategories.value = data.incidenceCategories;
+	categories.value = data.categories;
 	selectedWeek.value = data.week;
 	isReadOnly.value = false;
 	incidenceCells.value = data.incidenceCells;

@@ -4,14 +4,11 @@ import * as schema from './schema';
 export const db = drizzle('file:local.db', { schema });
 
 export async function makeDummyData() {
-	
 	const startDate = getMondayOfISOWeek(2025, 29);
 	const endDate = new Date(startDate);
 	endDate.setDate(endDate.getDate() + 6);
-	const weeks = [
-		{ id: 1, startDate: startDate, endDate: endDate }
-	];
-	const incidenceCategories = [
+	const weeks = [{ id: 1, startDate: startDate, endDate: endDate }];
+	const categories = [
 		{ id: 1, concept: 'Puertas Muy Grandes', type: 'destajo', unit: 'u', unitMonetaryValue: 12 },
 		{ id: 2, concept: 'Corte Junke', type: 'destajo', unit: 'kg', unitMonetaryValue: 20 },
 		{ id: 3, concept: 'Corte Chapa', type: 'destajo', unit: 'kg', unitMonetaryValue: 15 },
@@ -61,7 +58,7 @@ export async function makeDummyData() {
 	];
 
 	await db.insert(schema.weeksTable).values(weeks).run();
-	await db.insert(schema.incidenceCategoriesTable).values(incidenceCategories).run();
+	await db.insert(schema.categoriesTable).values(categories).run();
 	await db.insert(schema.employeesTable).values(employees).run();
 	await db.insert(schema.incidencesTable).values(incidences).run();
 	await db.insert(schema.employeesToWeeksTable).values(employeesToWeeks).run();

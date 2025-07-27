@@ -1,7 +1,7 @@
 import { db } from '$lib/server/db';
 import {
 	weeksTable,
-	incidenceCategoriesTable,
+	categoriesTable,
 	categoriesToWeeksTable,
 	employeesTable,
 	incidencesTable,
@@ -50,9 +50,7 @@ export async function POST({ request }) {
 	const newWeek = await db.transaction(async (tx) => {
 		const [newWeek] = await tx.insert(weeksTable).values({ startDate, endDate }).returning();
 
-		const allCategories = await tx
-			.select({ id: incidenceCategoriesTable.id })
-			.from(incidenceCategoriesTable);
+		const allCategories = await tx.select({ id: categoriesTable.id }).from(categoriesTable);
 		const allEmployees = await tx.select({ id: employeesTable.id }).from(employeesTable);
 
 		if (allCategories.length > 0) {

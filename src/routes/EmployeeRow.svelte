@@ -1,11 +1,11 @@
 <script lang="ts">
-	import { selectedCategoryTypes, totals, isReadOnly, incidenceCategories } from '$lib/stores.svelte';
+	import { selectedCategoryTypes, totals, isReadOnly, categories } from '$lib/stores.svelte';
 	import { formatMonetaryValue } from '$lib/utils';
 	import IncidenceCell from './IncidenceCell.svelte';
 	import EditEmployee from './EditEmployee.svelte';
 
 	let {
-		employee,
+		employee
 	}: {
 		employee: Employee;
 	} = $props();
@@ -21,7 +21,7 @@
 	<td class="t-cell text-nowrap">{employee.area}</td>
 	<td class="t-cell text-nowrap">{employee.puesto}</td>
 	<td class="t-cell text-nowrap">{formatMonetaryValue(employee.salary)}</td>
-	{#each incidenceCategories.value as [_,category]}
+	{#each categories.value as [_, category]}
 		{#if selectedCategoryTypes.value.includes(category.type)}
 			<IncidenceCell {category} {employee} />
 		{/if}

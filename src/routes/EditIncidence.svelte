@@ -13,7 +13,7 @@
 		employee,
 		incidenceCell
 	}: {
-		category: IncidenceCategory;
+		category: Category;
 		employee: Employee;
 		incidenceCell: IncidenceCell;
 	} = $props();
@@ -37,8 +37,8 @@
 		);
 		incidenceCell.incidence.unitMonetaryValue = unitMonetaryValue;
 		incidenceCell.totalMonetaryValue = totalMonetaryValue;
-		changes.unitMonetaryValue = unitMonetaryValue
-		setIncidenceCell(incidenceCells.value, category.id, employee.id, {...incidenceCell});
+		changes.unitMonetaryValue = unitMonetaryValue;
+		setIncidenceCell(incidenceCells.value, category.id, employee.id, { ...incidenceCell });
 		incidenceCells.value = new Map(incidenceCells.value); // Trigger reactivity
 		await fetch('/api/incidence', {
 			method: 'PATCH',

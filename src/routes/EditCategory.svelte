@@ -6,7 +6,7 @@
 	let {
 		category
 	}: {
-		category: IncidenceCategory;
+		category: Category;
 	} = $props();
 
 	let concept = $state(category.concept);

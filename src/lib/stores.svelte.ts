@@ -1,5 +1,4 @@
-import { categoryTypes } from './constants';
-import type { Incidence, Week } from './server/db/schema';
+import { categoryTypes } from './constants'
 
 type CategoryId = number;
 type employeeID = number;
@@ -7,9 +6,9 @@ type employeeCategoryTypeTotal = number;
 type CategoryType = string;
 
 export interface IncidenceCell {
-	incidence: Incidence
-	totalMonetaryValue: number
-	categoryType: CategoryType
+	incidence: Incidence;
+	totalMonetaryValue: number;
+	categoryType: CategoryType;
 }
 
 // The main reactive state for all incidence data
@@ -38,7 +37,7 @@ const derivedTotals = $derived.by(() => {
 	for (const [categoryId, categoryIncidenceCells] of incidenceCells.value) {
 		for (const [employeeId, incidenceCell] of categoryIncidenceCells) {
 			const { incidence, totalMonetaryValue, categoryType } = incidenceCell;
-			const amount = incidence.amount
+			const amount = incidence.amount;
 
 			// 1. Aggregate totals per category (for the table footer)
 			const currentCategoryTotal = newTotals.categoryTotals.get(categoryId) ?? {
@@ -103,6 +102,6 @@ export const selectedWeek = $state<{ value: Week | null }>({
 
 export const isReadOnly = $state({ value: false });
 
-export const incidenceCategories = $state<{ value: IncidenceCategories }>({ value: new Map() });
+export const categories = $state<{ value: Categories }>({ value: new Map() });
 
-export const employees = $state<{value: Employees}>({value: new Map()})
+export const employees = $state<{ value: Employees }>({ value: new Map() });
