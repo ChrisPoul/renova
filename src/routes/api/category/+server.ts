@@ -3,7 +3,8 @@ import {
 	categoriesToWeeksTable,
 	employeesTable,
 	categoriesTable,
-	incidencesTable
+	incidencesTable,
+	employeesToWeeksTable
 } from '$lib/server/db/schema';
 import { json } from '@sveltejs/kit';
 import { and, eq } from 'drizzle-orm';
@@ -20,10 +21,12 @@ export async function POST({ request }) {
 
 		await tx.insert(categoriesToWeeksTable).values({ categoryId: newCategory.id, weekId });
 
-		const employees = await tx.select().from(employeesTable);
+		const employeesInWeek = await tx.select().from(employeesToWeeksTable).where(
+			eq(employeesToWeeksTable.weekId, weekId)
+		);
 
-		const newIncidences = employees.map((emp) => ({
-			employeeId: emp.id,
+		const newIncidences = employeesInWeek.map((emp) => ({
+			employeeId: emp.employeeId,
 			categoryId: newCategory.id,
 			weekId
 		}));
