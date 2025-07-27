@@ -1,10 +1,7 @@
 import { db } from '$lib/server/db';
 import { and, gte, lte } from 'drizzle-orm';
 import {
-	weeksTable,
-	type Employee,
-	type Incidence,
-	type IncidenceCategory
+	weeksTable
 } from '$lib/server/db/schema';
 import { getInitiatedIncidenceCells } from '$lib/utils.js';
 import type { IncidenceCells } from '$lib/stores.svelte.js';

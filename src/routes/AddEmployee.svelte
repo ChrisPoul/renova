@@ -1,7 +1,7 @@
 <script lang="ts">
 	import EmployeeForm from './EmployeeForm.svelte';
-	import { employees, incidenceCategories, incidenceCells, selectedWeek } from '$lib/stores.svelte';
-	import { initiateIncidenceCell } from '$lib/utils';
+	import { addEmployee } from '$lib/client/state';
+	import { selectedWeek } from '$lib/stores.svelte';
 
 	let name = $state('');
 	let salary = $state(0);
@@ -15,13 +15,7 @@
 			body: JSON.stringify({ name, salary, puesto, area, weekId: selectedWeek.value!.id })
 		});
 		const { employee, incidences } = await response.json();
-		employees.value.set(employee.id, employee);
-		for (const incidence of incidences) {
-			const category = incidenceCategories.value.get(incidence.categoryId);
-			initiateIncidenceCell(incidenceCells.value, incidence, category!, employee);
-		}
-		employees.value = new Map(employees.value);
-		incidenceCells.value = new Map(incidenceCells.value);
+		addEmployee(employee, incidences);
 	}
 </script>
 

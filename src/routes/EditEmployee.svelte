@@ -1,7 +1,6 @@
 <script lang="ts">
-	import type { Employee } from '$lib/server/db/schema';
-	import { employees, incidenceCategories, incidenceCells, selectedWeek } from '$lib/stores.svelte';
-	import { initiateIncidenceCell } from '$lib/utils';
+	import * as clientState from '$lib/client/state';
+	import { selectedWeek } from '$lib/stores.svelte';
 	import EmployeeForm from './EmployeeForm.svelte';
 
 	let {
@@ -25,15 +24,7 @@
 				changes: changes
 			})
 		});
-		employee = { ...employee, ...changes };
-		employees.value.set(employee.id, employee);
-		for (const [categoryId, categoryIncidenceCells] of incidenceCells.value) {
-			const category = incidenceCategories.value.get(categoryId);
-			const incidenceCell = categoryIncidenceCells.get(employee.id);
-			initiateIncidenceCell(incidenceCells.value, incidenceCell!.incidence, category!, employee);
-		}
-		employees.value = new Map(employees.value);
-		incidenceCells.value = new Map(incidenceCells.value);
+		clientState.updateEmployee({ ...employee, ...changes });
 	}
 
 	async function deleteEmployee() {
@@ -42,12 +33,7 @@
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify({ id: employee.id, weekId: selectedWeek.value!.id })
 		});
-		employees.value.delete(employee.id);
-		for (const categoryIncidenceCells of incidenceCells.value.values()) {
-			categoryIncidenceCells.delete(employee.id);
-		}
-		employees.value = new Map(employees.value);
-		incidenceCells.value = new Map(incidenceCells.value);
+		clientState.deleteEmployee(employee.id);
 	}
 </script>
 

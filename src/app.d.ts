@@ -1,7 +1,8 @@
 // See https://svelte.dev/docs/kit/types#app.d.ts
 // for information about these interfaces
 
-import type { Employee, IncidenceCategory } from "$lib/server/db/schema";
+import type { employeesTable, incidenceCategoriesTable, incidencesTable } from "$lib/server/db/schema";
+
 
 declare global {
 	namespace App {
@@ -13,7 +14,13 @@ declare global {
 	}
 	type EmployeeId = number
 	type CategoryId = number
+
+	type Incidence = typeof incidencesTable.$inferSelect;
+	
+	type Employee = typeof employeesTable.$inferSelect;
 	type Employees = Map<EmployeeId, Employee>
+
+	type IncidenceCategory = typeof incidenceCategoriesTable.$inferSelect;
 	type IncidenceCategories = Map<CategoryId, IncidenceCategory>
 }
 

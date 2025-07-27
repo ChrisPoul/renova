@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { categoryTypes } from '$lib/constants';
 	import CategoryForm from './CategoryForm.svelte';
-	import { employees, incidenceCategories, incidenceCells, selectedWeek } from '$lib/stores.svelte';
-	import { initiateIncidenceCell } from '$lib/utils';
+	import { addCategory } from '$lib/client/state';
+	import { selectedWeek } from '$lib/stores.svelte';
 
 	let concept = $state('');
 	let type = $state(categoryTypes[0]);
@@ -24,13 +24,7 @@
 			})
 		});
 		const {category, incidences} = await response.json()
-		incidenceCategories.value.set(category.id, category)
-		for (const incidence of incidences) {
-			const employee = employees.value.get(incidence.employeeId)
-			initiateIncidenceCell(incidenceCells.value, incidence, category, employee!)
-		}
-		incidenceCategories.value = new Map(incidenceCategories.value)
-		incidenceCells.value = new Map(incidenceCells.value)
+		addCategory(category, incidences);
 	}
 </script>
 

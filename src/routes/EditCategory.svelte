@@ -1,7 +1,6 @@
 <script lang="ts">
-	import type { IncidenceCategory } from '$lib/server/db/schema';
-	import { employees, incidenceCategories, incidenceCells, selectedWeek } from '$lib/stores.svelte';
-	import { initiateIncidenceCell } from '$lib/utils';
+	import * as clientState from '$lib/client/state';
+	import { selectedWeek } from '$lib/stores.svelte';
 	import CategoryForm from './CategoryForm.svelte';
 
 	let {
@@ -32,17 +31,7 @@
 				changes
 			})
 		});
-		category = { ...category, ...changes };
-		incidenceCategories.value.set(category.id, category);
-		const categoryIncidenceCells = incidenceCells.value.get(category.id);
-		if (!categoryIncidenceCells) return;
-		for (const [employeeId, incidenceCell] of categoryIncidenceCells) {
-			const employee = employees.value.get(employeeId);
-			if (!employee) continue;
-			initiateIncidenceCell(incidenceCells.value, incidenceCell.incidence, category, employee);
-		}
-		incidenceCategories.value = new Map(incidenceCategories.value);
-		incidenceCells.value = new Map(incidenceCells.value);
+		clientState.updateCategory({ ...category, ...changes });
 	}
 	async function deleteCategory() {
 		if (!selectedWeek.value) return;
@@ -51,10 +40,7 @@
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify({ id: category.id, weekId: selectedWeek.value.id })
 		});
-		incidenceCategories.value.delete(category.id);
-		incidenceCategories.value = new Map(incidenceCategories.value)
-		incidenceCells.value.delete(category.id);
-		incidenceCells.value = new Map(incidenceCells.value);
+		clientState.deleteCategory(category.id);
 	}
 </script>
 

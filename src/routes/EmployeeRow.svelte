@@ -3,7 +3,6 @@
 	import { formatMonetaryValue } from '$lib/utils';
 	import IncidenceCell from './IncidenceCell.svelte';
 	import EditEmployee from './EditEmployee.svelte';
-	import type { Employee } from '$lib/server/db/schema';
 
 	let {
 		employee,

@@ -21,7 +21,6 @@ export const employeesTable = sqliteTable('employees', {
 	puesto: text().notNull(),
 	area: text().notNull()
 });
-export type Employee = typeof employeesTable.$inferSelect;
 export const employeesRelations = relations(employeesTable, ({ many }) => ({
 	incidences: many(incidencesTable, { relationName: 'employee' }),
 	employeesToWeeks: many(employeesToWeeksTable)
@@ -54,7 +53,6 @@ export const incidenceCategoriesTable = sqliteTable('incidence_categories', {
 	unitMonetaryValue: real().notNull(),
 	unitValueIsDerived: int({ mode: 'boolean' }).notNull().default(false)
 });
-export type IncidenceCategory = typeof incidenceCategoriesTable.$inferSelect;
 export const incidenceCategoriesRelations = relations(incidenceCategoriesTable, ({ many }) => ({
 	categoriesToWeeks: many(categoriesToWeeksTable)
 }));
@@ -96,7 +94,6 @@ export const incidencesTable = sqliteTable('incidences', {
 	unitMonetaryValue: real().notNull().default(1),
 	unitValueIsDerived: int({ mode: 'boolean' }).notNull().default(false)
 });
-export type Incidence = typeof incidencesTable.$inferSelect;
 
 export const incidencesRelations = relations(incidencesTable, ({ one }) => ({
 	employee: one(employeesTable, {

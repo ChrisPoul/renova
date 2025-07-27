@@ -1,5 +1,4 @@
 <script lang="ts">
-	import type { Employee, IncidenceCategory } from '$lib/server/db/schema';
 	import { incidenceCells, type IncidenceCell } from '$lib/stores.svelte';
 	import {
 		getIncidenceCellTotalMonetaryValue,
