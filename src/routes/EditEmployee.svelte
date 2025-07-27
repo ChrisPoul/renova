@@ -42,6 +42,12 @@
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify({ id: employee.id, weekId: selectedWeek.value!.id })
 		});
+		employees.value.delete(employee.id);
+		for (const categoryIncidenceCells of incidenceCells.value.values()) {
+			categoryIncidenceCells.delete(employee.id);
+		}
+		employees.value = new Map(employees.value);
+		incidenceCells.value = new Map(incidenceCells.value);
 	}
 </script>
 

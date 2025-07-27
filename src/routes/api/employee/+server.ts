@@ -40,6 +40,7 @@ export async function POST({ request }) {
 		if (newIncidences.length > 0) {
 			incidences = await tx.insert(incidencesTable).values(newIncidences).returning()
 		}
+		employee = newEmployee
 	});
 
 	return json({employee, incidences});

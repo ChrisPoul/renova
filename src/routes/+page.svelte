@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
 	import { categoryTypes } from '$lib/constants';
 	import {
 		employees,

@@ -14,11 +14,11 @@
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify({ name, salary, puesto, area, weekId: selectedWeek.value!.id })
 		});
-		const { newEmployee, incidences } = await response.json();
-		employees.value.set(newEmployee.id, newEmployee);
+		const { employee, incidences } = await response.json();
+		employees.value.set(employee.id, employee);
 		for (const incidence of incidences) {
-			const category = incidenceCategories.value.get(incidence.employeeId);
-			initiateIncidenceCell(incidenceCells.value, incidence, category!, newEmployee);
+			const category = incidenceCategories.value.get(incidence.categoryId);
+			initiateIncidenceCell(incidenceCells.value, incidence, category!, employee);
 		}
 		employees.value = new Map(employees.value);
 		incidenceCells.value = new Map(incidenceCells.value);
