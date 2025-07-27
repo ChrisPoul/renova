@@ -10,6 +10,20 @@
 	import { formatMonetaryValue, getCategoryTypeLabel } from '$lib/utils';
 	import EditCategory from './EditCategory.svelte';
 
+	const categoriesByType = $derived.by(() => {
+		const categoriesByType = new Map<CategoryType, Category[]>();
+		for (const category of categories.value.values()) {
+			if (!selectedCategoryTypes.value.includes(category.type)) continue
+			let categoriesInType = categoriesByType.get(category.type);
+			if (categoriesInType === undefined) {
+				categoriesInType = [];
+			}
+			categoriesInType.push(category);
+			categoriesByType.set(category.type, categoriesInType)
+		}
+		return categoriesByType;
+	});
+
 	function getTotalSalary() {
 		let total = 0;
 		for (const [_, employee] of employees.value) {
@@ -27,8 +41,8 @@
 				<th class="t-cell bg-gray-200">Área</th>
 				<th class="t-cell bg-gray-200">Puesto</th>
 				<th class="t-cell bg-gray-200">Salario</th>
-				{#each categories.value as [_, category]}
-					{#if selectedCategoryTypes.value.includes(category.type)}
+				{#each categoriesByType as [categoryType, categoriesInType]}
+					{#each categoriesInType as category}
 						<th class={`t-cell ${category.type}`}>
 							{category.concept}
 							<span class="text-sm font-normal">
@@ -42,9 +56,7 @@
 								<EditCategory {category} />
 							{/if}
 						</th>
-					{/if}
-				{/each}
-				{#each selectedCategoryTypes.value as categoryType}
+					{/each}
 					<th class={`t-cell ${categoryType}`}>
 						Total {getCategoryTypeLabel(categoryType)}
 					</th>
@@ -54,7 +66,7 @@
 		</thead>
 		<tbody>
 			{#each employees.value as [_, employee]}
-				<EmployeeRow {employee} />
+				<EmployeeRow {employee} {categoriesByType} />
 			{/each}
 			<tr class="bg-gray-100">
 				<td class="t-cell sticky left-0 bg-gray-300 font-bold">Total</td>
@@ -63,8 +75,8 @@
 				<td class="t-cell bg-gray-200 text-nowrap">
 					{formatMonetaryValue(getTotalSalary())}
 				</td>
-				{#each categories.value as [_, category]}
-					{#if selectedCategoryTypes.value.includes(category.type)}
+				{#each categoriesByType as [categoryType, categoriesInType]}
+					{#each categoriesInType as category}
 						{@const total = totals.value.categoryTotals.get(category.id) ?? {
 							amount: 0,
 							monetaryValue: 0
@@ -75,9 +87,7 @@
 								{formatMonetaryValue(total.monetaryValue)}
 							</div>
 						</td>
-					{/if}
-				{/each}
-				{#each selectedCategoryTypes.value as categoryType}
+					{/each}
 					<td class={`t-cell text-nowrap ${categoryType}-opaco`}>
 						{formatMonetaryValue(totals.value.categoryTypeGrandTotals.get(categoryType) ?? 0)}
 					</td>

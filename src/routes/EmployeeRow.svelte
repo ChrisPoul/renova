@@ -5,9 +5,11 @@
 	import EditEmployee from './EditEmployee.svelte';
 
 	let {
-		employee
+		employee,
+		categoriesByType
 	}: {
 		employee: Employee;
+		categoriesByType: Map<CategoryType, Category[]>;
 	} = $props();
 </script>
 
@@ -21,12 +23,10 @@
 	<td class="t-cell text-nowrap">{employee.area}</td>
 	<td class="t-cell text-nowrap">{employee.puesto}</td>
 	<td class="t-cell text-nowrap">{formatMonetaryValue(employee.salary)}</td>
-	{#each categories.value as [_, category]}
-		{#if selectedCategoryTypes.value.includes(category.type)}
+	{#each categoriesByType as [categoryType, categoriesInType]}
+		{#each categoriesInType as category}
 			<IncidenceCell {category} {employee} />
-		{/if}
-	{/each}
-	{#each selectedCategoryTypes.value as categoryType}
+		{/each}
 		<td class="t-cell text-nowrap">
 			{formatMonetaryValue(
 				totals.value.categoryTypeTotals.get(categoryType)?.get(employee.id) ?? 0

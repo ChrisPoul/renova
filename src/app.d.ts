@@ -13,7 +13,7 @@ declare global {
 	}
 	type EmployeeId = number;
 	type CategoryId = number;
-
+	type CategoryType = string
 
 	type Week = typeof weeksTable.$inferSelect;
 
