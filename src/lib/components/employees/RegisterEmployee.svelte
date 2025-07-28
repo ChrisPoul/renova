@@ -22,7 +22,7 @@
 <EmployeeForm bind:name bind:salary bind:puesto bind:area {acceptChanges}>
 	{#snippet triggerButton()}
 		<span class="rounded bg-gray-400 px-4 py-2 text-white hover:bg-green-600">
-			Agregar Empleado
+			Registrar Empleado
 		</span>
 	{/snippet}
 </EmployeeForm>

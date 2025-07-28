@@ -46,7 +46,7 @@
 <ModalMenu title="Select Categories" onAccept={acceptChanges} bind:isMenuOpen>
 	{#snippet triggerButton()}
 		<span class="rounded bg-green-500 px-4 py-2 text-white hover:bg-green-600">
-			Agregar Categoría
+			Agregar Categorías
 		</span>
 	{/snippet}
 	<div class="flex flex-col gap-2">

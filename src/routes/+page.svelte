@@ -6,11 +6,11 @@
 		isReadOnly,
 		selectedWeek
 	} from '$lib/stores.svelte';
-	import SelectCategories from '$lib/components/categories/SelectCategories.svelte';
-	import SelectEmployees from '$lib/components/employees/SelectEmployees.svelte';
 	import MainTable from '$lib/components/table/MainTable.svelte';
-	import AddCategory from '$lib/components/categories/AddCategory.svelte';
-	import AddEmployee from '$lib/components/employees/AddEmployee.svelte';
+	import RegisterCategory from '$lib/components/categories/RegisterCategory.svelte';
+	import RegisterEmployee from '$lib/components/employees/RegisterEmployee.svelte';
+	import AddEmployees from '$lib/components/employees/AddEmployees.svelte';
+	import AddCategories from '$lib/components/categories/AddCategories.svelte';
 
 	let { data } = $props();
 	employees.value = data.employees;
@@ -66,10 +66,10 @@
 
 <div class="p-2.5 flex justify-between">
 	<div class="flex gap-2">
-	<SelectCategories />
-	<SelectEmployees />
-	<AddCategory />
-	<AddEmployee />
+	<AddCategories />
+	<AddEmployees />
+	<RegisterCategory />
+	<RegisterEmployee />
 	</div>
 	<a
 		href={`/report?startWeek=${getWeekForInput(selectedWeek.value?.startDate)}&endWeek=${getWeekForInput(selectedWeek.value?.startDate)}`}

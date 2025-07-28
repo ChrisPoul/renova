@@ -20,13 +20,13 @@
 	let modalRef = $state<HTMLDivElement>();
 	let triggerRef: HTMLButtonElement;
 
-	$effect(() => {
-		if (isMenuOpen) {
-			modalRef!.focus();
-		} else {
-			triggerRef.focus();
-		}
-	});
+	// $effect(() => {
+	// 	if (isMenuOpen) {
+	// 		modalRef!.focus();
+	// 	} else {
+	// 		triggerRef.focus();
+	// 	}
+	// });
 
 	function toggleMenu() {
 		isMenuOpen = !isMenuOpen;
