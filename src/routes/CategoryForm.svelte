@@ -27,7 +27,7 @@
 	let isMenuOpen = $state(false);
 </script>
 
-<ModalMenu title="Editar Categoría" isMenuOpen={isMenuOpen} onAccept={acceptChanges} {triggerButton}>
+<ModalMenu title="Editar Categoría" bind:isMenuOpen onAccept={acceptChanges} {triggerButton}>
 	<div class="flex flex-col gap-2">
 		<label>
 			Concepto

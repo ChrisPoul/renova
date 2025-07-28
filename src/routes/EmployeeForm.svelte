@@ -23,7 +23,7 @@
 	let isMenuOpen = $state(false);
 </script>
 
-<ModalMenu title="Empleado" isMenuOpen={isMenuOpen} onAccept={acceptChanges} {triggerButton}>
+<ModalMenu title="Empleado" bind:isMenuOpen onAccept={acceptChanges} {triggerButton}>
 	<div class="flex flex-col gap-2">
 		<label>
 			Nombre:
