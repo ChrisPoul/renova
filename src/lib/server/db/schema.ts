@@ -15,7 +15,7 @@ export const weeksRelations = relations(weeksTable, ({ many }) => ({
 
 export const employeesTable = sqliteTable('employees', {
 	id: int().primaryKey(),
-	name: text().notNull(),
+	name: text('name').notNull().unique(),
 	salary: real().notNull(),
 	puesto: text().notNull(),
 	area: text().notNull()
@@ -46,7 +46,7 @@ export const employeesToWeeksRelations = relations(employeesToWeeksTable, ({ one
 
 export const categoriesTable = sqliteTable('incidence_categories', {
 	id: int().primaryKey(),
-	concept: text().notNull(),
+	concept: text('concept').notNull().unique(),
 	type: text().notNull(),
 	unit: text().notNull(),
 	unitMonetaryValue: real().notNull(),
