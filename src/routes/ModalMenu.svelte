@@ -17,6 +17,16 @@
 		isMenuOpen?: boolean;
 	} = $props();
 
+	let modalRef = $state<HTMLDivElement>();
+	let triggerRef: HTMLButtonElement;
+
+	$effect(() => {
+		if (isMenuOpen) {
+			modalRef!.focus();
+		} else {
+			triggerRef.focus();
+		}
+	});
 
 	function toggleMenu() {
 		isMenuOpen = !isMenuOpen;
@@ -31,7 +41,7 @@
 	}
 </script>
 
-<button class="min-w-4" onclick={toggleMenu} tabindex="-1">
+<button class="min-w-4" onclick={toggleMenu} tabindex="-1" bind:this={triggerRef}>
 	{@render triggerButton()}
 </button>
 {#if isMenuOpen}
@@ -41,11 +51,12 @@
 		class="fixed top-1/2 left-1/2 z-50 -translate-1/2"
 		role="dialog"
 		aria-modal="true"
-		tabindex="0"
+		tabindex="-1"
 		onkeydown={(e) => {
 			if (e.key === 'Enter') accept();
 			if (e.key === 'Escape') cancel();
 		}}
+		bind:this={modalRef}
 	>
 		<div class="relative w-full max-w-md rounded-lg bg-white px-6 py-4 shadow-xl">
 			<button
