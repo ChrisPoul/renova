@@ -1,15 +1,16 @@
 <script lang="ts">
 	import { addEmployee } from '$lib/client/state';
-	import { selectedWeek } from '$lib/stores.svelte';
+	import { employees, selectedWeek } from '$lib/stores.svelte';
 	import { onMount } from 'svelte';
 	import ModalMenu from './ModalMenu.svelte';
 
-	let allEmployees: Employee[] = $state([]);
+	let employeesToAdd: Employee[] = $state([]);
 	let selectedEmployees: number[] = $state([]);
 
 	onMount(async () => {
 		const response = await fetch('/api/employees');
-		allEmployees = await response.json();
+		const allEmployees: Employee[] = await response.json();
+		employeesToAdd = allEmployees.filter((employee) => !employees.value.has(employee.id));
 	});
 
 	async function acceptChanges() {
@@ -45,7 +46,7 @@
 		</span>
 	{/snippet}
 	<div class="flex flex-col gap-2">
-		{#each allEmployees as employee}
+		{#each employeesToAdd as employee}
 			<label class="flex items-center gap-2">
 				<input type="checkbox" bind:group={selectedEmployees} value={employee.id} />
 				{employee.name}
