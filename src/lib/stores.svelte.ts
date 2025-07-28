@@ -1,4 +1,4 @@
-import { categoryTypes } from './constants'
+import { categoryTypes } from './constants';
 
 type CategoryId = number;
 type employeeID = number;
@@ -38,6 +38,8 @@ const derivedTotals = $derived.by(() => {
 		for (const [employeeId, incidenceCell] of categoryIncidenceCells) {
 			const { incidence, totalMonetaryValue, categoryType } = incidenceCell;
 			const amount = incidence.amount;
+
+			if (!selectedCategoryTypes.value.includes(categoryType)) continue;
 
 			// 1. Aggregate totals per category (for the table footer)
 			const currentCategoryTotal = newTotals.categoryTotals.get(categoryId) ?? {
