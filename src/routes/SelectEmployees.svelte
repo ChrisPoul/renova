@@ -1,17 +1,20 @@
 <script lang="ts">
 	import { addEmployee } from '$lib/client/state';
 	import { employees, selectedWeek } from '$lib/stores.svelte';
-	import { onMount } from 'svelte';
 	import ModalMenu from './ModalMenu.svelte';
 
 	let employeesToAdd: Employee[] = $state([]);
 	let selectedEmployees: number[] = $state([]);
+	let isMenuOpen = $state(false);
 
-	onMount(async () => {
-		const response = await fetch('/api/employees');
-		const allEmployees: Employee[] = await response.json();
-		employeesToAdd = allEmployees.filter((employee) => !employees.value.has(employee.id));
-		console.log(employeesToAdd);
+	$effect(() => {
+		if (isMenuOpen) {
+			(async () => {
+				const response = await fetch('/api/employees');
+				const allEmployees: Employee[] = await response.json();
+				employeesToAdd = allEmployees.filter((employee) => !employees.value.has(employee.id));
+			})();
+		}
 	});
 
 	async function acceptChanges() {
@@ -40,10 +43,10 @@
 	}
 </script>
 
-<ModalMenu title="Select Employees" onAccept={acceptChanges}>
+<ModalMenu title="Select Employees" onAccept={acceptChanges} bind:isMenuOpen>
 	{#snippet triggerButton()}
-		<span class="rounded bg-indigo-400 px-4 py-2 text-white hover:bg-green-600">
-			Agregar Empleados
+		<span class="rounded bg-gray-400 px-4 py-2 text-white hover:bg-green-600">
+			Agregar Empleado
 		</span>
 	{/snippet}
 	<div class="flex flex-col gap-2">

@@ -7,7 +7,7 @@
 		title,
 		onAccept = () => {},
 		onCancel = () => {},
-		isMenuOpen = false
+		isMenuOpen = $bindable(false)
 	}: {
 		children: Snippet;
 		triggerButton: Snippet;

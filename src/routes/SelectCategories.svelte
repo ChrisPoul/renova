@@ -1,16 +1,20 @@
 <script lang="ts">
 	import { addCategory } from '$lib/client/state';
 	import { categories, selectedWeek } from '$lib/stores.svelte';
-	import { onMount } from 'svelte';
 	import ModalMenu from './ModalMenu.svelte';
 
 	let categoriesToAdd: Category[] = $state([]);
 	let selectedCategories: number[] = $state([]);
+	let isMenuOpen = $state(false);
 
-	onMount(async () => {
-		const response = await fetch('/api/categories');
-		const allCategories: Category[] = await response.json();
-		categoriesToAdd = allCategories.filter((category) => !categories.value.has(category.id));
+	$effect(() => {
+		if (isMenuOpen) {
+			(async () => {
+				const response = await fetch('/api/categories');
+				const allCategories: Category[] = await response.json();
+				categoriesToAdd = allCategories.filter((category) => !categories.value.has(category.id));
+			})();
+		}
 	});
 
 	async function acceptChanges() {
@@ -39,7 +43,7 @@
 	}
 </script>
 
-<ModalMenu title="Select Categories" onAccept={acceptChanges}>
+<ModalMenu title="Select Categories" onAccept={acceptChanges} bind:isMenuOpen>
 	{#snippet triggerButton()}
 		<span class="rounded bg-green-500 px-4 py-2 text-white hover:bg-green-600">
 			Agregar Categoría
