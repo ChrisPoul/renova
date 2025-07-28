@@ -9,6 +9,8 @@
 	import SelectCategories from '$lib/components/categories/SelectCategories.svelte';
 	import SelectEmployees from '$lib/components/employees/SelectEmployees.svelte';
 	import MainTable from '$lib/components/table/MainTable.svelte';
+	import AddCategory from '$lib/components/categories/AddCategory.svelte';
+	import AddEmployee from '$lib/components/employees/AddEmployee.svelte';
 
 	let { data } = $props();
 	employees.value = data.employees;
@@ -62,22 +64,17 @@
 	<MainTable />
 </div>
 
-<div class="p-2">
+<div class="p-2.5 flex justify-between">
+	<div class="flex gap-2">
 	<SelectCategories />
 	<SelectEmployees />
+	<AddCategory />
+	<AddEmployee />
+	</div>
 	<a
 		href={`/report?startWeek=${getWeekForInput(selectedWeek.value?.startDate)}&endWeek=${getWeekForInput(selectedWeek.value?.startDate)}`}
-		class="mb-4 rounded-lg bg-blue-500 px-3 py-2 text-white hover:bg-blue-600"
+		class="rounded-lg bg-blue-500 px-3 py-2 text-white hover:bg-blue-600"
 	>
 		Generar Reporte
 	</a>
 </div>
-<button
-	class="fixed top-4 right-4 rounded-lg bg-red-500 px-4 py-2 text-white hover:bg-red-600"
-	onclick={async () => {
-		await fetch('/api/logout', { method: 'POST' });
-		location.href = '/login';
-	}}
->
-	Cerrar sesión
-</button>
