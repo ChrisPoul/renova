@@ -50,6 +50,9 @@
 		</span>
 	{/snippet}
 	<div class="flex flex-col gap-2">
+		{#if categoriesToAdd.length === 0}
+			<p class="text-gray-500">No hay categorías disponibles para agregar.</p>
+		{/if}
 		{#each categoriesToAdd as category}
 			<label class="flex items-center gap-2">
 				<input type="checkbox" bind:group={selectedCategories} value={category.id} />

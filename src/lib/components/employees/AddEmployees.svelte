@@ -50,6 +50,9 @@
 		</span>
 	{/snippet}
 	<div class="flex flex-col gap-2">
+		{#if employeesToAdd.length === 0}
+			<p class="text-gray-500">No hay empleados disponibles para agregar.</p>
+		{/if}
 		{#each employeesToAdd as employee}
 			<label class="flex items-center gap-2">
 				<input type="checkbox" bind:group={selectedEmployees} value={employee.id} />
