@@ -23,22 +23,22 @@
 </script>
 
 <ModalMenu title="Empleado" bind:isMenuOpen onAccept={acceptChanges} {triggerButton}>
-	<div class="flex flex-col gap-2">
-		<label>
-			Nombre:
-			<input type="text" bind:value={name} class="rounded border p-1" />
+	<div class="flex flex-col w-lg gap-2">
+		<label class="flex flex-col">
+			<span>Nombre:</span>
+			<input type="text" bind:value={name} class="rounded border p-1 w-full" />
 		</label>
-		<label>
-			Sueldo:
-			<input type="number" bind:value={salary} class="rounded border p-1" />
+		<label class="flex flex-col">
+			<span>Sueldo:</span>
+			<input type="number" bind:value={salary} class="rounded border p-1 w-full" />
 		</label>
-		<label>
-			Puesto:
-			<input type="text" bind:value={puesto} class="rounded border p-1" />
+		<label class="flex flex-col">
+			<span>Puesto:</span>
+			<input type="text" bind:value={puesto} class="rounded border p-1 w-full" />
 		</label>
-		<label>
-			Área:
-			<input type="text" bind:value={area} class="rounded border p-1" />
+		<label class="flex flex-col">
+			<span>Área:</span>
+			<input type="text" bind:value={area} class="rounded border p-1 w-full" />
 		</label>
 		{#if deleteEmployee}
 			<button onclick={() => {

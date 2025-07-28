@@ -28,13 +28,13 @@
 </script>
 
 <ModalMenu title="Editar Categoría" bind:isMenuOpen onAccept={acceptChanges} {triggerButton}>
-	<div class="flex flex-col gap-2">
-		<label>
-			Concepto
+	<div class="flex flex-col w-sm gap-2">
+		<label class="flex flex-col">
+			<span>Concepto</span>
 			<input class="w-full rounded border px-2 py-1" bind:value={concept} />
 		</label>
-		<label>
-			Tipo
+		<label class="flex flex-col">
+			<span>Tipo</span>
 			<select class="w-full rounded border px-2 py-1" bind:value={type}>
 				{#each categoryTypes as categoryType}
 					<option value={categoryType}>{getCategoryTypeLabel(categoryType)}</option>

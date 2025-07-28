@@ -58,7 +58,7 @@
 		}}
 		bind:this={modalRef}
 	>
-		<div class="relative w-full max-w-md rounded-lg bg-white px-6 py-4 shadow-xl">
+		<div class="relative min-w-xs rounded-lg bg-white px-6 py-4 shadow-xl">
 			<button
 				class="absolute top-0.5 right-2 text-gray-500 hover:text-gray-700"
 				onclick={cancel}
