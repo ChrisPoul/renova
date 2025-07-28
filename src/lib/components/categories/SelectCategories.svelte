@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { addCategory } from '$lib/client/state';
 	import { categories, selectedWeek } from '$lib/stores.svelte';
-	import ModalMenu from './ModalMenu.svelte';
+	import ModalMenu from '$lib/components/common/ModalMenu.svelte';
 
 	let categoriesToAdd: Category[] = $state([]);
 	let selectedCategories: number[] = $state([]);

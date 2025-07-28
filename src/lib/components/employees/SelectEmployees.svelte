@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { addEmployee } from '$lib/client/state';
 	import { employees, selectedWeek } from '$lib/stores.svelte';
-	import ModalMenu from './ModalMenu.svelte';
+	import ModalMenu from '$lib/components/common/ModalMenu.svelte';
 
 	let employeesToAdd: Employee[] = $state([]);
 	let selectedEmployees: number[] = $state([]);

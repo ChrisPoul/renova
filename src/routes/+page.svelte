@@ -9,9 +9,9 @@
 		selectedWeek
 	} from '$lib/stores.svelte';
 	import { getCategoryTypeLabel } from '$lib/utils';
-	import SelectCategories from './SelectCategories.svelte';
-	import SelectEmployees from './SelectEmployees.svelte';
-	import MainTable from './MainTable.svelte';
+	import SelectCategories from '$lib/components/categories/SelectCategories.svelte';
+	import SelectEmployees from '$lib/components/employees/SelectEmployees.svelte';
+	import MainTable from '$lib/components/table/MainTable.svelte';
 
 	let { data } = $props();
 	employees.value = data.employees;

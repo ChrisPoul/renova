@@ -2,7 +2,7 @@
 	import { selectedCategoryTypes, totals, isReadOnly, categories } from '$lib/stores.svelte';
 	import { formatMonetaryValue } from '$lib/utils';
 	import IncidenceCell from './IncidenceCell.svelte';
-	import EditEmployee from './EditEmployee.svelte';
+	import EditEmployee from '$lib/components/employees/EditEmployee.svelte';
 
 	let {
 		employee,

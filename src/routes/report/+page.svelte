@@ -1,5 +1,5 @@
 <script lang="ts">
-	import MainTable from '../MainTable.svelte';
+	import MainTable from '$lib/components/table/MainTable.svelte';
 	import { employees, categories, incidenceCells, isReadOnly } from '$lib/stores.svelte';
 	import ExcelJS from 'exceljs';
 

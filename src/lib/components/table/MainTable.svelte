@@ -1,5 +1,5 @@
 <script lang="ts">
-	import EmployeeRow from './EmployeeRow.svelte';
+	import EmployeeRow from '$lib/components/table/EmployeeRow.svelte';
 	import {
 		selectedCategoryTypes,
 		isReadOnly,
@@ -8,7 +8,7 @@
 		categories
 	} from '$lib/stores.svelte';
 	import { formatMonetaryValue, getCategoryTypeLabel } from '$lib/utils';
-	import EditCategory from './EditCategory.svelte';
+	import EditCategory from '$lib/components/categories/EditCategory.svelte';
 
 	const categoriesByType = $derived.by(() => {
 		const categoriesByType = new Map<CategoryType, Category[]>(

@@ -1,6 +1,5 @@
 <script lang="ts">
-	import { is } from 'drizzle-orm';
-	import ModalMenu from './ModalMenu.svelte';
+	import ModalMenu from '$lib/components/common/ModalMenu.svelte';
 	import type { Snippet } from 'svelte';
 
 	let {

@@ -2,8 +2,8 @@
 	import { categoryTypes } from '$lib/constants';
 	import { getCategoryTypeLabel } from '$lib/utils';
 	import type { Snippet } from 'svelte';
-	import ModalMenu from './ModalMenu.svelte';
-	import UnitInputs from './UnitInputs.svelte';
+	import ModalMenu from '$lib/components/common/ModalMenu.svelte';
+	import UnitInputs from '$lib/components/common/UnitInputs.svelte';
 
 	let {
 		concept = $bindable(),

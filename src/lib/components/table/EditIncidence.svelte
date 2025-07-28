@@ -5,8 +5,8 @@
 		getIncidenceUnitMonetaryValue,
 		setIncidenceCell
 	} from '$lib/utils';
-	import ModalMenu from './ModalMenu.svelte';
-	import UnitInputs from './UnitInputs.svelte';
+	import ModalMenu from '$lib/components/common/ModalMenu.svelte';
+	import UnitInputs from '$lib/components/common/UnitInputs.svelte';
 
 	const {
 		category,

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { isReadOnly, incidenceCells, type IncidenceCell } from '$lib/stores.svelte';
+	import { isReadOnly, incidenceCells } from '$lib/stores.svelte';
 	import {
 		formatMonetaryValue,
 		validateAmount,
