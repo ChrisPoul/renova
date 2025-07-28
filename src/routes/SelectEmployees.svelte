@@ -19,13 +19,20 @@
 			body: JSON.stringify({ employeeIds: selectedEmployees, weekId: selectedWeek.value!.id })
 		});
 		const {
-			employees,
-			incidencesByEmployee
+			newEmployees,
+			newIncidences
 		}: {
-			employees: Employee[];
-			incidencesByEmployee: Map<number, Incidence[]>;
+			newEmployees: Employee[];
+			newIncidences: Incidence[];
 		} = await response.json();
-		for (const employee of employees) {
+		const incidencesByEmployee = new Map<number, Incidence[]>();
+		for (const incidence of newIncidences) {
+			if (!incidencesByEmployee.has(incidence.employeeId)) {
+				incidencesByEmployee.set(incidence.employeeId, []);
+			}
+			incidencesByEmployee.get(incidence.employeeId)!.push(incidence);
+		}
+		for (const employee of newEmployees) {
 			addEmployee(employee, incidencesByEmployee.get(employee.id)!);
 		}
 	}

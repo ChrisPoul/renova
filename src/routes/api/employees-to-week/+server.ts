@@ -38,19 +38,12 @@ export async function POST({ request }) {
 	if (newIncidencesData.length > 0) {
 		newIncidences = await db.insert(incidencesTable).values(newIncidencesData).returning();
 	}
-	const incidencesByEmployee = new Map<number, Incidence[]>();
-	for (const incidence of newIncidences) {
-		if (!incidencesByEmployee.has(incidence.employeeId)) {
-			incidencesByEmployee.set(incidence.employeeId, []);
-		}
-		incidencesByEmployee.get(incidence.employeeId)!.push(incidence);
-	}
 
 	// 4. Fetch the full employee objects
-	const employees = await db.query.employeesTable.findMany({
+	const newEmployees = await db.query.employeesTable.findMany({
 		where: inArray(employeesTable.id, employeeIds)
 	});
 
 	// 5. Return employees and their newly created incidences
-	return json({ employees, incidencesByEmployee });
+	return json({ newEmployees, newIncidences });
 }
