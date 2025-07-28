@@ -1,7 +1,7 @@
 import { json } from '@sveltejs/kit';
 import { db } from '$lib/server/db';
 import { employeesToWeeksTable, incidencesTable, categoriesToWeeksTable, employeesTable } from '$lib/server/db/schema';
-import { and, eq, inArray } from 'drizzle-orm';
+import { eq, inArray } from 'drizzle-orm';
 
 export async function POST({ request }) {
 	const { employeeIds, weekId }: { employeeIds: number[]; weekId: number } = await request.json();
@@ -38,6 +38,7 @@ export async function POST({ request }) {
 	if (newIncidencesData.length > 0) {
 		newIncidences = await db.insert(incidencesTable).values(newIncidencesData).returning();
 	}
+	console.log("Incidences created:", newIncidences.length);
 
 	// 4. Fetch the full employee objects
 	const newEmployees = await db.query.employeesTable.findMany({

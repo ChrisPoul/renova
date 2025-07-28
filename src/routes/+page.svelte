@@ -9,7 +9,7 @@
 		selectedWeek
 	} from '$lib/stores.svelte';
 	import { getCategoryTypeLabel } from '$lib/utils';
-	import AddCategory from './AddCategory.svelte';
+	import SelectCategories from './SelectCategories.svelte';
 	import SelectEmployees from './SelectEmployees.svelte';
 	import MainTable from './MainTable.svelte';
 
@@ -96,7 +96,7 @@
 </div>
 
 <div class="p-2">
-	<AddCategory />
+	<SelectCategories />
 	<SelectEmployees />
 	<a
 		href={`/report?startWeek=${getWeekForInput(selectedWeek.value?.startDate)}&endWeek=${getWeekForInput(selectedWeek.value?.startDate)}`}

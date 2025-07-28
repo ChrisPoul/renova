@@ -11,6 +11,7 @@
 		const response = await fetch('/api/employees');
 		const allEmployees: Employee[] = await response.json();
 		employeesToAdd = allEmployees.filter((employee) => !employees.value.has(employee.id));
+		console.log(employeesToAdd);
 	});
 
 	async function acceptChanges() {
