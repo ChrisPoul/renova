@@ -1,6 +1,14 @@
 <script lang="ts">
 	import MainTable from '$lib/components/table/MainTable.svelte';
-	import { employees, categories, incidenceCells, isReadOnly, selectedCategoryTypes, totals, selectedWeek } from '$lib/stores.svelte';
+	import {
+		employees,
+		incidenceCells,
+		isReadOnly,
+		totals,
+		selectedWeek,
+		categoriesByType,
+		categories
+	} from '$lib/stores.svelte';
 	import ExcelJS from 'exceljs';
 	import { formatMonetaryValue, getCategoryTypeLabel } from '$lib/utils';
 
@@ -31,24 +39,13 @@
 		const defaultHeaderColor = 'FFE5E7EB'; // light gray
 
 		// Prepare headers
-		const headers = [
-			'Empleado',
-			'Área',
-			'Puesto',
-			'Salario'
-		];
+		const baseHeaders = ['Empleado', 'Área', 'Puesto', 'Salario'];
+		const headers = [...baseHeaders];
 
-		const categoriesInOrder: Category[] = [];
-		for (const categoryType of selectedCategoryTypes.value) {
-			for (const category of categories.value.values()) {
-				if (category.type === categoryType) {
-					categoriesInOrder.push(category);
-					headers.push(category.concept);
-				}
+		for (const [categoryType, categoriesInType] of categoriesByType.value) {
+			for (const category of categoriesInType) {
+				headers.push(category.concept);
 			}
-		}
-
-		for (const categoryType of selectedCategoryTypes.value) {
 			headers.push(`Total ${getCategoryTypeLabel(categoryType)}`);
 		}
 		headers.push('Total');
@@ -57,31 +54,48 @@
 
 		// Apply header styling
 		let colIdx = 1;
-		for (const header of headers) {
+		for (const header of baseHeaders) {
 			const cell = headerRow.getCell(colIdx);
-			const category = categoriesInOrder.find((cat) => cat.concept === header);
-			let color = defaultHeaderColor;
-			if (category && categoryTypeColors[category.type]) {
-				color = categoryTypeColors[category.type];
-			} else if (header.startsWith('Total ')) {
-				const typeFromHeader = header.replace('Total ', '').toLowerCase();
-				const originalType = Object.keys(categoryTypeColors).find(key => getCategoryTypeLabel(key) === typeFromHeader);
-				if (originalType && categoryTypeColors[originalType]) {
-					color = categoryTypeColors[originalType];
-				}
-			}
-
 			cell.fill = {
 				type: 'pattern',
 				pattern: 'solid',
-				fgColor: { argb: color }
+				fgColor: { argb: defaultHeaderColor }
 			};
 			cell.font = { bold: true };
 			colIdx++;
 		}
+		for (const [categoryType, categoriesInType] of categoriesByType.value) {
+			for (const category of categoriesInType) {
+				const cell = headerRow.getCell(colIdx);
+				cell.fill = {
+					type: 'pattern',
+					pattern: 'solid',
+					fgColor: { argb: categoryTypeColors[categoryType] }
+				};
+				cell.font = { bold: true };
+				colIdx++;
+			}
+			const totalCategoryTypeCell = headerRow.getCell(colIdx);
+			totalCategoryTypeCell.fill = {
+				type: 'pattern',
+				pattern: 'solid',
+				fgColor: { argb: categoryTypeColors[categoryType] }
+			};
+			totalCategoryTypeCell.font = { bold: true };
+			colIdx++;
+		}
+		const totalCell = headerRow.getCell(colIdx);
+		totalCell.fill = {
+			type: 'pattern',
+			pattern: 'solid',
+			fgColor: { argb: defaultHeaderColor }
+		};
+		totalCell.font = { bold: true };
 
 		// Add data rows
+		let totalSalary = 0;
 		for (const [employeeId, employee] of employees.value) {
+			totalSalary += employee.salary;
 			const rowData = [
 				employee.name,
 				employee.area,
@@ -89,40 +103,36 @@
 				formatMonetaryValue(employee.salary)
 			];
 
-			for (const category of categoriesInOrder) {
-				const incidenceCell = incidenceCells.value.get(category.id)?.get(employeeId);
-				if (incidenceCell) {
-					rowData.push(`${incidenceCell.incidence.amount} (${formatMonetaryValue(incidenceCell.totalMonetaryValue)})`);
-				} else {
-					rowData.push('');
+			for (const [categoryType, categoriesInType] of categoriesByType.value) {
+				for (const category of categoriesInType) {
+					const incidenceCell = incidenceCells.value.get(category.id)!.get(employeeId)!;
+					rowData.push(
+						`${incidenceCell.incidence.amount} (${formatMonetaryValue(
+							incidenceCell.totalMonetaryValue
+						)})`
+					);
 				}
-			}
-
-			for (const categoryType of selectedCategoryTypes.value) {
-				const typeTotal = totals.value.categoryTypeTotals.get(categoryType)?.get(employeeId) ?? 0;
+				const typeTotal = totals.value.categoryTypeTotals.get(categoryType)!.get(employeeId)!;
 				rowData.push(formatMonetaryValue(typeTotal));
 			}
 
-			rowData.push(formatMonetaryValue(totals.value.employeeTotals.get(employeeId) ?? 0));
+			rowData.push(formatMonetaryValue(totals.value.employeeTotals.get(employeeId)!));
 			worksheet.addRow(rowData);
 		}
 
 		// Add totals row
-		const totalsRowData = [
-			'Total',
-			'',
-			'',
-			formatMonetaryValue(totals.value.employeeTotals.get('all') ?? 0) // Assuming 'all' key for total salary if needed
-		];
+		const totalsRowData = ['Total', '', '', formatMonetaryValue(totalSalary)];
 
-		for (const category of categoriesInOrder) {
-			const total = totals.value.categoryTotals.get(category.id) ?? { amount: 0, monetaryValue: 0 };
-			totalsRowData.push(`${total.amount} (${formatMonetaryValue(total.monetaryValue)})`);
+		for (const [categoryType, categoriesInType] of categoriesByType.value) {
+			for (const category of categoriesInType) {
+				const total = totals.value.categoryTotals.get(category.id)!
+				totalsRowData.push(`${total.amount} (${formatMonetaryValue(total.monetaryValue)})`);
+			}
+			totalsRowData.push(
+				formatMonetaryValue(totals.value.categoryTypeGrandTotals.get(categoryType)!)
+			);
 		}
 
-		for (const categoryType of selectedCategoryTypes.value) {
-			totalsRowData.push(formatMonetaryValue(totals.value.categoryTypeGrandTotals.get(categoryType) ?? 0));
-		}
 		totalsRowData.push(formatMonetaryValue(totals.value.grandTotal));
 
 		const excelTotalsRow = worksheet.addRow(totalsRowData);
@@ -137,12 +147,13 @@
 
 		// Auto-size columns
 		worksheet.columns.forEach((column) => {
-			let maxLength = 10;
+			const minWidth = 10;
+			let cellWidth = minWidth
 			column.eachCell({ includeEmpty: true }, (cell) => {
 				const cellValue = cell.value ? cell.value.toString() : '';
-				maxLength = Math.max(maxLength, cellValue.length + 2);
+				cellWidth = Math.max(minWidth, cellValue.length + 5);
 			});
-			column.width = maxLength;
+			column.width = cellWidth;
 		});
 
 		// Download the file
