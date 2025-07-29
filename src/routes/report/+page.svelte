@@ -56,41 +56,22 @@
 		let colIdx = 1;
 		for (const header of baseHeaders) {
 			const cell = headerRow.getCell(colIdx);
-			cell.fill = {
-				type: 'pattern',
-				pattern: 'solid',
-				fgColor: { argb: defaultHeaderColor }
-			};
-			cell.font = { bold: true };
+			styleExcelCell(cell, defaultHeaderColor)
 			colIdx++;
 		}
 		for (const [categoryType, categoriesInType] of categoriesByType.value) {
+			const color = categoryTypeColors[categoryType as keyof typeof categoryTypeColors]
 			for (const category of categoriesInType) {
 				const cell = headerRow.getCell(colIdx);
-				cell.fill = {
-					type: 'pattern',
-					pattern: 'solid',
-					fgColor: { argb: categoryTypeColors[categoryType] }
-				};
-				cell.font = { bold: true };
+				styleExcelCell(cell, color)
 				colIdx++;
 			}
 			const totalCategoryTypeCell = headerRow.getCell(colIdx);
-			totalCategoryTypeCell.fill = {
-				type: 'pattern',
-				pattern: 'solid',
-				fgColor: { argb: categoryTypeColors[categoryType] }
-			};
-			totalCategoryTypeCell.font = { bold: true };
+			styleExcelCell(totalCategoryTypeCell, color)
 			colIdx++;
 		}
 		const totalCell = headerRow.getCell(colIdx);
-		totalCell.fill = {
-			type: 'pattern',
-			pattern: 'solid',
-			fgColor: { argb: defaultHeaderColor }
-		};
-		totalCell.font = { bold: true };
+		styleExcelCell(totalCell, defaultHeaderColor)
 
 		// Add data rows
 		let totalSalary = 0;
@@ -137,18 +118,13 @@
 
 		const excelTotalsRow = worksheet.addRow(totalsRowData);
 		excelTotalsRow.eachCell((cell) => {
-			cell.fill = {
-				type: 'pattern',
-				pattern: 'solid',
-				fgColor: { argb: 'FFE5E7EB' } // light gray
-			};
-			cell.font = { bold: true };
+			styleExcelCell(cell, 'FFE5E7EB')
 		});
 
 		// Auto-size columns
 		worksheet.columns.forEach((column) => {
 			let maxLength = 10;
-			column.eachCell({ includeEmpty: true }, (cell) => {
+			column.eachCell!({ includeEmpty: true }, (cell) => {
 				const currentLength = cell.value ? cell.value.toString().length : 0;
 				if (currentLength > maxLength) {
 					maxLength = currentLength;
@@ -169,6 +145,15 @@
 			a.click();
 			URL.revokeObjectURL(url);
 		});
+	}
+
+	function styleExcelCell(cell: ExcelJS.Cell, color: string) {
+		cell.fill = {
+			type: 'pattern',
+			pattern: 'solid',
+			fgColor: { argb: color } // light gray
+		};
+		cell.font = { bold: true };
 	}
 </script>
 
