@@ -1,30 +1,14 @@
 <script lang="ts">
 	import EmployeeRow from '$lib/components/table/EmployeeRow.svelte';
 	import {
-		selectedCategoryTypes,
 		isReadOnly,
 		totals,
 		employees,
-		categories
+		categoriesByType,
 	} from '$lib/stores.svelte';
 	import { formatMonetaryValue, getCategoryTypeLabel } from '$lib/utils';
 	import EditCategory from '$lib/components/categories/EditCategory.svelte';
 
-	const categoriesByType = $derived.by(() => {
-		const categoriesByType = new Map<CategoryType, Category[]>(
-			selectedCategoryTypes.value.map((categoryType) => [categoryType, []])
-		);
-		for (const category of categories.value.values()) {
-			if (!selectedCategoryTypes.value.includes(category.type)) continue;
-			let categoriesInType = categoriesByType.get(category.type);
-			if (categoriesInType === undefined) {
-				categoriesInType = [];
-			}
-			categoriesInType.push(category);
-			categoriesByType.set(category.type, categoriesInType);
-		}
-		return categoriesByType;
-	});
 
 	function getTotalSalary() {
 		let total = 0;
@@ -43,7 +27,7 @@
 				<th class="t-cell bg-gray-200">Área</th>
 				<th class="t-cell bg-gray-200">Puesto</th>
 				<th class="t-cell bg-gray-200">Salario</th>
-				{#each categoriesByType as [categoryType, categoriesInType]}
+				{#each categoriesByType.value as [categoryType, categoriesInType]}
 					{#each categoriesInType as category}
 						<th class={`t-cell ${category.type}`}>
 							{category.concept}
@@ -68,7 +52,7 @@
 		</thead>
 		<tbody>
 			{#each employees.value as [_, employee]}
-				<EmployeeRow {employee} {categoriesByType} />
+				<EmployeeRow {employee} />
 			{/each}
 			<tr class="bg-gray-100">
 				<td class="t-cell sticky left-0 bg-gray-300 font-bold">Total</td>
@@ -77,7 +61,7 @@
 				<td class="t-cell bg-gray-200 text-nowrap">
 					{formatMonetaryValue(getTotalSalary())}
 				</td>
-				{#each categoriesByType as [categoryType, categoriesInType]}
+				{#each categoriesByType.value as [categoryType, categoriesInType]}
 					{#each categoriesInType as category}
 						{@const total = totals.value.categoryTotals.get(category.id) ?? {
 							amount: 0,

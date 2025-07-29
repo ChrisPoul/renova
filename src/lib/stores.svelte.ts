@@ -107,3 +107,24 @@ export const isReadOnly = $state({ value: false });
 export const categories = $state<{ value: Categories }>({ value: new Map() });
 
 export const employees = $state<{ value: Employees }>({ value: new Map() });
+
+const derivedCategoriesByType = $derived.by(() => {
+		const categoriesByType = new Map<CategoryType, Category[]>(
+			selectedCategoryTypes.value.map((categoryType) => [categoryType, []])
+		);
+		for (const category of categories.value.values()) {
+			if (!selectedCategoryTypes.value.includes(category.type)) continue;
+			let categoriesInType = categoriesByType.get(category.type);
+			if (categoriesInType === undefined) {
+				categoriesInType = [];
+			}
+			categoriesInType.push(category);
+			categoriesByType.set(category.type, categoriesInType);
+		}
+		return categoriesByType;
+	});
+export const categoriesByType = {
+	get value() {
+		return derivedCategoriesByType;
+	}
+}

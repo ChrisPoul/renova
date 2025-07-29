@@ -1,16 +1,15 @@
 <script lang="ts">
-	import { selectedCategoryTypes, totals, isReadOnly, categories } from '$lib/stores.svelte';
+	import { totals, isReadOnly, categoriesByType } from '$lib/stores.svelte';
 	import { formatMonetaryValue } from '$lib/utils';
 	import IncidenceCell from './IncidenceCell.svelte';
 	import EditEmployee from '$lib/components/employees/EditEmployee.svelte';
 
 	let {
 		employee,
-		categoriesByType
 	}: {
 		employee: Employee;
-		categoriesByType: Map<CategoryType, Category[]>;
 	} = $props();
+
 </script>
 
 <tr class="odd:bg-white even:bg-gray-50">
@@ -23,7 +22,7 @@
 	<td class="t-cell text-nowrap">{employee.area}</td>
 	<td class="t-cell text-nowrap">{employee.puesto}</td>
 	<td class="t-cell text-nowrap">{formatMonetaryValue(employee.salary)}</td>
-	{#each categoriesByType as [categoryType, categoriesInType]}
+	{#each categoriesByType.value as [categoryType, categoriesInType]}
 		{#each categoriesInType as category}
 			<IncidenceCell {category} {employee} />
 		{/each}
