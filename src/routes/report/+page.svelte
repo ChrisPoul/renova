@@ -147,13 +147,14 @@
 
 		// Auto-size columns
 		worksheet.columns.forEach((column) => {
-			const minWidth = 10;
-			let cellWidth = minWidth
+			let maxLength = 10;
 			column.eachCell({ includeEmpty: true }, (cell) => {
-				const cellValue = cell.value ? cell.value.toString() : '';
-				cellWidth = Math.max(minWidth, cellValue.length + 5);
+				const currentLength = cell.value ? cell.value.toString().length : 0;
+				if (currentLength > maxLength) {
+					maxLength = currentLength;
+				}
 			});
-			column.width = cellWidth;
+			column.width = maxLength + 2;
 		});
 
 		// Download the file
