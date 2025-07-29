@@ -1,6 +1,6 @@
 <script lang="ts">
 	import MainTable from '$lib/components/table/MainTable.svelte';
-	import { employees, categories, incidenceCells, isReadOnly } from '$lib/stores.svelte';
+	import { employees, categories, incidenceCells, isReadOnly, selectedWeek } from '$lib/stores.svelte';
 	import ExcelJS from 'exceljs';
 
 	let { data } = $props();
@@ -10,8 +10,8 @@
 
 	isReadOnly.value = true;
 
-	let startWeek = $state('');
-	let endWeek = $state('');
+	let startWeek = $state(data.startWeek);
+	let endWeek = $state(data.endWeek);
 
 	function generateReport() {
 		window.location.href = `/report?startWeek=${startWeek}&endWeek=${endWeek}`;
@@ -163,13 +163,13 @@
 </script>
 
 <svelte:head>
-	<title>Renova - Report</title>
+	<title>Renova - Reporte</title>
 </svelte:head>
 
 <section class="flex flex-col gap-4 p-4">
 	<div class="relative">
 		<a
-			href="/"
+			href="/?weekId={selectedWeek.value!.id}"
 			class="absolute top-0 left-0 rounded-lg bg-gray-200 px-3 py-2 text-gray-700 hover:bg-gray-300"
 		>
 			← Regresar
@@ -188,15 +188,15 @@
 				class="self-end rounded-lg bg-blue-500 px-3 py-2 text-white hover:bg-blue-600"
 				onclick={generateReport}
 			>
-				Generate Report
+				Generar Reporte
 			</button>
 		</div>
 	</div>
 	<MainTable />
 	<button
-		class="mb-4 self-start rounded-lg bg-blue-500 px-3 py-2 text-white hover:bg-blue-600"
+		class="mb-4 self-start rounded-lg bg-green-500 px-3 py-2 text-white hover:bg-green-600"
 		onclick={generateExcelReport}
 	>
-		Generar Reporte
+		Generar Reporte Excel
 	</button>
 </section>

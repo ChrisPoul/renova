@@ -26,7 +26,9 @@ export async function load({ url }) {
 		return {
 			employees: finalEmployees,
 			categories: finalCategories,
-			incidenceCells: finalIncidenceCells
+			incidenceCells: finalIncidenceCells,
+			startWeek: '',
+			endWeek: ''
 		};
 	}
 
@@ -107,6 +109,8 @@ export async function load({ url }) {
 	return {
 		employees: finalEmployees,
 		categories: finalCategories,
-		incidenceCells: finalIncidenceCells
+		incidenceCells: finalIncidenceCells,
+		startWeek,
+		endWeek
 	};
 }
