@@ -12,6 +12,12 @@ import { and, eq } from 'drizzle-orm';
 export async function POST({ request }) {
 	const body = await request.json();
 	const { weekId, ...categoryData } = body;
+
+	if (!weekId) {
+		const [newCategory] = await db.insert(categoriesTable).values(categoryData).returning();
+		return json({ category: newCategory });
+	}
+
 	let category;
 	let incidences;
 

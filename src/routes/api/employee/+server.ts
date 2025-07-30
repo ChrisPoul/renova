@@ -11,6 +11,12 @@ import { and, eq } from 'drizzle-orm';
 export async function POST({ request }) {
 	const body = await request.json();
 	const { weekId, ...employeeData } = body;
+
+	if (!weekId) {
+		const [newEmployee] = await db.insert(employeesTable).values(employeeData).returning();
+		return json({ employee: newEmployee });
+	}
+
 	let employee;
 	let incidences;
 

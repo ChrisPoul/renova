@@ -16,7 +16,7 @@
 		<div class="col-span-1">
 			<div class="border p-4 rounded-lg">
 				<h2 class="text-xl font-bold mb-4">Employees</h2>
-				<RegisterEmployee />
+				<RegisterEmployee context="manage" />
 				<table class="w-full mt-4">
 					<thead>
 						<tr>
@@ -49,7 +49,7 @@
 		<div class="col-span-1">
 			<div class="border p-4 rounded-lg">
 				<h2 class="text-xl font-bold mb-4">Categories</h2>
-				<RegisterCategory />
+				<RegisterCategory context="manage" />
 				<table class="w-full mt-4">
 					<thead>
 						<tr>
