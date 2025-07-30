@@ -2,7 +2,7 @@ import { sqliteTable, text, int, real } from 'drizzle-orm/sqlite-core';
 import { relations } from 'drizzle-orm';
 
 export const weeksTable = sqliteTable('weeks', {
-	id: int('id').primaryKey(),
+	id: int().primaryKey(),
 	startDate: int('start_date', { mode: 'timestamp' }).notNull(),
 	endDate: int('end_date', { mode: 'timestamp' }).notNull()
 });
@@ -15,23 +15,23 @@ export const weeksRelations = relations(weeksTable, ({ many }) => ({
 
 export const employeesTable = sqliteTable('employees', {
 	id: int().primaryKey(),
-	name: text('name').notNull().unique(),
+	name: text().notNull().unique(),
 	salary: real().notNull(),
 	puesto: text().notNull(),
 	area: text().notNull()
 });
 export const employeesRelations = relations(employeesTable, ({ many }) => ({
-	incidences: many(incidencesTable, { relationName: 'employee' }),
+	incidences: many(incidencesTable),
 	employeesToWeeks: many(employeesToWeeksTable)
 }));
 
 export const employeesToWeeksTable = sqliteTable('employees_to_weeks', {
 	employeeId: int('employee_id')
 		.notNull()
-		.references(() => employeesTable.id),
+		.references(() => employeesTable.id, { onDelete: 'cascade' }),
 	weekId: int('week_id')
 		.notNull()
-		.references(() => weeksTable.id)
+		.references(() => weeksTable.id, { onDelete: 'cascade' })
 });
 export const employeesToWeeksRelations = relations(employeesToWeeksTable, ({ one }) => ({
 	week: one(weeksTable, {
@@ -44,9 +44,9 @@ export const employeesToWeeksRelations = relations(employeesToWeeksTable, ({ one
 	})
 }));
 
-export const categoriesTable = sqliteTable('incidence_categories', {
+export const categoriesTable = sqliteTable('categories', {
 	id: int().primaryKey(),
-	concept: text('concept').notNull().unique(),
+	concept: text().notNull().unique(),
 	type: text().notNull(),
 	unit: text().notNull(),
 	unitMonetaryValue: real().notNull(),
@@ -59,10 +59,10 @@ export const categoriesRelations = relations(categoriesTable, ({ many }) => ({
 export const categoriesToWeeksTable = sqliteTable('categories_to_weeks', {
 	categoryId: int('category_id')
 		.notNull()
-		.references(() => categoriesTable.id),
+		.references(() => categoriesTable.id, { onDelete: 'cascade' }),
 	weekId: int('week_id')
 		.notNull()
-		.references(() => weeksTable.id)
+		.references(() => weeksTable.id, { onDelete: 'cascade' })
 });
 export const categoriesToWeeksRelations = relations(categoriesToWeeksTable, ({ one }) => ({
 	week: one(weeksTable, {
@@ -76,17 +76,17 @@ export const categoriesToWeeksRelations = relations(categoriesToWeeksTable, ({ o
 }));
 
 export const incidencesTable = sqliteTable('incidences', {
-	id: int('id').primaryKey(),
-	weekId: int('week_id')
+	id: int().primaryKey(),
+	weekId: int("week_id")
 		.notNull()
-		.references(() => weeksTable.id),
-	categoryId: int()
+		.references(() => weeksTable.id, { onDelete: 'cascade' }),
+	categoryId: int("cateogry_id")
 		.notNull()
 		.references(() => categoriesTable.id, { onDelete: 'cascade' }),
-	employeeId: int('employee')
+	employeeId: int("employee_id")
 		.notNull()
 		.references(() => employeesTable.id, { onDelete: 'cascade' }),
-	amount: real('amount').notNull().default(0),
+	amount: real().notNull().default(0),
 	basedOnCategory: int({ mode: 'boolean' }).notNull().default(true),
 	unit: text().notNull().default('kg'),
 	unitMonetaryValue: real().notNull().default(1),
@@ -97,12 +97,10 @@ export const incidencesRelations = relations(incidencesTable, ({ one }) => ({
 	employee: one(employeesTable, {
 		fields: [incidencesTable.employeeId],
 		references: [employeesTable.id],
-		relationName: 'employee'
 	}),
 	category: one(categoriesTable, {
 		fields: [incidencesTable.categoryId],
 		references: [categoriesTable.id],
-		relationName: 'category'
 	}),
 	week: one(weeksTable, {
 		fields: [incidencesTable.weekId],
