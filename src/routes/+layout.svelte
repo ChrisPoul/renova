@@ -39,15 +39,18 @@
 			Ninguno
 		</button>
 	</div>
-	<button
-		class="rounded-lg bg-red-500 px-4 py-2 text-white hover:bg-red-600"
-		onclick={async () => {
-			await fetch('/api/logout', { method: 'POST' });
-			location.href = '/login';
-		}}
-	>
-		Cerrar sesión
-	</button>
+	<div class="flex gap-2">
+		<a href="/manage" class="rounded-lg bg-blue-500 px-4 py-2 text-white hover:bg-blue-600">Manage</a>
+		<button
+			class="rounded-lg bg-red-500 px-4 py-2 text-white hover:bg-red-600"
+			onclick={async () => {
+				await fetch('/api/logout', { method: 'POST' });
+				location.href = '/login';
+			}}
+		>
+			Cerrar sesión
+		</button>
+	</div>
 </div>
 
 <div class="pt-16">

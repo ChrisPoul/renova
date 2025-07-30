@@ -43,38 +43,42 @@
 </script>
 
 <div>
-	<div class="flex items-center gap-3 pl-4">
-		<input
-			type="week"
-			class=" text-black"
-			value={getWeekForInput(selectedWeek.value?.startDate)}
-			onchange={async (e: Event) => {
-				const week = (e.target as HTMLInputElement).value;
-				const res = await fetch('/api/weeks', {
-					method: 'POST',
-					headers: { 'Content-Type': 'application/json' },
-					body: JSON.stringify({ week })
-				});
-				const { weekId } = await res.json();
-				window.location.href = `/?weekId=${weekId}`;
-			}}
-		/>
-		<h1 class="text-center text-2xl font-bold">{getWeekTitle(selectedWeek.value)}</h1>
+	<div class="flex items-center justify-between gap-3 px-4">
+		<div class="flex">
+			<input
+				type="week"
+				class=" text-black"
+				value={getWeekForInput(selectedWeek.value?.startDate)}
+				onchange={async (e: Event) => {
+					const week = (e.target as HTMLInputElement).value;
+					const res = await fetch('/api/weeks', {
+						method: 'POST',
+						headers: { 'Content-Type': 'application/json' },
+						body: JSON.stringify({ week })
+					});
+					const { weekId } = await res.json();
+					window.location.href = `/?weekId=${weekId}`;
+				}}
+			/>
+			<h1 class="text-center text-2xl font-bold">{getWeekTitle(selectedWeek.value)}</h1>
+		</div>
+		<a
+			href={`/report?startWeek=${getWeekForInput(selectedWeek.value?.startDate)}&endWeek=${getWeekForInput(selectedWeek.value?.startDate)}`}
+			class="rounded-lg bg-blue-500 px-3 py-2 text-white hover:bg-blue-600"
+		>
+			Generar Reporte
+		</a>
 	</div>
 	<MainTable />
 </div>
 
-<div class="p-2.5 flex justify-between">
+<div class="flex justify-between p-2.5">
 	<div class="flex gap-2">
-	<AddCategories />
-	<AddEmployees />
-	<RegisterCategory />
-	<RegisterEmployee />
+		<AddCategories />
+		<AddEmployees />
 	</div>
-	<a
-		href={`/report?startWeek=${getWeekForInput(selectedWeek.value?.startDate)}&endWeek=${getWeekForInput(selectedWeek.value?.startDate)}`}
-		class="rounded-lg bg-blue-500 px-3 py-2 text-white hover:bg-blue-600"
-	>
-		Generar Reporte
-	</a>
+	<div class="flex gap-2">
+		<RegisterCategory />
+		<RegisterEmployee />
+	</div>
 </div>
