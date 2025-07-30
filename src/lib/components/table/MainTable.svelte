@@ -36,12 +36,12 @@
 				{#each categoriesInType as category}
 					<th class={`t-cell ${category.type}`}>
 						{category.concept}
-						<span class="text-sm font-normal">
-							{#if category.unitValueIsDerived || category.unit === '$'}
+						<span class="text-sm flex justify-center font-normal">
 								{category.unit}
-							{:else}
-								{formatMonetaryValue(category.unitMonetaryValue)}
-							{/if}
+								{#if !category.unitValueIsDerived && category.unit != "$"}
+									
+								({formatMonetaryValue(category.unitMonetaryValue)})
+								{/if}
 						</span>
 						{#if !isReadOnly.value}
 							<EditCategory {category} />
