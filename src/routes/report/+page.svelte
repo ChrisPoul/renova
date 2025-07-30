@@ -86,7 +86,10 @@
 
 			for (const [categoryType, categoriesInType] of categoriesByType.value) {
 				for (const category of categoriesInType) {
-					const incidenceCell = incidenceCells.value.get(category.id)!.get(employeeId)!;
+					const incidenceCell = incidenceCells.value.get(category.id)?.get(employeeId) || {
+						incidence: { amount: 0, monetaryValue: 0 },
+						totalMonetaryValue: 0
+					};
 					rowData.push(
 						`${incidenceCell.incidence.amount} (${formatMonetaryValue(
 							incidenceCell.totalMonetaryValue
