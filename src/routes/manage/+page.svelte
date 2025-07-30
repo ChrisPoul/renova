@@ -2,6 +2,7 @@
 	import RegisterEmployee from '$lib/components/employees/RegisterEmployee.svelte';
 	import RegisterCategory from '$lib/components/categories/RegisterCategory.svelte';
 	import { enhance } from '$app/forms';
+	import { selectedWeek } from '$lib/stores.svelte.js';
 
 	export let data;
 </script>
@@ -11,7 +12,13 @@
 	<meta name="description" content="Manage employees and categories" />
 </svelte:head>
 
-<section class="container mx-auto py-8">
+<section class="relative container mx-auto py-12">
+	<a
+			href={selectedWeek.value ? `/?weekId=${selectedWeek.value}` : "/"}
+			class="absolute top-0 left-0 rounded-lg bg-gray-200 px-3 py-2 text-gray-700 hover:bg-gray-300"
+		>
+			← Regresar
+		</a>
 	<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
 		<div class="col-span-1">
 			<div class="border p-4 rounded-lg">
