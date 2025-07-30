@@ -14,10 +14,14 @@
 
 <tr class="odd:bg-white even:bg-gray-50">
 	<td class="t-cell sticky left-0 bg-gray-200 text-nowrap">
-		{employee.name}
-		{#if !isReadOnly.value}
-			<EditEmployee {employee} />
-		{/if}
+		<span class="flex relative justify-center {!isReadOnly.value && 'pr-5'}">
+			{employee.name}
+			{#if !isReadOnly.value}
+			<div class="absolute right-0">
+				<EditEmployee {employee} />
+			</div>
+			{/if}
+		</span>
 	</td>
 	<td class="t-cell text-nowrap">{employee.area}</td>
 	<td class="t-cell text-nowrap">{employee.puesto}</td>

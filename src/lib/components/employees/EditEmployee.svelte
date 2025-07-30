@@ -39,6 +39,6 @@
 
 <EmployeeForm bind:name bind:salary bind:puesto bind:area {acceptChanges} {deleteEmployee}>
 	{#snippet triggerButton()}
-		<img class="ml-1 w-4" src="/EditIcon.svg" alt="Editar" />
+		<img class="w-4" src="/EditIcon.svg" alt="Editar" />
 	{/snippet}
 </EmployeeForm>
