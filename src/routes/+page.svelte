@@ -47,9 +47,10 @@
 <div>
 	<div class="flex items-center justify-between gap-3 px-4">
 		<div class="flex">
-			<input
+						<input
 				type="date"
-				class=" text-black"
+				class="text-black"
+				value={selectedWeek.value ? new Date(selectedWeek.value.startDate).toISOString().split('T')[0] : ''}
 				onchange={async (e: Event) => {
 					const date = (e.target as HTMLInputElement).value;
 					const res = await fetch('/api/weeks', {
