@@ -23,22 +23,24 @@
 		if (!week) return '';
 
 		const startDate = new Date(week.startDate);
-		const year = startDate.getFullYear();
-		const month = startDate.toLocaleString('es-ES', { month: 'long' });
 		const endDate = new Date(week.endDate);
-		const startDay = startDate.getDate();
-		const endDay = endDate.getDate();
-		return `Del ${startDay} al ${endDay} de ${month} de ${year}`;
-	}
 
-	function getWeekForInput(date: Date | undefined) {
-		if (!date) return '';
-		const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
-		const dayNum = d.getUTCDay() || 7;
-		d.setUTCDate(d.getUTCDate() + 4 - dayNum);
-		const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
-		const weekNumber = Math.ceil(((d.getTime() - yearStart.getTime()) / 86400000 + 1) / 7);
-		return `${date.getFullYear()}-W${weekNumber}`;
+		const startDay = startDate.getUTCDate();
+		const endDay = endDate.getUTCDate();
+
+		const startMonth = startDate.toLocaleString('es-ES', { month: 'long', timeZone: 'UTC' });
+		const endMonth = endDate.toLocaleString('es-ES', { month: 'long', timeZone: 'UTC' });
+
+		const startYear = startDate.getUTCFullYear();
+		const endYear = endDate.getUTCFullYear();
+
+		if (startMonth === endMonth && startYear === endYear) {
+			return `Del ${startDay} al ${endDay} de ${startMonth} de ${startYear}`;
+		} else if (startYear === endYear) {
+			return `Del ${startDay} de ${startMonth} al ${endDay} de ${endMonth} de ${startYear}`;
+		} else {
+			return `Del ${startDay} de ${startMonth} de ${startYear} al ${endDay} de ${endMonth} de ${endYear}`;
+		}
 	}
 </script>
 
@@ -46,15 +48,14 @@
 	<div class="flex items-center justify-between gap-3 px-4">
 		<div class="flex">
 			<input
-				type="week"
+				type="date"
 				class=" text-black"
-				value={getWeekForInput(selectedWeek.value?.startDate)}
 				onchange={async (e: Event) => {
-					const week = (e.target as HTMLInputElement).value;
+					const date = (e.target as HTMLInputElement).value;
 					const res = await fetch('/api/weeks', {
 						method: 'POST',
 						headers: { 'Content-Type': 'application/json' },
-						body: JSON.stringify({ week })
+						body: JSON.stringify({ date })
 					});
 					const { weekId } = await res.json();
 					window.location.href = `/?weekId=${weekId}`;
@@ -63,7 +64,9 @@
 			<h1 class="text-center text-2xl font-bold">{getWeekTitle(selectedWeek.value)}</h1>
 		</div>
 		<a
-			href={`/report?startWeek=${getWeekForInput(selectedWeek.value?.startDate)}&endWeek=${getWeekForInput(selectedWeek.value?.startDate)}`}
+			href={selectedWeek.value
+				? `/report?startDate=${new Date(selectedWeek.value.startDate).toISOString().split('T')[0]}&endDate=${new Date(selectedWeek.value.endDate).toISOString().split('T')[0]}`
+				: '/report'}
 			class="rounded-lg bg-blue-500 px-3 py-2 text-white hover:bg-blue-600"
 		>
 			Generar Reporte

@@ -9,34 +9,12 @@ import {
 } from '$lib/server/db/schema';
 import { json } from '@sveltejs/kit';
 import { eq } from 'drizzle-orm';
-
-function getMondayOfISOWeek(year: number, week: number) {
-	// Set to the first Thursday of the year
-	const simple = new Date(Date.UTC(year, 0, 1 + (week - 1) * 7));
-	const dow = simple.getUTCDay();
-	const ISOweekStart = simple;
-	if (dow <= 4 && dow !== 0) {
-		// Monday to Thursday: back up to Monday
-		ISOweekStart.setUTCDate(simple.getUTCDate() - simple.getUTCDay() + 1);
-	} else {
-		// Friday to Sunday: forward to next Monday
-		ISOweekStart.setUTCDate(simple.getUTCDate() + 8 - simple.getUTCDay());
-	}
-	// Return as local date (remove UTC if you want UTC dates)
-	return new Date(
-		ISOweekStart.getUTCFullYear(),
-		ISOweekStart.getUTCMonth(),
-		ISOweekStart.getUTCDate()
-	);
-}
+import { getWeekFromDate } from '$lib/utils.js';
 
 export async function POST({ request }) {
-	const { week } = await request.json();
-	const [year, weekNumber] = week.split('-W').map(Number);
+	const { date } = await request.json();
 
-	const startDate = getMondayOfISOWeek(year, weekNumber);
-	const endDate = new Date(startDate);
-	endDate.setDate(endDate.getDate() + 6);
+	const { startDate, endDate } = getWeekFromDate(date);
 
 	const existingWeek = await db
 		.select()

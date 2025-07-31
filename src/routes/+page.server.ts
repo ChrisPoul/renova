@@ -4,8 +4,9 @@ import { weeksTable } from '$lib/server/db/schema';
 import type { IncidenceCells } from '$lib/stores.svelte.js';
 import { getInitiatedIncidenceCells } from '$lib/utils.js';
 import { eq } from 'drizzle-orm';
+import { getWeekFromDate } from '$lib/utils.js';
 
-export async function load({ url }) {
+export async function load({ url, fetch }) {
 	let weekId: string | number | null = url.searchParams.get('weekId');
 	let incidenceCells: IncidenceCells = new Map();
 	let employees: Employees = new Map();
@@ -18,8 +19,15 @@ export async function load({ url }) {
 	}
 
 	if (!weekId) {
-		// If no weekId is provided, we should get the current week, so taking todays date as refernece we pull that week, use the weeks api
-		weekId = weeks[0].id;
+		const today = new Date();
+		const { startDate } = getWeekFromDate(today);
+		const res = await fetch('/api/weeks', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({ date: startDate.toISOString().split('T')[0] })
+		});
+		const { weekId: newWeekId } = await res.json();
+		weekId = newWeekId;
 	}
 	const week = await db.query.weeksTable.findFirst({
 		where: eq(weeksTable.id, +weekId),

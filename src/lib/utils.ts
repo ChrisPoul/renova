@@ -113,3 +113,20 @@ export function getInitiatedIncidenceCells(
 
 	return incidenceCells;
 }
+
+export function getWeekFromDate(date: string) {
+	const selectedDate = new Date(date);
+	const dayOfWeek = selectedDate.getUTCDay(); // Sunday = 0, Monday = 1, ..., Saturday = 6
+
+	// Adjust to a Wednesday-starting week
+	// If the day is Wednesday (3) or later, the week starts on the most recent Wednesday.
+	// If the day is before Wednesday, the week starts on the previous Wednesday.
+	const daysToSubtract = (dayOfWeek - 3 + 7) % 7;
+	const startDate = new Date(selectedDate);
+	startDate.setUTCDate(selectedDate.getUTCDate() - daysToSubtract);
+
+	const endDate = new Date(startDate);
+	endDate.setUTCDate(startDate.getUTCDate() + 6);
+
+	return { startDate, endDate };
+}

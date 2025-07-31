@@ -1,12 +1,11 @@
 import { drizzle } from 'drizzle-orm/libsql';
 import * as schema from './schema';
+import { getWeekFromDate } from '$lib/utils.js';
 
 export const db = drizzle('file:local.db', { schema });
 
 export async function makeDummyData() {
-	const startDate = getMondayOfISOWeek(2025, 29);
-	const endDate = new Date(startDate);
-	endDate.setDate(endDate.getDate() + 6);
+	const { startDate, endDate } = getWeekFromDate(new Date());
 	const weeks = [{ id: 1, startDate: startDate, endDate: endDate }];
 	const categories = [
 		{ id: 1, concept: 'Puertas Muy Grandes', type: 'destajo', unit: 'u', unitMonetaryValue: 12 },
@@ -65,24 +64,4 @@ export async function makeDummyData() {
 	await db.insert(schema.categoriesToWeeksTable).values(categoriesToWeeks).run();
 
 	console.log('Dummy data inserted successfully');
-}
-
-function getMondayOfISOWeek(year: number, week: number) {
-	// Set to the first Thursday of the year
-	const simple = new Date(Date.UTC(year, 0, 1 + (week - 1) * 7));
-	const dow = simple.getUTCDay();
-	const ISOweekStart = simple;
-	if (dow <= 4 && dow !== 0) {
-		// Monday to Thursday: back up to Monday
-		ISOweekStart.setUTCDate(simple.getUTCDate() - simple.getUTCDay() + 1);
-	} else {
-		// Friday to Sunday: forward to next Monday
-		ISOweekStart.setUTCDate(simple.getUTCDate() + 8 - simple.getUTCDay());
-	}
-	// Return as local date (remove UTC if you want UTC dates)
-	return new Date(
-		ISOweekStart.getUTCFullYear(),
-		ISOweekStart.getUTCMonth(),
-		ISOweekStart.getUTCDate()
-	);
 }

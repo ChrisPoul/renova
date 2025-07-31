@@ -19,11 +19,11 @@
 
 	isReadOnly.value = true;
 
-	let startWeek = $state(data.startWeek);
-	let endWeek = $state(data.endWeek);
+	let startDate = $state(data.startDate);
+	let endDate = $state(data.endDate);
 
 	function generateReport() {
-		window.location.href = `/report?startWeek=${startWeek}&endWeek=${endWeek}`;
+		window.location.href = `/report?startDate=${startDate}&endDate=${endDate}`;
 	}
 
 	function generateExcelReport() {
@@ -175,12 +175,12 @@
 		<h1 class="pb-4 text-center text-4xl font-semibold">Reporte</h1>
 		<div class="flex gap-4">
 			<div>
-				<label for="start-week">Start Week</label>
-				<input type="week" id="start-week" bind:value={startWeek} />
+				<label for="start-date">Start Date</label>
+				<input type="date" id="start-date" bind:value={startDate} />
 			</div>
 			<div>
-				<label for="end-week">End Week</label>
-				<input type="week" id="end-week" bind:value={endWeek} />
+				<label for="end-date">End Date</label>
+				<input type="date" id="end-date" bind:value={endDate} />
 			</div>
 			<button
 				class="self-end rounded-lg bg-blue-500 px-3 py-2 text-white hover:bg-blue-600"

@@ -4,38 +4,26 @@ import { weeksTable } from '$lib/server/db/schema';
 import { getInitiatedIncidenceCells } from '$lib/utils.js';
 import type { IncidenceCells } from '$lib/stores.svelte.js';
 
-function getDateFromWeekString(weekString: string): Date {
-	const [year, week] = weekString.split('-W').map(Number);
-	// Create a date for the first day of the year, then add the number of weeks in days.
-	// This gives a date within the correct week.
-	const date = new Date(year, 0, 1 + (week - 1) * 7);
-	// Adjust to the Monday of that week.
-	date.setDate(date.getDate() - (date.getDay() || 7) + 1);
-	return date;
-}
-
 export async function load({ url }) {
-	const startWeek = url.searchParams.get('startWeek');
-	const endWeek = url.searchParams.get('endWeek');
+	const startDate = url.searchParams.get('startDate');
+	const endDate = url.searchParams.get('endDate');
 
 	const finalIncidenceCells: IncidenceCells = new Map();
 	const finalEmployees: Employees = new Map();
 	const finalCategories: Categories = new Map();
 
-	if (!startWeek || !endWeek) {
+	if (!startDate || !endDate) {
 		return {
 			employees: finalEmployees,
 			categories: finalCategories,
 			incidenceCells: finalIncidenceCells,
-			startWeek: '',
-			endWeek: ''
+			startDate: '',
+			endDate: ''
 		};
 	}
 
-	const start = getDateFromWeekString(startWeek);
-	const end = getDateFromWeekString(endWeek);
-	// Set the end date to the end of the week to include all days
-	end.setDate(end.getDate() + 6);
+	const start = new Date(startDate);
+	const end = new Date(endDate);
 
 	const weeks = await db.query.weeksTable.findMany({
 		where: and(gte(weeksTable.startDate, start), lte(weeksTable.endDate, end)),
@@ -110,7 +98,7 @@ export async function load({ url }) {
 		employees: finalEmployees,
 		categories: finalCategories,
 		incidenceCells: finalIncidenceCells,
-		startWeek,
-		endWeek
+		startDate,
+		endDate
 	};
 }
