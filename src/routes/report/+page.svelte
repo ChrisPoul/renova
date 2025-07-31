@@ -167,7 +167,7 @@
 <section class="flex flex-col gap-4 p-4">
 	<div class="relative">
 		<a
-			href={selectedWeek.value ? `/?weekId=${selectedWeek.value}` : "/"}
+			href={selectedWeek.value ? `/?weekId=${selectedWeek.value.id}` : "/"}
 			class="absolute top-0 left-0 rounded-lg bg-gray-200 px-3 py-2 text-gray-700 hover:bg-gray-300"
 		>
 			← Regresar
