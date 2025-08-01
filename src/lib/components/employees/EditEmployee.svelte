@@ -18,18 +18,27 @@
 
 	async function acceptChanges() {
 		const changes = { name, salary, puesto, area };
-		await fetch('/api/employee', {
-			method: 'PATCH',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({
-				id: employee.id,
-				changes: changes
-			})
-		});
 		if (context === 'manage') {
+			await fetch('/api/employee', {
+				method: 'PATCH',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					id: employee.id,
+					changes: changes
+				})
+			});
 			location.reload();
 			return;
 		}
+		await fetch('/api/employees-to-week', {
+			method: 'PATCH',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({
+				employeeId: employee.id,
+				weekId: selectedWeek.value!.id,
+				changes: changes
+			})
+		});
 		clientState.updateEmployee({ ...employee, ...changes });
 	}
 
@@ -38,15 +47,15 @@
 			await fetch('/api/employee', {
 				method: 'DELETE',
 				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ id: employee.id })
+				body: JSON.stringify({ employeeId: employee.id })
 			});
 			location.reload();
 			return;
 		}
-		await fetch('/api/employee', {
+		await fetch('/api/employees-to-week', {
 			method: 'DELETE',
 			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ id: employee.id, weekId: selectedWeek.value!.id })
+			body: JSON.stringify({ employeeId: employee.id, weekId: selectedWeek.value!.id })
 		});
 		clientState.deleteEmployee(employee.id);
 	}

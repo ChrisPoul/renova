@@ -1,50 +1,102 @@
-import { json } from '@sveltejs/kit';
 import { db } from '$lib/server/db';
-import { employeesToWeeksTable, incidencesTable, categoriesToWeeksTable, employeesTable } from '$lib/server/db/schema';
-import { eq, inArray } from 'drizzle-orm';
+import {
+	employeesToWeeksTable,
+	employeesTable,
+	incidencesTable,
+	categoriesToWeeksTable
+} from '$lib/server/db/schema';
+import { json } from '@sveltejs/kit';
+import { and, eq } from 'drizzle-orm';
 
 export async function POST({ request }) {
-	const { employeeIds, weekId }: { employeeIds: number[]; weekId: number } = await request.json();
+	const body = await request.json();
+	const { employeeIds, weekId } = body;
 
-	// 1. Create links in employeesToWeeksTable
-	const valuesToInsert = employeeIds.map((employeeId) => ({
-		employeeId,
-		weekId
-	}));
-	await db.insert(employeesToWeeksTable).values(valuesToInsert);
-
-	// 2. Get all categories for the week
-	const categoriesForWeek = await db.query.categoriesToWeeksTable.findMany({
-		where: eq(categoriesToWeeksTable.weekId, weekId),
-		columns: {
-			categoryId: true
-		}
+	const employees = await db.query.employeesTable.findMany({
+		where: (employees, { inArray }) => inArray(employees.id, employeeIds)
 	});
-	const categoryIds = categoriesForWeek.map((c) => c.categoryId);
 
-	// 3. For each employee, create default incidences for each category
-	const newIncidencesData: (typeof incidencesTable.$inferInsert)[] = [];
-	for (const employeeId of employeeIds) {
-		for (const categoryId of categoryIds) {
-			newIncidencesData.push({
-				employeeId,
-				categoryId,
-				weekId,
-				amount: 0 // Default amount
-			});
-		}
+	if (!employees) {
+		return json({ error: 'Employees not found' }, { status: 404 });
 	}
+
 	let newIncidences: Incidence[] = [];
-	if (newIncidencesData.length > 0) {
-		newIncidences = await db.insert(incidencesTable).values(newIncidencesData).returning();
-	}
-	console.log("Incidences created:", newIncidences.length);
 
-	// 4. Fetch the full employee objects
-	const newEmployees = await db.query.employeesTable.findMany({
-		where: inArray(employeesTable.id, employeeIds)
+	await db.transaction(async (tx) => {
+		const employeesToInsert = employees.map((employee) => ({
+			employeeId: employee.id,
+			weekId,
+			salary: employee.salary,
+			puesto: employee.puesto,
+			area: employee.area
+		}));
+		await tx.insert(employeesToWeeksTable).values(employeesToInsert);
+
+		const categoriesInWeek = await tx
+			.select({ id: categoriesToWeeksTable.categoryId })
+			.from(categoriesToWeeksTable)
+			.where(eq(categoriesToWeeksTable.weekId, weekId));
+
+		const newIncidencesData = employees.flatMap((employee) =>
+			categoriesInWeek.map((cat) => ({
+				employeeId: employee.id,
+				categoryId: cat.id,
+				amount: 0,
+				weekId
+			}))
+		);
+
+		if (newIncidencesData.length > 0) {
+			newIncidences = await tx.insert(incidencesTable).values(newIncidencesData).returning();
+		}
 	});
 
-	// 5. Return employees and their newly created incidences
-	return json({ newEmployees, newIncidences });
+	return json({ success: true, newIncidences, newEmployees: employees });
+}
+
+export async function PATCH({ request }) {
+	const body = await request.json();
+	const { employeeId, weekId, changes } = body;
+
+	if (!employeeId || !weekId || !changes) {
+		return json({ error: 'Missing employeeId, weekId, or changes' }, { status: 400 });
+	}
+
+	await db
+		.update(employeesToWeeksTable)
+		.set(changes)
+		.where(
+			and(
+				eq(employeesToWeeksTable.employeeId, employeeId),
+				eq(employeesToWeeksTable.weekId, weekId)
+			)
+		);
+
+	return json({ success: true });
+}
+
+export async function DELETE({ request }) {
+	const body = await request.json();
+	const { employeeId, weekId } = body;
+
+	if (!employeeId || !weekId) {
+		return json({ error: 'ID de empleado y de semana son obligatorios.' }, { status: 400 });
+	}
+
+	await db.transaction(async (tx) => {
+		await tx
+			.delete(employeesToWeeksTable)
+			.where(
+				and(
+					eq(employeesToWeeksTable.employeeId, employeeId),
+					eq(employeesToWeeksTable.weekId, weekId)
+				)
+			);
+
+		await tx
+			.delete(incidencesTable)
+			.where(and(eq(incidencesTable.employeeId, employeeId), eq(incidencesTable.weekId, weekId)));
+	});
+
+	return json({ success: true });
 }

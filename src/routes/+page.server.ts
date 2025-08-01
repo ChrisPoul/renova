@@ -48,8 +48,18 @@ export async function load({ url, fetch }) {
 	if (!week) {
 		return { employees, categories, incidenceCells, week: null };
 	}
-	employees = new Map(week.employeesToWeeks.map((etw) => [etw.employeeId, etw.employee]));
-	categories = new Map(week.categoriesToWeeks.map((ctw) => [ctw.categoryId, ctw.category]));
+	employees = new Map(
+		week.employeesToWeeks.map((etw) => [
+			etw.employeeId,
+			{ ...etw, name: etw.employee.name, id: etw.employeeId }
+		])
+	);
+	categories = new Map(
+		week.categoriesToWeeks.map((ctw) => [
+			ctw.categoryId,
+			{ ...ctw, concept: ctw.category.concept, id: ctw.categoryId }
+		])
+	);
 	incidenceCells = getInitiatedIncidenceCells(employees, categories, week.incidences);
 	return {
 		employees,

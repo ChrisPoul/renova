@@ -31,7 +31,10 @@ export const employeesToWeeksTable = sqliteTable('employees_to_weeks', {
 		.references(() => employeesTable.id, { onDelete: 'cascade' }),
 	weekId: int('week_id')
 		.notNull()
-		.references(() => weeksTable.id, { onDelete: 'cascade' })
+		.references(() => weeksTable.id, { onDelete: 'cascade' }),
+	salary: real('salary').notNull(),
+	puesto: text('puesto').notNull(),
+	area: text('area').notNull()
 });
 export const employeesToWeeksRelations = relations(employeesToWeeksTable, ({ one }) => ({
 	week: one(weeksTable, {
@@ -62,7 +65,12 @@ export const categoriesToWeeksTable = sqliteTable('categories_to_weeks', {
 		.references(() => categoriesTable.id, { onDelete: 'cascade' }),
 	weekId: int('week_id')
 		.notNull()
-		.references(() => weeksTable.id, { onDelete: 'cascade' })
+		.references(() => weeksTable.id, { onDelete: 'cascade' }),
+	concept: text('concept').notNull(),
+	type: text('type').notNull(),
+	unit: text('unit').notNull(),
+	unitMonetaryValue: real('unit_monetary_value').notNull(),
+	unitValueIsDerived: int('unit_value_is_derived', { mode: 'boolean' }).notNull().default(false)
 });
 export const categoriesToWeeksRelations = relations(categoriesToWeeksTable, ({ one }) => ({
 	week: one(weeksTable, {
@@ -77,13 +85,13 @@ export const categoriesToWeeksRelations = relations(categoriesToWeeksTable, ({ o
 
 export const incidencesTable = sqliteTable('incidences', {
 	id: int().primaryKey(),
-	weekId: int("week_id")
+	weekId: int('week_id')
 		.notNull()
 		.references(() => weeksTable.id, { onDelete: 'cascade' }),
-	categoryId: int("cateogry_id")
+	categoryId: int('cateogry_id')
 		.notNull()
 		.references(() => categoriesTable.id, { onDelete: 'cascade' }),
-	employeeId: int("employee_id")
+	employeeId: int('employee_id')
 		.notNull()
 		.references(() => employeesTable.id, { onDelete: 'cascade' }),
 	amount: real().notNull().default(0),
@@ -96,11 +104,11 @@ export const incidencesTable = sqliteTable('incidences', {
 export const incidencesRelations = relations(incidencesTable, ({ one }) => ({
 	employee: one(employeesTable, {
 		fields: [incidencesTable.employeeId],
-		references: [employeesTable.id],
+		references: [employeesTable.id]
 	}),
 	category: one(categoriesTable, {
 		fields: [incidencesTable.categoryId],
-		references: [categoriesTable.id],
+		references: [categoriesTable.id]
 	}),
 	week: one(weeksTable, {
 		fields: [incidencesTable.weekId],

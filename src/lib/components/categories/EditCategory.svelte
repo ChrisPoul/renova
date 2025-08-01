@@ -25,18 +25,27 @@
 			unitMonetaryValue,
 			unitValueIsDerived
 		};
-		await fetch('/api/category', {
-			method: 'PATCH',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({
-				id: category.id,
-				changes
-			})
-		});
 		if (context === 'manage') {
+			await fetch('/api/category', {
+				method: 'PATCH',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					id: category.id,
+					changes
+				})
+			});
 			location.reload();
 			return;
 		}
+		await fetch('/api/categories-to-week', {
+			method: 'PATCH',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({
+				categoryId: category.id,
+				weekId: selectedWeek.value!.id,
+				changes
+			})
+		});
 		clientState.updateCategory({ ...category, ...changes });
 	}
 	async function deleteCategory() {
@@ -44,16 +53,15 @@
 			await fetch('/api/category', {
 				method: 'DELETE',
 				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ id: category.id })
+				body: JSON.stringify({ categoryId: category.id })
 			});
 			location.reload();
 			return;
 		}
-		if (!selectedWeek.value) return;
-		await fetch('/api/category', {
+		await fetch('/api/categories-to-week', {
 			method: 'DELETE',
 			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ id: category.id, weekId: selectedWeek.value.id })
+			body: JSON.stringify({ categoryId: category.id, weekId: selectedWeek.value!.id })
 		});
 		clientState.deleteCategory(category.id);
 	}

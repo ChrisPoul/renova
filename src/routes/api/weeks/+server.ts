@@ -28,13 +28,18 @@ export async function POST({ request }) {
 	const newWeek = await db.transaction(async (tx) => {
 		const [newWeek] = await tx.insert(weeksTable).values({ startDate, endDate }).returning();
 
-		const allCategories = await tx.select({ id: categoriesTable.id }).from(categoriesTable);
-		const allEmployees = await tx.select({ id: employeesTable.id }).from(employeesTable);
+		const allCategories = await tx.select().from(categoriesTable);
+		const allEmployees = await tx.select().from(employeesTable);
 
 		if (allCategories.length > 0) {
 			const categoriesToInsert = allCategories.map((category) => ({
 				categoryId: category.id,
-				weekId: newWeek.id
+				weekId: newWeek.id,
+				concept: category.concept,
+				type: category.type,
+				unit: category.unit,
+				unitMonetaryValue: category.unitMonetaryValue,
+				unitValueIsDerived: category.unitValueIsDerived
 			}));
 			await tx.insert(categoriesToWeeksTable).values(categoriesToInsert);
 		}
@@ -42,7 +47,10 @@ export async function POST({ request }) {
 		if (allEmployees.length > 0) {
 			const employeesToInsert = allEmployees.map((employee) => ({
 				employeeId: employee.id,
-				weekId: newWeek.id
+				weekId: newWeek.id,
+				salary: employee.salary,
+				puesto: employee.puesto,
+				area: employee.area
 			}));
 			await tx.insert(employeesToWeeksTable).values(employeesToInsert);
 		}

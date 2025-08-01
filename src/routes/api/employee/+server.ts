@@ -22,10 +22,17 @@ export async function POST({ request }) {
 
 	await db.transaction(async (tx) => {
 		const [newEmployee] = await tx.insert(employeesTable).values(employeeData).returning();
+		employee = newEmployee;
 
 		const newEmployeeId = newEmployee.id;
 
-		await tx.insert(employeesToWeeksTable).values({ employeeId: newEmployeeId, weekId });
+		await tx.insert(employeesToWeeksTable).values({
+			employeeId: employee.id,
+			weekId,
+			salary: employee.salary,
+			puesto: employee.puesto,
+			area: employee.area
+		});
 
 		const categoriesInWeek = await tx
 			.select({ id: categoriesToWeeksTable.categoryId })
@@ -42,7 +49,6 @@ export async function POST({ request }) {
 		if (newIncidences.length > 0) {
 			incidences = await tx.insert(incidencesTable).values(newIncidences).returning();
 		}
-		employee = newEmployee;
 	});
 
 	return json({ employee, incidences });
@@ -63,28 +69,12 @@ export async function PATCH({ request }) {
 
 export async function DELETE({ request }) {
 	const body = await request.json();
-	const { id, weekId } = body;
+	const { employeeId } = body;
 
-	if (!id) {
+	if (!employeeId) {
 		return json({ error: 'ID de empleado es obligatorio.' }, { status: 400 });
 	}
 
-	if (!weekId) {
-		await db.delete(employeesTable).where(eq(employeesTable.id, id));
-		return json({ success: true });
-	}
-
-	await db.transaction(async (tx) => {
-		await tx
-			.delete(employeesToWeeksTable)
-			.where(
-				and(eq(employeesToWeeksTable.employeeId, id), eq(employeesToWeeksTable.weekId, weekId))
-			);
-
-		await tx
-			.delete(incidencesTable)
-			.where(and(eq(incidencesTable.employeeId, id), eq(incidencesTable.weekId, weekId)));
-	});
-
+	await db.delete(employeesTable).where(eq(employeesTable.id, employeeId));
 	return json({ success: true });
 }

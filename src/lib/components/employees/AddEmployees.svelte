@@ -31,6 +31,7 @@
 			newIncidences: Incidence[];
 		} = await response.json();
 		const incidencesByEmployee = new Map<number, Incidence[]>();
+		console.log(newIncidences)
 		for (const incidence of newIncidences) {
 			if (!incidencesByEmployee.has(incidence.employeeId)) {
 				incidencesByEmployee.set(incidence.employeeId, []);
