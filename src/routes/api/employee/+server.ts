@@ -65,8 +65,13 @@ export async function DELETE({ request }) {
 	const body = await request.json();
 	const { id, weekId } = body;
 
-	if (!id || !weekId) {
-		return json({ error: 'ID de empleado y de semana son obligatorios.' }, { status: 400 });
+	if (!id) {
+		return json({ error: 'ID de empleado es obligatorio.' }, { status: 400 });
+	}
+
+	if (!weekId) {
+		await db.delete(employeesTable).where(eq(employeesTable.id, id));
+		return json({ success: true });
 	}
 
 	await db.transaction(async (tx) => {

@@ -4,9 +4,11 @@
 	import CategoryForm from './CategoryForm.svelte';
 
 	let {
-		category
+		category,
+		context = ''
 	}: {
 		category: Category;
+		context?: string;
 	} = $props();
 
 	let concept = $state(category.concept);
@@ -31,9 +33,22 @@
 				changes
 			})
 		});
+		if (context === 'manage') {
+			location.reload();
+			return;
+		}
 		clientState.updateCategory({ ...category, ...changes });
 	}
 	async function deleteCategory() {
+		if (context === 'manage') {
+			await fetch('/api/category', {
+				method: 'DELETE',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ id: category.id })
+			});
+			location.reload();
+			return;
+		}
 		if (!selectedWeek.value) return;
 		await fetch('/api/category', {
 			method: 'DELETE',

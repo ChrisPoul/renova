@@ -1,7 +1,8 @@
 <script lang="ts">
 	import RegisterEmployee from '$lib/components/employees/RegisterEmployee.svelte';
 	import RegisterCategory from '$lib/components/categories/RegisterCategory.svelte';
-	import { enhance } from '$app/forms';
+	import EditEmployee from '$lib/components/employees/EditEmployee.svelte';
+	import EditCategory from '$lib/components/categories/EditCategory.svelte';
 	import { selectedWeek } from '$lib/stores.svelte.js';
 
 	export let data;
@@ -42,10 +43,7 @@
 								<td>{employee.puesto}</td>
 								<td>{employee.area}</td>
 								<td>
-									<form method="POST" action="?/deleteEmployee" use:enhance>
-										<input type="hidden" name="id" value={employee.id} />
-										<button type="submit" class="bg-red-500 text-white px-2 py-1 rounded">Delete</button>
-									</form>
+									<EditEmployee employee={employee} context="manage" />
 								</td>
 							</tr>
 						{/each}
@@ -77,10 +75,7 @@
 								<td>{category.unitMonetaryValue}</td>
 								<td>{category.unitValueIsDerived ? 'Yes' : 'No'}</td>
 								<td>
-									<form method="POST" action="?/deleteCategory" use:enhance>
-										<input type="hidden" name="id" value={category.id} />
-										<button type="submit" class="bg-red-500 text-white px-2 py-1 rounded">Delete</button>
-									</form>
+									<EditCategory category={category} context="manage" />
 								</td>
 							</tr>
 						{/each}

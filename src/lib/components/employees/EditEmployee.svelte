@@ -4,9 +4,11 @@
 	import EmployeeForm from './EmployeeForm.svelte';
 
 	let {
-		employee
+		employee,
+		context = ''
 	}: {
 		employee: Employee;
+		context?: string;
 	} = $props();
 
 	let name = $state(employee.name);
@@ -24,10 +26,23 @@
 				changes: changes
 			})
 		});
+		if (context === 'manage') {
+			location.reload();
+			return;
+		}
 		clientState.updateEmployee({ ...employee, ...changes });
 	}
 
 	async function deleteEmployee() {
+		if (context === 'manage') {
+			await fetch('/api/employee', {
+				method: 'DELETE',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ id: employee.id })
+			});
+			location.reload();
+			return;
+		}
 		await fetch('/api/employee', {
 			method: 'DELETE',
 			headers: { 'Content-Type': 'application/json' },
