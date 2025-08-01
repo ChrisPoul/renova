@@ -31,7 +31,6 @@
 			newIncidences: Incidence[];
 		} = await response.json();
 		const incidencesByEmployee = new Map<number, Incidence[]>();
-		console.log(newIncidences)
 		for (const incidence of newIncidences) {
 			if (!incidencesByEmployee.has(incidence.employeeId)) {
 				incidencesByEmployee.set(incidence.employeeId, []);
@@ -39,7 +38,8 @@
 			incidencesByEmployee.get(incidence.employeeId)!.push(incidence);
 		}
 		for (const employee of newEmployees) {
-			addEmployee(employee, incidencesByEmployee.get(employee.id)!);
+			const incidences = incidencesByEmployee.get(employee.id) || [];
+			addEmployee(employee, incidences);
 		}
 	}
 </script>

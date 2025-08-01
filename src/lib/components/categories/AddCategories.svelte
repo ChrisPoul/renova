@@ -38,7 +38,8 @@
 			incidencesByCategory.get(incidence.categoryId)!.push(incidence);
 		}
 		for (const category of categories) {
-			addCategory(category, incidencesByCategory.get(category.id)!);
+			const incidences = incidencesByCategory.get(category.id) || [];
+			addCategory(category, incidences);
 		}
 	}
 </script>
