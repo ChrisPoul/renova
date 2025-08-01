@@ -114,7 +114,7 @@ export function getInitiatedIncidenceCells(
 	return incidenceCells;
 }
 
-export function getWeekFromDate(date: string) {
+export function getWeekFromDate(date: string | Date) {
 	const selectedDate = new Date(date);
 	const dayOfWeek = selectedDate.getUTCDay(); // Sunday = 0, Monday = 1, ..., Saturday = 6
 

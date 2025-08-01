@@ -7,7 +7,7 @@ import { eq } from 'drizzle-orm';
 import { getWeekFromDate } from '$lib/utils.js';
 
 export async function load({ url, fetch }) {
-	let weekId: string | number | null = url.searchParams.get('weekId');
+	let weekId: string | null = url.searchParams.get('weekId');
 	let incidenceCells: IncidenceCells = new Map();
 	let employees: Employees = new Map();
 	let categories: Categories = new Map();
@@ -30,7 +30,7 @@ export async function load({ url, fetch }) {
 		weekId = newWeekId;
 	}
 	const week = await db.query.weeksTable.findFirst({
-		where: eq(weeksTable.id, +weekId),
+		where: eq(weeksTable.id, +weekId!),
 		with: {
 			incidences: true,
 			employeesToWeeks: {
