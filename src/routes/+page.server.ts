@@ -1,22 +1,16 @@
 import { db } from '$lib/server/db';
-import { makeDummyData } from '$lib/server/db/index';
-import { weeksTable } from '$lib/server/db/schema';
+import { weeksTable, employeesTable, employeesToWeeksTable, categoriesToWeeksTable, incidencesTable } from '$lib/server/db/schema';
 import type { IncidenceCells } from '$lib/stores.svelte.js';
 import { getInitiatedIncidenceCells } from '$lib/utils.js';
-import { eq } from 'drizzle-orm';
+import { eq, and } from 'drizzle-orm';
 import { getWeekFromDate } from '$lib/utils.js';
+import type { Actions } from './$types';
 
 export async function load({ url, fetch }) {
 	let weekId: string | null = url.searchParams.get('weekId');
 	let incidenceCells: IncidenceCells = new Map();
 	let employees: Employees = new Map();
 	let categories: Categories = new Map();
-
-	let weeks = await db.query.weeksTable.findMany();
-	if (weeks.length === 0) {
-		await makeDummyData();
-		weeks = await db.query.weeksTable.findMany();
-	}
 
 	if (!weekId) {
 		const today = new Date();
@@ -68,3 +62,66 @@ export async function load({ url, fetch }) {
 		week
 	};
 }
+
+export const actions: Actions = {
+	registerEmployee: async ({ request }) => {
+		const data = await request.formData();
+		const name = data.get('name') as string;
+		const salary = parseFloat(data.get('salary') as string);
+		const puesto = data.get('puesto') as string;
+		const area = data.get('area') as string;
+		const weekId = parseInt(data.get('weekId') as string);
+
+		await db.transaction(async (tx) => {
+			const [newEmployee] = await tx.insert(employeesTable).values({ name, salary, puesto, area }).returning();
+
+			await tx.insert(employeesToWeeksTable).values({
+				employeeId: newEmployee.id,
+				weekId,
+				salary: newEmployee.salary,
+				puesto: newEmployee.puesto,
+				area: newEmployee.area
+			});
+
+			const categoriesInWeek = await tx
+				.select({ id: categoriesToWeeksTable.categoryId })
+				.from(categoriesToWeeksTable)
+				.where(eq(categoriesToWeeksTable.weekId, weekId));
+
+			const newIncidences = categoriesInWeek.map((cat) => ({
+				employeeId: newEmployee.id,
+				categoryId: cat.id,
+				amount: 0,
+				weekId
+			}));
+
+			if (newIncidences.length > 0) {
+				await tx.insert(incidencesTable).values(newIncidences).returning();
+			}
+		});
+
+		return { success: true };
+	},
+	editEmployee: async ({ request }) => {
+		const data = await request.formData();
+		const id = parseInt(data.get('id') as string);
+		const weekId = parseInt(data.get('weekId') as string);
+		const name = data.get('name') as string;
+		const salary = parseFloat(data.get('salary') as string);
+		const puesto = data.get('puesto') as string;
+		const area = data.get('area') as string;
+
+		await db.update(employeesToWeeksTable).set({ salary, puesto, area }).where(and(eq(employeesToWeeksTable.employeeId, id), eq(employeesToWeeksTable.weekId, weekId)));
+
+		return { success: true };
+	},
+	deleteEmployee: async ({ request }) => {
+		const data = await request.formData();
+		const id = parseInt(data.get('id') as string);
+		const weekId = parseInt(data.get('weekId') as string);
+
+		await db.delete(employeesToWeeksTable).where(and(eq(employeesToWeeksTable.employeeId, id), eq(employeesToWeeksTable.weekId, weekId)));
+
+		return { success: true };
+	}
+};
