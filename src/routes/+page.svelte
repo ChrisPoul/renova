@@ -46,7 +46,7 @@
 
 <div>
 	<div class="flex items-center justify-between px-4">
-		<div class="flex gap-3 items-center">
+		<div class="flex items-center gap-3">
 			<input
 				type="date"
 				class="text-black"
@@ -79,10 +79,14 @@
 </div>
 
 <div class="flex justify-between p-2.5">
-	<div class="flex gap-2">
+	<div class="grid grid-cols-2 gap-2">
 		<AddCategories />
 		<AddEmployees />
+		<!-- <button>
+				Copiar Semana Anterior
+			</button> -->
 	</div>
+
 	<div class="flex gap-2">
 		<RegisterCategory />
 		<RegisterEmployee />
