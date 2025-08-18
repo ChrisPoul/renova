@@ -18,7 +18,7 @@ export async function POST({ request }) {
 	}
 
 	let employee;
-	let incidences;
+	let incidences: Incidence[] = [];
 
 	await db.transaction(async (tx) => {
 		const [newEmployee] = await tx.insert(employeesTable).values(employeeData).returning();

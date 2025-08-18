@@ -1,14 +1,14 @@
 import { db } from '$lib/server/db';
 import {
 	weeksTable,
-	categoriesTable,
 	categoriesToWeeksTable,
-	employeesTable,
+	employeesToWeeksTable,
 	incidencesTable,
-	employeesToWeeksTable
+	categoriesTable,
+	employeesTable
 } from '$lib/server/db/schema';
 import { json } from '@sveltejs/kit';
-import { eq } from 'drizzle-orm';
+import { desc, eq, lt } from 'drizzle-orm';
 import { getWeekFromDate } from '$lib/utils.js';
 
 export async function POST({ request }) {
@@ -26,45 +26,53 @@ export async function POST({ request }) {
 	}
 
 	const newWeek = await db.transaction(async (tx) => {
+		const lastWeek = await tx.query.weeksTable.findFirst({
+			where: lt(weeksTable.startDate, startDate),
+			orderBy: desc(weeksTable.startDate),
+			with: {
+				incidences: true,
+				employeesToWeeks: {
+					with: {
+						employee: true
+					}
+				},
+				categoriesToWeeks: {
+					with: {
+						category: true
+					}
+				}
+			}
+		});
+
 		const [newWeek] = await tx.insert(weeksTable).values({ startDate, endDate }).returning();
 
-		const allCategories = await tx.select().from(categoriesTable);
-		const allEmployees = await tx.select().from(employeesTable);
+		if (lastWeek) {
+			if (lastWeek.categoriesToWeeks.length > 0) {
+				const categoriesToInsert = lastWeek.categoriesToWeeks.map((category) => ({
+					...category,
+					id: undefined,
+					weekId: newWeek.id
+				}));
+				await tx.insert(categoriesToWeeksTable).values(categoriesToInsert);
+			}
 
-		if (allCategories.length > 0) {
-			const categoriesToInsert = allCategories.map((category) => ({
-				categoryId: category.id,
-				weekId: newWeek.id,
-				concept: category.concept,
-				type: category.type,
-				unit: category.unit,
-				unitMonetaryValue: category.unitMonetaryValue,
-				unitValueIsDerived: category.unitValueIsDerived
-			}));
-			await tx.insert(categoriesToWeeksTable).values(categoriesToInsert);
-		}
+			if (lastWeek.employeesToWeeks.length > 0) {
+				const employeesToInsert = lastWeek.employeesToWeeks.map((employee) => ({
+					...employee,
+					id: undefined,
+					weekId: newWeek.id
+				}));
+				await tx.insert(employeesToWeeksTable).values(employeesToInsert);
+			}
 
-		if (allEmployees.length > 0) {
-			const employeesToInsert = allEmployees.map((employee) => ({
-				employeeId: employee.id,
-				weekId: newWeek.id,
-				salary: employee.salary,
-				puesto: employee.puesto,
-				area: employee.area
-			}));
-			await tx.insert(employeesToWeeksTable).values(employeesToInsert);
-		}
-
-		if (allEmployees.length > 0 && allCategories.length > 0) {
-			const incidencesToInsert = allEmployees.flatMap((employee) =>
-				allCategories.map((category) => ({
-					employeeId: employee.id,
-					categoryId: category.id,
-					weekId: newWeek.id,
-					amount: 0 // Default amount
-				}))
-			);
-			await tx.insert(incidencesTable).values(incidencesToInsert);
+			if (lastWeek.incidences.length > 0) {
+				const incidencesToInsert = lastWeek.incidences.map((incidence) => ({
+					...incidence,
+					id: undefined,
+					weekId: newWeek.id
+				}));
+				await tx.insert(incidencesTable).values(incidencesToInsert);
+			}
 		}
 
 		return newWeek;

@@ -3,7 +3,6 @@ import { weeksTable, employeesTable, employeesToWeeksTable, categoriesToWeeksTab
 import type { IncidenceCells } from '$lib/stores.svelte.js';
 import { getInitiatedIncidenceCells } from '$lib/utils.js';
 import { eq, and } from 'drizzle-orm';
-import { getWeekFromDate } from '$lib/utils.js';
 import type { Actions } from './$types';
 
 export async function load({ url, fetch }) {
@@ -14,11 +13,10 @@ export async function load({ url, fetch }) {
 
 	if (!weekId) {
 		const today = new Date();
-		const { startDate } = getWeekFromDate(today);
 		const res = await fetch('/api/weeks', {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ date: startDate.toISOString().split('T')[0] })
+			body: JSON.stringify({ date: today.toISOString().split('T')[0] })
 		});
 		const { weekId: newWeekId } = await res.json();
 		weekId = newWeekId;

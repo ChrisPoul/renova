@@ -19,7 +19,7 @@ export async function POST({ request }) {
 	}
 
 	let category;
-	let incidences;
+	let incidences: Incidence[] = [];
 
 	await db.transaction(async (tx) => {
 		const [newCategory] = await tx.insert(categoriesTable).values(categoryData).returning();
