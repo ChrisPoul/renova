@@ -11,6 +11,7 @@
 	import RegisterEmployee from '$lib/components/employees/RegisterEmployee.svelte';
 	import AddEmployees from '$lib/components/employees/AddEmployees.svelte';
 	import AddCategories from '$lib/components/categories/AddCategories.svelte';
+	import { goto } from '$app/navigation';
 
 	let { data } = $props();
 	employees.value = data.employees;
@@ -40,6 +41,27 @@
 			return `Del ${startDay} de ${startMonth} al ${endDay} de ${endMonth} de ${startYear}`;
 		} else {
 			return `Del ${startDay} de ${startMonth} de ${startYear} al ${endDay} de ${endMonth} de ${endYear}`;
+		}
+	}
+
+	async function handleCopy() {
+		if (!selectedWeek.value) return;
+
+		if (confirm('¿Está seguro de que desea copiar los datos de la semana anterior? Esta acción sobreescribirá los datos de la semana actual.')) {
+			const weekId = selectedWeek.value!.id;
+			const res = await fetch('/api/weeks/copy-prev-week', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ weekId })
+			});
+
+			const { success, message } = await res.json();
+
+			if (success) {
+				window.location.reload();
+			} else {
+				alert(message);
+			}
 		}
 	}
 </script>
@@ -78,17 +100,23 @@
 	<MainTable />
 </div>
 
-<div class="flex justify-between p-2.5">
-	<div class="grid grid-cols-2 gap-2">
+
+<div class="p-2.5 space-y-3">
+<div class="flex justify-between">
+	<div class="flex gap-2">
 		<AddCategories />
 		<AddEmployees />
-		<!-- <button>
-				Copiar Semana Anterior
-			</button> -->
 	</div>
 
 	<div class="flex gap-2">
 		<RegisterCategory />
 		<RegisterEmployee />
 	</div>
+</div>
+	<button
+			onclick={handleCopy}
+			class="rounded-lg bg-yellow-500 px-3 py-2 text-white font-semibold hover:bg-yellow-600 transition-colors"
+		>
+			Copiar Semana Anterior
+		</button>
 </div>

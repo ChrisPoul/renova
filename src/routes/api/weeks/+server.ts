@@ -10,6 +10,7 @@ import {
 import { json } from '@sveltejs/kit';
 import { desc, eq, lt } from 'drizzle-orm';
 import { getWeekFromDate } from '$lib/utils.js';
+import { copyWeek } from '$lib/server/db/weeks';
 
 export async function POST({ request }) {
 	const { date } = await request.json();
@@ -28,51 +29,13 @@ export async function POST({ request }) {
 	const newWeek = await db.transaction(async (tx) => {
 		const lastWeek = await tx.query.weeksTable.findFirst({
 			where: lt(weeksTable.startDate, startDate),
-			orderBy: desc(weeksTable.startDate),
-			with: {
-				incidences: true,
-				employeesToWeeks: {
-					with: {
-						employee: true
-					}
-				},
-				categoriesToWeeks: {
-					with: {
-						category: true
-					}
-				}
-			}
+			orderBy: desc(weeksTable.startDate)
 		});
 
 		const [newWeek] = await tx.insert(weeksTable).values({ startDate, endDate }).returning();
 
 		if (lastWeek) {
-			if (lastWeek.categoriesToWeeks.length > 0) {
-				const categoriesToInsert = lastWeek.categoriesToWeeks.map((category) => ({
-					...category,
-					id: undefined,
-					weekId: newWeek.id
-				}));
-				await tx.insert(categoriesToWeeksTable).values(categoriesToInsert);
-			}
-
-			if (lastWeek.employeesToWeeks.length > 0) {
-				const employeesToInsert = lastWeek.employeesToWeeks.map((employee) => ({
-					...employee,
-					id: undefined,
-					weekId: newWeek.id
-				}));
-				await tx.insert(employeesToWeeksTable).values(employeesToInsert);
-			}
-
-			if (lastWeek.incidences.length > 0) {
-				const incidencesToInsert = lastWeek.incidences.map((incidence) => ({
-					...incidence,
-					id: undefined,
-					weekId: newWeek.id
-				}));
-				await tx.insert(incidencesTable).values(incidencesToInsert);
-			}
+			await copyWeek(lastWeek.id, newWeek.id);
 		}
 
 		return newWeek;
