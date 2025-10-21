@@ -1,8 +1,8 @@
 <script lang="ts">
 	import EmployeeForm from './EmployeeForm.svelte';
-	import { addEmployee } from '$lib/client/state';
 	import { selectedWeek } from '$lib/stores.svelte';
 	import { EMPLOYEE_COLUMNS } from '$lib/constants';
+	import { invalidateAll } from '$app/navigation';
 
 	const { context = '' } = $props();
 
@@ -18,19 +18,13 @@
 			...employee,
 			...(context !== 'manage' && { weekId: selectedWeek.value!.id })
 		};
-		const response = await fetch('/api/employee', {
+		await fetch('/api/employee', {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify(body)
 		});
 
-		if (context === 'manage') {
-			location.reload();
-			return;
-		}
-
-		const { employee: newEmployee, incidences } = await response.json();
-		addEmployee(newEmployee, incidences);
+		await invalidateAll();
 	}
 </script>
 

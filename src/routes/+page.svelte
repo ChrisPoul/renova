@@ -14,11 +14,15 @@
 	import { goto } from '$app/navigation';
 
 	let { data } = $props();
-	employees.value = data.employees;
-	categories.value = data.categories;
-	selectedWeek.value = data.week;
-	isReadOnly.value = false;
-	incidenceCells.value = data.incidenceCells;
+	
+	// Update stores when data changes (for invalidateAll to work)
+	$effect(() => {
+		employees.value = data.employees;
+		categories.value = data.categories;
+		selectedWeek.value = data.week;
+		isReadOnly.value = false;
+		incidenceCells.value = data.incidenceCells;
+	});
 
 	function getWeekTitle(week: Week | null) {
 		if (!week) return '';

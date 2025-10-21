@@ -1,7 +1,7 @@
 <script lang="ts">
-	import * as clientState from '$lib/client/state';
 	import { selectedWeek } from '$lib/stores.svelte';
 	import CategoryForm from './CategoryForm.svelte';
+	import { invalidateAll } from '$app/navigation';
 
 	let {
 		category,
@@ -25,6 +25,7 @@
 			unitMonetaryValue,
 			unitValueIsDerived
 		};
+		
 		if (context === 'manage') {
 			await fetch('/api/category', {
 				method: 'PATCH',
@@ -34,9 +35,10 @@
 					changes
 				})
 			});
-			location.reload();
+			await invalidateAll();
 			return;
 		}
+		
 		await fetch('/api/categories-to-week', {
 			method: 'PATCH',
 			headers: { 'Content-Type': 'application/json' },
@@ -46,8 +48,9 @@
 				changes
 			})
 		});
-		clientState.updateCategory({ ...category, ...changes });
+		await invalidateAll();
 	}
+	
 	async function deleteCategory() {
 		if (context === 'manage') {
 			await fetch('/api/category', {
@@ -55,15 +58,16 @@
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({ categoryId: category.id })
 			});
-			location.reload();
+			await invalidateAll();
 			return;
 		}
+		
 		await fetch('/api/categories-to-week', {
 			method: 'DELETE',
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify({ categoryId: category.id, weekId: selectedWeek.value!.id })
 		});
-		clientState.deleteCategory(category.id);
+		await invalidateAll();
 	}
 </script>
 

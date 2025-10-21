@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { categoryTypes } from '$lib/constants';
 	import CategoryForm from './CategoryForm.svelte';
-	import { addCategory } from '$lib/client/state';
 	import { selectedWeek } from '$lib/stores.svelte';
+	import { invalidateAll } from '$app/navigation';
 
 	const { context = '' } = $props();
 
@@ -21,19 +21,13 @@
 			unitValueIsDerived,
 			...(context !== 'manage' && { weekId: selectedWeek.value!.id })
 		};
-		const response = await fetch('/api/category', {
+		await fetch('/api/category', {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify(body)
 		});
 
-		if (context === 'manage') {
-			location.reload();
-			return;
-		}
-
-		const { category, incidences } = await response.json();
-		addCategory(category, incidences);
+		await invalidateAll();
 	}
 </script>
 

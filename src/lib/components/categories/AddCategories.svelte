@@ -1,7 +1,7 @@
 <script lang="ts">
-	import { addCategory } from '$lib/client/state';
 	import { categories, selectedWeek } from '$lib/stores.svelte';
 	import ModalMenu from '$lib/components/common/ModalMenu.svelte';
+	import { invalidateAll } from '$app/navigation';
 
 	let categoriesToAdd: Category[] = $state([]);
 	let selectedCategories: number[] = $state([]);
@@ -18,29 +18,13 @@
 	});
 
 	async function acceptChanges() {
-		const response = await fetch('/api/categories-to-week', {
+		await fetch('/api/categories-to-week', {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify({ categoryIds: selectedCategories, weekId: selectedWeek.value!.id })
 		});
-		const {
-			categories,
-			incidences
-		}: {
-			categories: Category[];
-			incidences: Incidence[];
-		} = await response.json();
-		const incidencesByCategory = new Map<number, Incidence[]>();
-		for (const incidence of incidences) {
-			if (!incidencesByCategory.has(incidence.categoryId)) {
-				incidencesByCategory.set(incidence.categoryId, []);
-			}
-			incidencesByCategory.get(incidence.categoryId)!.push(incidence);
-		}
-		for (const category of categories) {
-			const incidences = incidencesByCategory.get(category.id) || [];
-			addCategory(category, incidences);
-		}
+		
+		await invalidateAll();
 	}
 </script>
 

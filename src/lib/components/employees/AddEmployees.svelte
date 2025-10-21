@@ -1,7 +1,7 @@
 <script lang="ts">
-	import { addEmployee } from '$lib/client/state';
 	import { employees, selectedWeek } from '$lib/stores.svelte';
 	import ModalMenu from '$lib/components/common/ModalMenu.svelte';
+	import { invalidateAll } from '$app/navigation';
 
 	let employeesToAdd: Employee[] = $state([]);
 	let selectedEmployees: number[] = $state([]);
@@ -18,29 +18,13 @@
 	});
 
 	async function acceptChanges() {
-		const response = await fetch('/api/employees-to-week', {
+		await fetch('/api/employees-to-week', {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify({ employeeIds: selectedEmployees, weekId: selectedWeek.value!.id })
 		});
-		const {
-			newEmployees,
-			newIncidences
-		}: {
-			newEmployees: Employee[];
-			newIncidences: Incidence[];
-		} = await response.json();
-		const incidencesByEmployee = new Map<number, Incidence[]>();
-		for (const incidence of newIncidences) {
-			if (!incidencesByEmployee.has(incidence.employeeId)) {
-				incidencesByEmployee.set(incidence.employeeId, []);
-			}
-			incidencesByEmployee.get(incidence.employeeId)!.push(incidence);
-		}
-		for (const employee of newEmployees) {
-			const incidences = incidencesByEmployee.get(employee.id) || [];
-			addEmployee(employee, incidences);
-		}
+		
+		await invalidateAll();
 	}
 </script>
 

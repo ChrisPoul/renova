@@ -1,8 +1,8 @@
 <script lang="ts">
-	import * as clientState from '$lib/client/state';
 	import { selectedWeek } from '$lib/stores.svelte';
 	import EmployeeForm from './EmployeeForm.svelte';
 	import { EMPLOYEE_COLUMNS } from '$lib/constants';
+	import { invalidateAll } from '$app/navigation';
 
 	let {
 		employee,
@@ -19,6 +19,7 @@
 			changesObject[field.key] = editedEmployee[field.key as keyof Employee];
 			return changesObject;
 		}, {} as Record<string, any>);
+		
 		if (context === 'manage') {
 			await fetch('/api/employee', {
 				method: 'PATCH',
@@ -28,9 +29,10 @@
 					changes: changes
 				})
 			});
-			location.reload();
+			await invalidateAll();
 			return;
 		}
+		
 		await fetch('/api/employees-to-week', {
 			method: 'PATCH',
 			headers: { 'Content-Type': 'application/json' },
@@ -40,7 +42,7 @@
 				changes: changes
 			})
 		});
-		clientState.updateEmployee({ ...employee, ...editedEmployee });
+		await invalidateAll();
 	}
 
 	async function deleteEmployee() {
@@ -50,15 +52,16 @@
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({ employeeId: employee.id })
 			});
-			location.reload();
+			await invalidateAll();
 			return;
 		}
+		
 		await fetch('/api/employees-to-week', {
 			method: 'DELETE',
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify({ employeeId: employee.id, weekId: selectedWeek.value!.id })
 		});
-		clientState.deleteEmployee(employee.id);
+		await invalidateAll();
 	}
 </script>
 
