@@ -6,20 +6,12 @@
 	import UnitInputs from '$lib/components/common/UnitInputs.svelte';
 
 	let {
-		concept = $bindable(),
-		type = $bindable(),
-		unit = $bindable(),
-		unitMonetaryValue = $bindable(),
-		unitValueIsDerived = $bindable(),
+		category = $bindable(),
 		deleteCategory,
 		acceptChanges,
 		triggerButton
 	}: {
-		concept: string;
-		type: string;
-		unit: string;
-		unitMonetaryValue: number;
-		unitValueIsDerived: boolean;
+		category: Partial<Category> & { id?: number };
 		deleteCategory?: () => void;
 		acceptChanges: () => void;
 		triggerButton: Snippet;
@@ -31,17 +23,21 @@
 	<div class="flex flex-col w-sm gap-2">
 		<label class="flex flex-col">
 			<span>Concepto</span>
-			<input class="w-full rounded border px-2 py-1" bind:value={concept} />
+			<input class="w-full rounded border px-2 py-1" bind:value={category.concept} />
 		</label>
 		<label class="flex flex-col">
 			<span>Tipo</span>
-			<select class="w-full rounded border px-2 py-1" bind:value={type}>
+			<select class="w-full rounded border px-2 py-1" bind:value={category.type}>
 				{#each categoryTypes as categoryType}
 					<option value={categoryType}>{getCategoryTypeLabel(categoryType)}</option>
 				{/each}
 			</select>
 		</label>
-		<UnitInputs bind:unit bind:unitMonetaryValue bind:unitValueIsDerived />
+		<UnitInputs 
+			bind:unit={category.unit} 
+			bind:unitMonetaryValue={category.unitMonetaryValue} 
+			bind:unitValueIsDerived={category.unitValueIsDerived} 
+		/>
 		{#if deleteCategory}
 			<button onclick={() => {
 				deleteCategory()

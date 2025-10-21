@@ -6,19 +6,17 @@
 
 	const { context = '' } = $props();
 
-	let concept = $state('');
-	let type = $state(categoryTypes[0]);
-	let unit = $state('kg');
-	let unitMonetaryValue = $state(1);
-	let unitValueIsDerived = $state(false);
+	let category = $state({
+		concept: '',
+		type: categoryTypes[0],
+		unit: 'kg',
+		unitMonetaryValue: 1,
+		unitValueIsDerived: false
+	});
 
 	async function acceptChanges() {
 		const body = {
-			concept,
-			type,
-			unit,
-			unitMonetaryValue,
-			unitValueIsDerived,
+			...category,
 			...(context !== 'manage' && { weekId: selectedWeek.value!.id })
 		};
 		await fetch('/api/category', {
@@ -31,14 +29,7 @@
 	}
 </script>
 
-<CategoryForm
-	bind:concept
-	bind:type
-	bind:unit
-	bind:unitMonetaryValue
-	bind:unitValueIsDerived
-	{acceptChanges}
->
+<CategoryForm bind:category {acceptChanges}>
 	{#snippet triggerButton()}
 		<span class="rounded bg-green-500 px-4 py-2 text-white hover:bg-green-600">
 			Registrar Categoría
