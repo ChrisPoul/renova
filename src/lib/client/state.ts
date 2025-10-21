@@ -11,15 +11,21 @@ export function addEmployee(employee: Employee, incidences: Incidence[]) {
 	incidenceCells.value = new Map(incidenceCells.value);
 }
 
-export function updateEmployee(employee: Employee) {
-	employees.value.set(employee.id, employee);
-	for (const [categoryId, categoryIncidenceCells] of incidenceCells.value) {
-		const category = categories.value.get(categoryId);
-		const incidenceCell = categoryIncidenceCells.get(employee.id);
-		initiateIncidenceCell(incidenceCells.value, incidenceCell!.incidence, category!, employee);
+export function updateEmployee(employee: Partial<Employee> & { id: number }) {
+	const existingEmployee = employees.value.get(employee.id);
+	if (existingEmployee) {
+		const updatedEmployee = { ...existingEmployee, ...employee };
+		employees.value.set(employee.id, updatedEmployee);
+		for (const [categoryId, categoryIncidenceCells] of incidenceCells.value) {
+			const category = categories.value.get(categoryId);
+			const incidenceCell = categoryIncidenceCells.get(employee.id);
+			if (incidenceCell) {
+				initiateIncidenceCell(incidenceCells.value, incidenceCell.incidence, category!, updatedEmployee);
+			}
+		}
+		employees.value = new Map(employees.value);
+		incidenceCells.value = new Map(incidenceCells.value);
 	}
-	employees.value = new Map(employees.value);
-	incidenceCells.value = new Map(incidenceCells.value);
 }
 
 export function deleteEmployee(employeeId: number) {

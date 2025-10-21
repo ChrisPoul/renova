@@ -8,6 +8,12 @@ import {
 } from '$lib/server/db/schema';
 import { json } from '@sveltejs/kit';
 import { and, eq } from 'drizzle-orm';
+import { CATEGORY_FIELDS } from '$lib/constants';
+
+export async function GET() {
+	const categories = await db.query.categoriesTable.findMany();
+	return json(categories);
+}
 
 export async function POST({ request }) {
 	const body = await request.json();
@@ -18,22 +24,23 @@ export async function POST({ request }) {
 		return json({ category: newCategory });
 	}
 
-	let category;
+	let category: any;
 	let incidences: Incidence[] = [];
 
 	await db.transaction(async (tx) => {
 		const [newCategory] = await tx.insert(categoriesTable).values(categoryData).returning();
 		category = newCategory;
 
-		await tx.insert(categoriesToWeeksTable).values({
+		// Create categoriesToWeeks entry dynamically
+		const categoryToWeekData = CATEGORY_FIELDS.reduce((dataObject, field) => {
+			dataObject[field.key] = category[field.key as keyof typeof category];
+			return dataObject;
+		}, {
 			categoryId: category.id,
-			weekId,
-			concept: category.concept,
-			type: category.type,
-			unit: category.unit,
-			unitMonetaryValue: category.unitMonetaryValue,
-			unitValueIsDerived: category.unitValueIsDerived
-		});
+			weekId
+		} as any);
+		
+		await tx.insert(categoriesToWeeksTable).values(categoryToWeekData);
 
 		const employeesInWeek = await tx
 			.select()

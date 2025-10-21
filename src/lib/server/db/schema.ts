@@ -15,10 +15,12 @@ export const weeksRelations = relations(weeksTable, ({ many }) => ({
 
 export const employeesTable = sqliteTable('employees', {
 	id: int().primaryKey(),
+	codigo: text().notNull().unique(),
 	name: text().notNull().unique(),
 	salary: real().notNull(),
 	puesto: text().notNull(),
-	area: text().notNull()
+	area: text().notNull(),
+	cede: text().notNull()
 });
 export const employeesRelations = relations(employeesTable, ({ many }) => ({
 	incidences: many(incidencesTable),
@@ -34,7 +36,8 @@ export const employeesToWeeksTable = sqliteTable('employees_to_weeks', {
 		.references(() => weeksTable.id, { onDelete: 'cascade' }),
 	salary: real('salary').notNull(),
 	puesto: text('puesto').notNull(),
-	area: text('area').notNull()
+	area: text('area').notNull(),
+	cede: text('cede').notNull()
 });
 export const employeesToWeeksRelations = relations(employeesToWeeksTable, ({ one }) => ({
 	week: one(weeksTable, {

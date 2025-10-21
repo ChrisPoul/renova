@@ -4,6 +4,7 @@
 	import EditEmployee from '$lib/components/employees/EditEmployee.svelte';
 	import EditCategory from '$lib/components/categories/EditCategory.svelte';
 	import { selectedWeek } from '$lib/stores.svelte.js';
+	import { EMPLOYEE_COLUMNS, CATEGORY_FIELDS } from '$lib/constants';
 
 	export let data;
 </script>
@@ -20,29 +21,33 @@
 		>
 			← Regresar
 		</a>
-	<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-		<div class="col-span-1">
-			<div class="border p-4 rounded-lg">
-				<h2 class="text-xl font-bold mb-4">Employees</h2>
-				<RegisterEmployee context="manage" />
-				<table class="w-full mt-4">
+	<div class="space-y-8">
+		<div class="border p-4 rounded-lg">
+			<h2 class="text-xl font-bold mb-4">Employees</h2>
+			<RegisterEmployee context="manage" />
+			<div class="mt-4 overflow-x-auto">
+				<table class="w-full min-w-max">
 					<thead>
 						<tr>
-							<th class="text-left">Name</th>
-							<th class="text-left">Salary</th>
-							<th class="text-left">Puesto</th>
-							<th class="text-left">Area</th>
-							<th class="text-left">Actions</th>
+							{#each EMPLOYEE_COLUMNS as col}
+								<th class="text-left px-2 py-1">{col.label}</th>
+							{/each}
+							<th class="text-left px-2 py-1">Actions</th>
 						</tr>
 					</thead>
 					<tbody>
 						{#each data.employees as employee}
 							<tr>
-								<td>{employee.name}</td>
-								<td>{employee.salary}</td>
-								<td>{employee.puesto}</td>
-								<td>{employee.area}</td>
-								<td>
+								{#each EMPLOYEE_COLUMNS as col}
+									<td class="px-2 py-1">
+										{#if col.key === 'salary'}
+											${(employee[col.key as keyof typeof employee] as number).toFixed(2)}
+										{:else}
+											{employee[col.key as keyof typeof employee]}
+										{/if}
+									</td>
+								{/each}
+								<td class="px-2 py-1">
 									<EditEmployee employee={employee} context="manage" />
 								</td>
 							</tr>
@@ -51,30 +56,34 @@
 				</table>
 			</div>
 		</div>
-		<div class="col-span-1">
-			<div class="border p-4 rounded-lg">
-				<h2 class="text-xl font-bold mb-4">Categories</h2>
-				<RegisterCategory context="manage" />
-				<table class="w-full mt-4">
+		<div class="border p-4 rounded-lg">
+			<h2 class="text-xl font-bold mb-4">Categories</h2>
+			<RegisterCategory context="manage" />
+			<div class="mt-4 overflow-x-auto">
+				<table class="w-full min-w-max">
 					<thead>
 						<tr>
-							<th class="text-left">Concept</th>
-							<th class="text-left">Type</th>
-							<th class="text-left">Unit</th>
-							<th class="text-left">Unit Monetary Value</th>
-							<th class="text-left">Derived</th>
-							<th class="text-left">Actions</th>
+							{#each CATEGORY_FIELDS as field}
+								<th class="text-left px-2 py-1">{field.label}</th>
+							{/each}
+							<th class="text-left px-2 py-1">Actions</th>
 						</tr>
 					</thead>
 					<tbody>
 						{#each data.categories as category}
 							<tr>
-								<td>{category.concept}</td>
-								<td>{category.type}</td>
-								<td>{category.unit}</td>
-								<td>{category.unitMonetaryValue}</td>
-								<td>{category.unitValueIsDerived ? 'Yes' : 'No'}</td>
-								<td>
+								{#each CATEGORY_FIELDS as field}
+									<td class="px-2 py-1">
+										{#if field.key === 'unitMonetaryValue'}
+											${(category[field.key as keyof typeof category] as number).toFixed(2)}
+										{:else if field.key === 'unitValueIsDerived'}
+											{category[field.key as keyof typeof category] ? 'Yes' : 'No'}
+										{:else}
+											{category[field.key as keyof typeof category]}
+										{/if}
+									</td>
+								{/each}
+								<td class="px-2 py-1">
 									<EditCategory category={category} context="manage" />
 								</td>
 							</tr>

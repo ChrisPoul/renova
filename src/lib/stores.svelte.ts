@@ -30,7 +30,9 @@ const derivedTotals = $derived.by(() => {
 		categoryTypeTotals: new Map<CategoryType, Map<employeeID, employeeCategoryTypeTotal>>(),
 		categoryTypeGrandTotals: new Map<CategoryType, number>(),
 		categoryTotals: new Map<CategoryId, CategoryTotal>(),
-		employeeTotals: new Map<employeeID, number>()
+		employeeTotals: new Map<employeeID, number>(),
+		totalPercepciones: new Map<employeeID, number>(),
+		grandTotalPercepciones: 0
 	};
 	console.log('Calculating totals...');
 	// Loop through all incidences to calculate the totals
@@ -74,6 +76,14 @@ const derivedTotals = $derived.by(() => {
 				newTotals.employeeTotals.set(employeeId, currentEmployeeTotal - totalMonetaryValue);
 			} else {
 				newTotals.employeeTotals.set(employeeId, currentEmployeeTotal + totalMonetaryValue);
+			}
+
+			// 4.1. Calculate total percepciones (excluding deducciones)
+			if (categoryType !== 'deduccion') {
+				const currentTotalPercepciones = newTotals.totalPercepciones.get(employeeId) ?? 0;
+				newTotals.totalPercepciones.set(employeeId, currentTotalPercepciones + totalMonetaryValue);
+				// Add to grand total percepciones
+				newTotals.grandTotalPercepciones += totalMonetaryValue;
 			}
 
 			// 5. Calculate the final grand total, subtracting deductions

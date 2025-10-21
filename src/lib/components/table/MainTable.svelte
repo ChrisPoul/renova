@@ -3,6 +3,7 @@
 	import { isReadOnly, totals, employees, categoriesByType } from '$lib/stores.svelte';
 	import { formatMonetaryValue, getCategoryTypeLabel } from '$lib/utils';
 	import EditCategory from '$lib/components/categories/EditCategory.svelte';
+	import { EMPLOYEE_COLUMNS, COMPUTED_COLUMNS } from '$lib/constants';
 
 	function getTotalSalary() {
 		let total = 0;
@@ -28,10 +29,11 @@
 {#snippet tableHeaders()}
 	<thead>
 		<tr class="bg-gray-100">
-			<th class="t-cell sticky left-0 bg-gray-300">Empleado</th>
-			<th class="t-cell bg-gray-200">Área</th>
-			<th class="t-cell bg-gray-200">Puesto</th>
-			<th class="t-cell bg-gray-200">Salario</th>
+			{#each EMPLOYEE_COLUMNS as col}
+				<th class="t-cell {col.key === 'name' ? 'sticky left-0 bg-gray-300' : 'bg-gray-200'}">
+					{col.label}
+				</th>
+			{/each}
 			{#each categoriesByType.value as [categoryType, categoriesInType]}
 				{#each categoriesInType as category}
 					<th class={`t-cell ${category.type}`}>
@@ -52,7 +54,9 @@
 					Total {getCategoryTypeLabel(categoryType)}
 				</th>
 			{/each}
-			<th class="t-cell sticky right-0 bg-gray-300">Total</th>
+			{#each COMPUTED_COLUMNS as col}
+				<th class="t-cell {col.totalKey === 'grandTotal' ? 'sticky right-0 bg-gray-300' : 'bg-gray-200'}">{col.label}</th>
+			{/each}
 		</tr>
 	</thead>
 {/snippet}
@@ -61,11 +65,13 @@
 	<tfoot>
 		<tr class="bg-gray-100">
 			<td class="t-cell sticky left-0 bg-gray-300 font-bold">Total</td>
-			<td class="t-cell bg-gray-200"></td>
-			<td class="t-cell bg-gray-200"></td>
+			{#each EMPLOYEE_COLUMNS.slice(1) as col}
 			<td class="t-cell bg-gray-200 text-nowrap">
-				{formatMonetaryValue(getTotalSalary())}
+				{#if col.key === 'salary'}
+					{formatMonetaryValue(getTotalSalary())}
+				{/if}
 			</td>
+			{/each}
 			{#each categoriesByType.value as [categoryType, categoriesInType]}
 				{#each categoriesInType as category}
 					{@const total = totals.value.categoryTotals.get(category.id) ?? {
@@ -83,9 +89,11 @@
 					{formatMonetaryValue(totals.value.categoryTypeGrandTotals.get(categoryType) ?? 0)}
 				</td>
 			{/each}
-			<td class="t-cell sticky right-0 bg-gray-300 text-nowrap">
-				{formatMonetaryValue(totals.value.grandTotal)}
-			</td>
+			{#each COMPUTED_COLUMNS as col}
+				<td class="t-cell {col.totalKey === 'grandTotal' ? 'sticky right-0 bg-gray-300' : 'bg-gray-200'} text-nowrap">
+					{formatMonetaryValue((totals.value as any)[col.totalKey])}
+				</td>
+			{/each}
 		</tr>
 	</tfoot>
 {/snippet}

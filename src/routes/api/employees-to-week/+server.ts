@@ -7,6 +7,7 @@ import {
 } from '$lib/server/db/schema';
 import { json } from '@sveltejs/kit';
 import { and, eq } from 'drizzle-orm';
+import { EMPLOYEE_COLUMNS } from '$lib/constants';
 
 export async function POST({ request }) {
 	const body = await request.json();
@@ -23,13 +24,19 @@ export async function POST({ request }) {
 	let newIncidences: Incidence[] = [];
 
 	await db.transaction(async (tx) => {
-		const employeesToInsert = employees.map((employee) => ({
-			employeeId: employee.id,
-			weekId,
-			salary: employee.salary,
-			puesto: employee.puesto,
-			area: employee.area
-		}));
+		const employeesToInsert = employees.map((employee) => {
+			// Create employee-to-week entry dynamically
+			const employeeToWeekData = EMPLOYEE_COLUMNS.reduce((dataObject, field) => {
+				if (field.key === 'name' || field.key === 'codigo') return dataObject; // Skip fields not in employeesToWeeksTable
+				dataObject[field.key] = employee[field.key as keyof typeof employee];
+				return dataObject;
+			}, {
+				employeeId: employee.id,
+				weekId
+			} as any);
+			
+			return employeeToWeekData;
+		});
 		await tx.insert(employeesToWeeksTable).values(employeesToInsert);
 
 		const categoriesInWeek = await tx

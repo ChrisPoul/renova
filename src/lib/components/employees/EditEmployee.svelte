@@ -2,22 +2,23 @@
 	import * as clientState from '$lib/client/state';
 	import { selectedWeek } from '$lib/stores.svelte';
 	import EmployeeForm from './EmployeeForm.svelte';
+	import { EMPLOYEE_COLUMNS } from '$lib/constants';
 
 	let {
 		employee,
 		context = ''
 	}: {
-		employee: Employee;
+		employee: Partial<Employee> & { id: number };
 		context?: string;
 	} = $props();
 
-	let name = $state(employee.name);
-	let salary = $state(employee.salary);
-	let puesto = $state(employee.puesto);
-	let area = $state(employee.area);
+	let editedEmployee = $state({ ...employee });
 
 	async function acceptChanges() {
-		const changes = { name, salary, puesto, area };
+		const changes = EMPLOYEE_COLUMNS.reduce((changesObject, field) => {
+			changesObject[field.key] = editedEmployee[field.key as keyof Employee];
+			return changesObject;
+		}, {} as Record<string, any>);
 		if (context === 'manage') {
 			await fetch('/api/employee', {
 				method: 'PATCH',
@@ -39,7 +40,7 @@
 				changes: changes
 			})
 		});
-		clientState.updateEmployee({ ...employee, ...changes });
+		clientState.updateEmployee({ ...employee, ...editedEmployee });
 	}
 
 	async function deleteEmployee() {
@@ -61,7 +62,7 @@
 	}
 </script>
 
-<EmployeeForm bind:name bind:salary bind:puesto bind:area {acceptChanges} {deleteEmployee}>
+<EmployeeForm bind:employee={editedEmployee} {acceptChanges} {deleteEmployee}>
 	{#snippet triggerButton()}
 		<img class="w-4" src="/EditIcon.svg" alt="Editar" />
 	{/snippet}

@@ -10,7 +10,7 @@
 	$effect(() => {
 		if (isMenuOpen) {
 			(async () => {
-				const response = await fetch('/api/categories');
+				const response = await fetch('/api/category');
 				const allCategories: Category[] = await response.json();
 				categoriesToAdd = allCategories.filter((category) => !categories.value.has(category.id));
 			})();

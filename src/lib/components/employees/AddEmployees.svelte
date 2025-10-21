@@ -10,7 +10,7 @@
 	$effect(() => {
 		if (isMenuOpen) {
 			(async () => {
-				const response = await fetch('/api/employees');
+				const response = await fetch('/api/employee');
 				const allEmployees: Employee[] = await response.json();
 				employeesToAdd = allEmployees.filter((employee) => !employees.value.has(employee.id));
 			})();

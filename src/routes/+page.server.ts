@@ -40,12 +40,12 @@ export async function load({ url, fetch }) {
 	if (!week) {
 		return { employees, categories, incidenceCells, week: null };
 	}
-	employees = new Map(
-		week.employeesToWeeks.map((etw) => [
-			etw.employeeId,
-			{ ...etw, name: etw.employee.name, id: etw.employeeId }
-		])
-	);
+    employees = new Map(
+        week.employeesToWeeks.map((etw) => [
+            etw.employeeId,
+            { ...etw, name: etw.employee.name, codigo: etw.employee.codigo, id: etw.employeeId }
+        ])
+    );
 	categories = new Map(
 		week.categoriesToWeeks.map((ctw) => [
 			ctw.categoryId,
