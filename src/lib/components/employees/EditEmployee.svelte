@@ -65,7 +65,7 @@
 	}
 </script>
 
-<EmployeeForm bind:employee={editedEmployee} {acceptChanges} {deleteEmployee}>
+<EmployeeForm bind:employee={editedEmployee} {acceptChanges} {deleteEmployee} {context}>
 	{#snippet triggerButton()}
 		<img class="w-4" src="/EditIcon.svg" alt="Editar" />
 	{/snippet}

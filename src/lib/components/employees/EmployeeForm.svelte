@@ -7,12 +7,14 @@
 		employee = $bindable(),
 		deleteEmployee,
 		acceptChanges,
-		triggerButton
+		triggerButton,
+		context = ''
 	}: {
 		employee: Partial<Employee>;
 		deleteEmployee?: () => void;
 		acceptChanges: () => void;
 		triggerButton: Snippet;
+		context?: string;
 	} = $props();
 	let isMenuOpen = $state(false);
 </script>
@@ -20,14 +22,16 @@
 <ModalMenu title="Empleado" bind:isMenuOpen onAccept={acceptChanges} {triggerButton}>
 	<div class="flex flex-col w-lg gap-2">
 		{#each EMPLOYEE_COLUMNS as field}
-			<label class="flex flex-col">
-				<span>{field.key === 'name' ? 'Nombre' : field.label}:</span>
-				<input 
-					type={field.type} 
-					bind:value={employee[field.key as keyof Employee]} 
-					class="rounded border p-1 w-full" 
-				/>
-			</label>
+			{#if context === 'manage' || (field.key !== 'name' && field.key !== 'codigo')}
+				<label class="flex flex-col">
+					<span>{field.key === 'name' ? 'Nombre' : field.label}:</span>
+					<input 
+						type={field.type} 
+						bind:value={employee[field.key as keyof Employee]} 
+						class="rounded border p-1 w-full" 
+					/>
+				</label>
+			{/if}
 		{/each}
 		{#if deleteEmployee}
 			<button onclick={() => {
