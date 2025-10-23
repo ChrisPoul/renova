@@ -35,7 +35,7 @@ export async function POST({ request }) {
 		const [newWeek] = await tx.insert(weeksTable).values({ startDate, endDate }).returning();
 
 		if (lastWeek) {
-			await copyWeek(lastWeek.id, newWeek.id);
+			await copyWeek(lastWeek.id, newWeek.id, false, tx);
 		}
 
 		return newWeek;
