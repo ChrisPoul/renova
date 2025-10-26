@@ -130,3 +130,45 @@ export function getWeekFromDate(date: string | Date) {
 
 	return { startDate, endDate };
 }
+
+/**
+ * Parsea un valor numérico que puede venir del Excel en diferentes formatos
+ * Maneja formatos como: "$10.23", "10.23", 10.23, "10,23", etc.
+ * @param value - El valor a parsear (puede ser string, number, null, undefined)
+ * @returns El número parseado o 0 si no se puede parsear
+ */
+export function parseExcelNumber(value: any): number {
+	if (value === null || value === undefined) {
+		return 0;
+	}
+
+	// Si ya es un número, devolverlo
+	if (typeof value === 'number') {
+		return isNaN(value) ? 0 : value;
+	}
+
+	// Si es string, limpiarlo y parsearlo
+	if (typeof value === 'string') {
+		// Remover símbolos de moneda y espacios
+		let cleanValue = value.trim()
+			.replace(/[$]/g, '') // Remover símbolo de dólar
+			.replace(/[€]/g, '') // Remover símbolo de euro
+			.replace(/[₡]/g, '') // Remover símbolo de colón
+			.replace(/[₡]/g, '') // Remover símbolo de peso
+			.replace(/[₡]/g, '') // Remover otros símbolos de moneda
+			.replace(/,/g, '') // Remover comas (separadores de miles)
+			.replace(/\s/g, ''); // Remover espacios
+
+		// Si está vacío después de limpiar, devolver 0
+		if (cleanValue === '') {
+			return 0;
+		}
+
+		// Intentar parsear el número
+		const parsed = parseFloat(cleanValue);
+		return isNaN(parsed) ? 0 : parsed;
+	}
+
+	// Para cualquier otro tipo, devolver 0
+	return 0;
+}

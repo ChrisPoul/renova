@@ -58,7 +58,7 @@
 		}}
 		bind:this={modalRef}
 	>
-		<div class="relative min-w-xs rounded-lg bg-white px-6 py-4 shadow-xl">
+		<div class="relative min-w-xs max-w-[80vw] rounded-lg bg-white px-6 py-4 shadow-xl">
 			<button
 				class="absolute top-0.5 right-2 text-gray-500 hover:text-gray-700"
 				onclick={cancel}
@@ -67,7 +67,9 @@
 				&times;
 			</button>
 			<h2 class="mb-4 text-lg font-semibold">{title}</h2>
-			{@render children()}
+			<div class="max-h-[50vh] overflow-y-auto px-1">
+				{@render children()}
+			</div>
 			<div class="flex justify-end gap-2 pt-4">
 				<button
 					class="rounded bg-gray-200 px-4 py-2 text-gray-700 hover:bg-gray-300"

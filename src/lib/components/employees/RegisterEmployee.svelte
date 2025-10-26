@@ -4,7 +4,7 @@
 	import { EMPLOYEE_COLUMNS } from '$lib/constants';
 	import { invalidateAll } from '$app/navigation';
 
-	const { context = '' } = $props();
+	const { weekId }: { weekId?: number } = $props();
 
 	let employee = $state(
 		EMPLOYEE_COLUMNS.reduce((employeeObject, field) => {
@@ -14,10 +14,10 @@
 	);
 
 	async function acceptChanges() {
-		const body = {
+		const body = weekId ? {
 			...employee,
-			...(context !== 'manage' && { weekId: selectedWeek.value!.id })
-		};
+			weekId
+		} : employee;
 		await fetch('/api/employee', {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
@@ -28,7 +28,7 @@
 	}
 </script>
 
-<EmployeeForm bind:employee {acceptChanges} {context}>
+<EmployeeForm bind:employee {acceptChanges} context="manage">
 	{#snippet triggerButton()}
 		<span class="rounded bg-gray-400 px-4 py-2 text-white hover:bg-green-600">
 			Registrar Empleado

@@ -11,7 +11,7 @@
 	import RegisterEmployee from '$lib/components/employees/RegisterEmployee.svelte';
 	import AddEmployees from '$lib/components/employees/AddEmployees.svelte';
 	import AddCategories from '$lib/components/categories/AddCategories.svelte';
-	import { goto } from '$app/navigation';
+	import ImportExcel from '$lib/components/import/ImportExcel.svelte';
 
 	let { data } = $props();
 	
@@ -114,7 +114,8 @@
 
 	<div class="flex gap-2">
 		<RegisterCategory />
-		<RegisterEmployee />
+		<RegisterEmployee weekId={selectedWeek.value?.id} />
+		<ImportExcel />
 	</div>
 </div>
 	<button
