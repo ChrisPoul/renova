@@ -53,6 +53,6 @@
 	</div>
 </div>
 
-<div class="pt-16">
+<div class="pt-16 text-sm">
 	{@render children()}
 </div>

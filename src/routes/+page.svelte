@@ -90,7 +90,7 @@
 					window.location.href = `/?weekId=${weekId}`;
 				}}
 			/>
-			<h1 class="text-center text-2xl font-bold">{getWeekTitle(selectedWeek.value)}</h1>
+			<h1 class="text-center text-xl font-bold">{getWeekTitle(selectedWeek.value)}</h1>
 		</div>
 		<a
 			href={selectedWeek.value
