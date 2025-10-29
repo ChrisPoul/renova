@@ -51,11 +51,6 @@ export async function POST({ request }) {
 			range: 2 // Empezar desde la fila 3 (índice 2)
 		});
 		
-		// Guardar jsonData en archivo JSON para análisis
-		const jsonFilePath = join(process.cwd(), 'excel-data.json');
-		writeFileSync(jsonFilePath, JSON.stringify(jsonData, null, 2), 'utf8');
-		console.log(`Excel data saved to: ${jsonFilePath}`);
-		
 		// Obtener headers (fila 1)
 		const headers = jsonData[1] as string[];
 		
@@ -105,85 +100,62 @@ export async function POST({ request }) {
 			employeeColumns.includes(header?.toString() || '')
 		);
 		
-		// Identificar columnas de categorías (todas las demás)
-		const categoryColumns = headers.filter(header => 
-			!employeeColumns.includes(header?.toString() || '') && 
-			header && 
-			header.toString().trim() !== '' &&
-			header.toString() !== 'SUELDO 2024' // Ignorar SUELDO 2024
-		);
+		// Obtener información de celdas combinadas
+		const merges = worksheet['!merges'] || [];
+
+		// Crear mapa de columnas combinadas en la fila de headers (fila 1)
+		const mergedColumns = new Set<number>();
+		for (const merge of merges) {
+			// Si es una celda combinada en la fila 1 (headers)
+			if (merge.s.r === 1 && merge.e.c > merge.s.c) {
+				// Marca todas las columnas que ocupa esta celda combinada
+				for (let col = merge.s.c; col <= merge.e.c; col++) {
+					mergedColumns.add(col);
+				}
+			}
+		}
+
+		// Identificar columnas de categorías y sus unitMonetaryValues
+		const categoryData = new Map<string, { 
+			unitMonetaryValue: number, 
+			columnIndex: number,
+			spansTwoColumns: boolean 
+		}>();
+
+		for (let i = 0; i < headers.length; i++) {
+			const header = headers[i];
+			if (!header || employeeColumns.includes(header.toString()) || header.toString() === 'SUELDO 2024') {
+				continue;
+			}
+			
+			// Verificar si esta columna es parte de una celda combinada
+			const isMerged = mergedColumns.has(i);
+			
+			if (isMerged) {
+				// Esta categoría tiene unitMonetaryValue
+				// El valor está en la fila 0 en la columna siguiente
+				const unitValue = jsonData[0] ? (jsonData[0] as any[])[i + 1] : null;
+				const parsedUnitValue = parseExcelNumber(unitValue);
+				
+				categoryData.set(header.toString(), {
+					unitMonetaryValue: parsedUnitValue > 0 ? parsedUnitValue : 1,
+					columnIndex: i,
+					spansTwoColumns: true
+				});
+			} else {
+				// Esta categoría no tiene unitMonetaryValue
+				categoryData.set(header.toString(), {
+					unitMonetaryValue: 1,
+					columnIndex: i,
+					spansTwoColumns: false
+				});
+			}
+		}
+		
+		const categoryColumns = Array.from(categoryData.keys());
 		
 		// Usar los datos estructurados
 		const employeeData = structuredRows;
-		
-		console.log('=== EXCEL IMPORT START ===');
-		console.log('Headers:', headers);
-		console.log('Employee columns found:', foundEmployeeColumns);
-		console.log('Category columns found:', categoryColumns);
-		console.log('Total employees (after validation):', employeeData.length);
-		console.log('Sample employees (structured):', employeeData.slice(0, 3));
-		
-		// Mostrar validaciones
-		console.log('\n=== VALIDATION LOG ===');
-		console.log('Validating employee data...');
-		let validCount = 0;
-		let invalidCount = 0;
-		
-		// Re-validar para mostrar detalles
-		for (let i = 2; i < jsonData.length; i++) {
-			const row = jsonData[i] as any[];
-			if (!row || row.length === 0) continue;
-			
-			const firstCell = row[0];
-			if (typeof firstCell === 'string' && 
-				(firstCell.includes('DESCUENTOS') || firstCell.includes('BANAMEX') || firstCell.includes('TOTAL'))) {
-				break;
-			}
-			
-			const codigo = row[1];
-			const nombre = row[2];
-			
-			const codigoValido = codigo && (
-				(typeof codigo === 'string' && /^\d+$/.test(codigo.trim())) ||
-				(typeof codigo === 'number' && !isNaN(codigo))
-			);
-			
-			const nombreValido = nombre && 
-				typeof nombre === 'string' && 
-				nombre.trim().length > 0;
-			
-			if (codigoValido && nombreValido) {
-				validCount++;
-				if (validCount <= 3) {
-					console.log(`✅ Valid employee ${validCount}: Código="${codigo}", Nombre="${nombre}"`);
-				}
-			} else {
-				invalidCount++;
-				if (invalidCount <= 5) {
-					console.log(`❌ Invalid row ${invalidCount}: Código="${codigo}" (valid: ${codigoValido}), Nombre="${nombre}" (valid: ${nombreValido})`);
-				}
-			}
-		}
-		
-		console.log(`\nValidation Summary: ${validCount} valid, ${invalidCount} invalid rows`);
-		
-		// Mostrar la diferencia entre formato array y objeto
-		console.log('\n=== FORMAT COMPARISON ===');
-		console.log('Raw array format (first row):', jsonData[2]);
-		console.log('Structured object format (first employee):', employeeData[0]);
-		console.log('Accessing employee data:');
-		if (employeeData.length > 0) {
-			const firstEmp = employeeData[0];
-			console.log(`  Código: ${firstEmp['Código']}`);
-			console.log(`  Empleado: ${firstEmp['Empleado']}`);
-			console.log(`  PUESTO: ${firstEmp['PUESTO']}`);
-			console.log(`  AREA: ${firstEmp['AREA']}`);
-			console.log(`  SUELDO 2025: ${firstEmp['SUELDO 2025']}`);
-			// Mostrar algunas categorías
-			categoryColumns.slice(0, 3).forEach(col => {
-				console.log(`  ${col}: ${firstEmp[col]}`);
-			});
-		}
 		
 		// Usar transacción para importación completa
 		const result = await db.transaction(async (tx) => {
@@ -248,6 +220,10 @@ export async function POST({ request }) {
 			// 3. Crear categorías dinámicamente
 			const categoryIds = new Map<string, number>();
 			for (const categoryName of categoryColumns) {
+				const categoryInfo = categoryData.get(categoryName);
+				const unitMonetaryValue = categoryInfo?.unitMonetaryValue || 1;
+				const spansTwoColumns = categoryInfo?.spansTwoColumns || false;
+				
 				// Buscar categoría existente
 				const existingCategory = await tx.query.categoriesTable.findFirst({
 					where: eq(categoriesTable.concept, categoryName)
@@ -262,7 +238,7 @@ export async function POST({ request }) {
 						concept: categoryName,
 						type: 'destajo', // Por defecto, se puede ajustar después
 						unit: 'kg', // Por defecto, se puede ajustar después
-						unitMonetaryValue: 1,
+						unitMonetaryValue: unitMonetaryValue,
 						unitValueIsDerived: false
 					}).returning();
 					categoryId = newCategory.id;
@@ -277,12 +253,12 @@ export async function POST({ request }) {
 					concept: categoryName,
 					type: 'destajo',
 					unit: 'kg',
-					unitMonetaryValue: 1,
+					unitMonetaryValue: unitMonetaryValue,
 					unitValueIsDerived: false
 				});
 			}
 			
-			// 4. Crear incidencias
+			// 4. Crear incidencias para TODAS las combinaciones empleado-categoría
 			let incidencesCreated = 0;
 			for (const empData of employeeData) {
 				const codigo = empData['Código'];
@@ -290,20 +266,24 @@ export async function POST({ request }) {
 				if (!employeeId) continue;
 				
 				for (const categoryName of categoryColumns) {
+					const categoryId = categoryIds.get(categoryName);
+					if (!categoryId) continue;
+					
+					// Obtener el valor del Excel (puede ser 0)
 					const value = empData[categoryName];
 					const parsedValue = parseExcelNumber(value);
-					const categoryId = categoryIds.get(categoryName);
-					if (categoryId) {
-						await tx.insert(incidencesTable).values({
-							employeeId,
-							categoryId,
-							weekId: parseInt(weekId),
-							amount: parsedValue
-						});
-						incidencesCreated++;
-					}
+					
+					// Crear incidencia para TODA combinación, incluso si el valor es 0
+					await tx.insert(incidencesTable).values({
+						employeeId,
+						categoryId,
+						weekId: parseInt(weekId),
+						amount: parsedValue
+					});
+					incidencesCreated++;
 				}
 			}
+			
 			
 			return {
 				employeesImported: employeeData.length,
@@ -311,9 +291,6 @@ export async function POST({ request }) {
 				incidencesCreated
 			};
 		});
-		
-		console.log('=== EXCEL IMPORT COMPLETE ===');
-		console.log('Result:', result);
 		
 		return json({ 
 			success: true, 
