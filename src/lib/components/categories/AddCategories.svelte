@@ -26,6 +26,14 @@
 		
 		await invalidateAll();
 	}
+
+	function selectAllCategories() {
+		selectedCategories = categoriesToAdd.map(category => category.id);
+	}
+
+	function unselectAllCategories() {
+		selectedCategories = [];
+	}
 </script>
 
 <ModalMenu title="Select Categories" onAccept={acceptChanges} bind:isMenuOpen>
@@ -35,6 +43,24 @@
 		</span>
 	{/snippet}
 	<div class="flex flex-col gap-2">
+		{#if categoriesToAdd.length > 0}
+			<div class="flex gap-2 mb-2">
+				<button 
+					type="button" 
+					onclick={selectAllCategories}
+					class="rounded bg-blue-500 px-3 py-1 text-sm text-white hover:bg-blue-600"
+				>
+					Seleccionar Todo
+				</button>
+				<button 
+					type="button" 
+					onclick={unselectAllCategories}
+					class="rounded bg-gray-500 px-3 py-1 text-sm text-white hover:bg-gray-600"
+				>
+					Deseleccionar Todo
+				</button>
+			</div>
+		{/if}
 		{#if categoriesToAdd.length === 0}
 			<p class="text-gray-500">No hay categorías disponibles para agregar.</p>
 		{/if}
