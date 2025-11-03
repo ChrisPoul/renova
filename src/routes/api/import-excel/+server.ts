@@ -14,6 +14,28 @@ import {
 import { eq } from 'drizzle-orm';
 import { parseExcelNumber } from '$lib/utils';
 
+/**
+ * Extrae la unidad del nombre de la categoría y limpia el nombre
+ * Formato esperado: "NOMBRE (UNIDAD)" o "NOMBRE (Unidad Completa)"
+ * Ejemplo: "MOLIENDA PLASTICO (KG)" -> { unit: "KG", cleanName: "MOLIENDA PLASTICO" }
+ * Ejemplo: "NITON (Kg SS 304)" -> { unit: "Kg SS 304", cleanName: "NITON" }
+ * @param categoryName - Nombre de la categoría
+ * @returns Objeto con la unidad extraída y el nombre limpio
+ */
+function extractUnitAndCleanName(categoryName: string): { unit: string | null; cleanName: string } {
+	const match = categoryName.match(/^(.+?)\s*\(([^)]+)\)$/);
+	if (match) {
+		return {
+			unit: match[2].trim(),
+			cleanName: match[1].trim()
+		};
+	}
+	return {
+		unit: null,
+		cleanName: categoryName.trim()
+	};
+}
+
 export async function POST({ request }) {
 	try {
 		const formData = await request.formData();
@@ -224,37 +246,63 @@ export async function POST({ request }) {
 				const unitMonetaryValue = categoryInfo?.unitMonetaryValue || 1;
 				const spansTwoColumns = categoryInfo?.spansTwoColumns || false;
 				
-				// Buscar categoría existente
+				// Determinar tipo: si ocupa 2 columnas es 'destajo', si no es 'bono'
+				const categoryType = spansTwoColumns ? 'destajo' : 'bono';
+				
+				// Extraer unidad y limpiar nombre
+				const { unit: extractedUnit, cleanName } = extractUnitAndCleanName(categoryName);
+				
+				// Determinar unidad según el tipo
+				let defaultUnit: string;
+				if (spansTwoColumns) {
+					// Para destajos: usar unidad extraída o "u" por defecto
+					defaultUnit = extractedUnit || 'u';
+				} else {
+					// Para bonos: usar "$"
+					defaultUnit = '$';
+				}
+				
+				// Buscar categoría existente por nombre limpio
 				const existingCategory = await tx.query.categoriesTable.findFirst({
-					where: eq(categoriesTable.concept, categoryName)
+					where: eq(categoriesTable.concept, cleanName)
 				});
 				
 				let categoryId: number;
+				let finalCategoryType: string;
+				let finalUnit: string;
+				let finalUnitValueIsDerived: boolean;
 				if (existingCategory) {
 					categoryId = existingCategory.id;
+					// Usar los valores de la categoría existente
+					finalCategoryType = existingCategory.type;
+					finalUnit = existingCategory.unit;
+					finalUnitValueIsDerived = existingCategory.unitValueIsDerived;
 				} else {
-					// Crear nueva categoría
+					// Crear nueva categoría con nombre limpio
 					const [newCategory] = await tx.insert(categoriesTable).values({
-						concept: categoryName,
-						type: 'destajo', // Por defecto, se puede ajustar después
-						unit: 'kg', // Por defecto, se puede ajustar después
+						concept: cleanName,
+						type: categoryType,
+						unit: defaultUnit,
 						unitMonetaryValue: unitMonetaryValue,
 						unitValueIsDerived: false
 					}).returning();
 					categoryId = newCategory.id;
+					finalCategoryType = categoryType;
+					finalUnit = defaultUnit;
+					finalUnitValueIsDerived = false;
 				}
 				
 				categoryIds.set(categoryName, categoryId);
 				
-				// Agregar categoría a la semana
+				// Agregar categoría a la semana con nombre limpio
 				await tx.insert(categoriesToWeeksTable).values({
 					categoryId,
 					weekId: parseInt(weekId),
-					concept: categoryName,
-					type: 'destajo',
-					unit: 'kg',
+					concept: cleanName,
+					type: finalCategoryType,
+					unit: finalUnit,
 					unitMonetaryValue: unitMonetaryValue,
-					unitValueIsDerived: false
+					unitValueIsDerived: finalUnitValueIsDerived
 				});
 			}
 			
