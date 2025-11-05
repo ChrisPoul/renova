@@ -2,6 +2,8 @@
 	import { selectedWeek } from '$lib/stores.svelte';
 	import { invalidateAll } from '$app/navigation';
 
+	let { importType = 'week' }: { importType?: 'week' | 'system' } = $props();
+
 	let fileInput: HTMLInputElement;
 	let isUploading = $state(false);
 
@@ -21,7 +23,8 @@
 			formData.append('file', file);
 			formData.append('weekId', selectedWeek.value.id.toString());
 
-			const response = await fetch('/api/import-excel', {
+			const endpoint = importType === 'system' ? '/api/import-excel-system' : '/api/import-excel';
+			const response = await fetch(endpoint, {
 				method: 'POST',
 				body: formData
 			});
@@ -45,6 +48,9 @@
 			fileInput.value = '';
 		}
 	}
+
+	const buttonText = importType === 'system' ? 'Importar del Sistema' : 'Importar Semana';
+	const buttonId = `excel-file-input-${importType}`;
 </script>
 
 <div class="flex items-center">
@@ -54,12 +60,12 @@
 		accept=".xlsx,.xls"
 		onchange={handleFileSelect}
 		class="hidden"
-		id="excel-file-input"
+		id={buttonId}
 	/>
 	<label
-		for="excel-file-input"
+		for={buttonId}
 		class="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600 cursor-pointer {isUploading ? 'opacity-50 cursor-not-allowed' : ''}"
 	>
-		{isUploading ? 'Procesando...' : 'Importar Excel'}
+		{isUploading ? 'Procesando...' : buttonText}
 	</label>
 </div>

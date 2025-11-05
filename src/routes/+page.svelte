@@ -115,7 +115,8 @@
 	<div class="flex gap-2">
 		<RegisterCategory />
 		<RegisterEmployee weekId={selectedWeek.value?.id} />
-		<ImportExcel />
+		<ImportExcel importType="week" />
+		<ImportExcel importType="system" />
 	</div>
 </div>
 	<button
