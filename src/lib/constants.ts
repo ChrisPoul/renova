@@ -25,12 +25,13 @@ export const CATEGORY_FIELDS = [
 export interface SystemExcelColumn {
 	excelHeader: string;   // Header exacto del Excel (fila 8)
 	concepto: string;      // Nombre del concepto/categoría
+	categoryType: 'bono' | 'deduccion' | 'destajo'; // Tipo de categoría
 }
 
 // Array para iterar fácilmente
 export const SYSTEM_EXCEL_COLUMNS: SystemExcelColumn[] = [
-	{ excelHeader: 'Fondo ahorro empresa', concepto: 'Fondo Ahorro' },
-	{ excelHeader: '*TOTAL* *PERCEPCIONES*', concepto: 'Total Percepciones' },
-	{ excelHeader: '*TOTAL* *DEDUCCIONES*', concepto: 'Total Deducciones' },
-	{ excelHeader: '*NETO*', concepto: 'Neto' }
+	{ excelHeader: 'Fondo ahorro empresa', concepto: 'FONDO AHORRO', categoryType: 'deduccion' },
+	{ excelHeader: '*TOTAL* *PERCEPCIONES*', concepto: 'Total Percepciones', categoryType: 'bono' },
+	{ excelHeader: '*TOTAL* *DEDUCCIONES*', concepto: '*TOTAL* *DEDUCCIONES IMSS INFONAVIT F. AHORRO  FONACOT', categoryType: 'bono' },
+	{ excelHeader: '*NETO*', concepto: 'DEPOSITO', categoryType: 'bono' }
 ];

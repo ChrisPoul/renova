@@ -179,8 +179,7 @@ export async function POST({ request }) {
 			
 			for (const col of SYSTEM_EXCEL_COLUMNS) {
 				const concepto = col.concepto;
-				
-				let categoryType = 'bono'
+				const categoryType = col.categoryType;
 				
 				// Buscar categoría existente por concepto
 				const existingCategory = await tx.query.categoriesTable.findFirst({
