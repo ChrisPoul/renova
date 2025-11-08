@@ -3,15 +3,7 @@
 	import { isReadOnly, totals, employees, categoriesByType } from '$lib/stores.svelte';
 	import { formatMonetaryValue, getCategoryTypeLabel } from '$lib/utils';
 	import EditCategory from '$lib/components/categories/EditCategory.svelte';
-	import { EMPLOYEE_COLUMNS, COMPUTED_COLUMNS } from '$lib/constants';
-
-	function getTotalSalary() {
-		let total = 0;
-		for (const [_, employee] of employees.value) {
-			total += employee.salary;
-		}
-		return total;
-	}
+	import { EMPLOYEE_COLUMNS, COMPUTED_COLUMNS, EMPLOEYEE_WEEK_COLUMNS } from '$lib/constants';
 </script>
 
 <div class="relative overflow-auto">
@@ -31,6 +23,11 @@
 		<tr class="bg-gray-100">
 			{#each EMPLOYEE_COLUMNS as col}
 				<th class="t-cell {col.key === 'name' ? 'sticky left-0 bg-gray-300' : 'bg-gray-200'}">
+					{col.label}
+				</th>
+			{/each}
+			{#each EMPLOEYEE_WEEK_COLUMNS as col}
+				<th class="t-cell bg-gray-200">
 					{col.label}
 				</th>
 			{/each}
@@ -68,9 +65,14 @@
 			{#each EMPLOYEE_COLUMNS.slice(1) as col}
 			<td class="t-cell bg-gray-200 text-nowrap">
 				{#if col.key === 'salary'}
-					{formatMonetaryValue(getTotalSalary())}
+					{formatMonetaryValue(totals.value.totalSalary)}
 				{/if}
 			</td>
+			{/each}
+			{#each EMPLOEYEE_WEEK_COLUMNS as col}
+				<td class="t-cell bg-gray-200 text-nowrap">
+					{formatMonetaryValue(totals.value.employeeWeekTotals.get(col.sumKey) ?? 0)}
+				</td>
 			{/each}
 			{#each categoriesByType.value as [categoryType, categoriesInType]}
 				{#each categoriesInType as category}

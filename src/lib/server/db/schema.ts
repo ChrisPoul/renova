@@ -37,7 +37,11 @@ export const employeesToWeeksTable = sqliteTable('employees_to_weeks', {
 	salary: real('salary').notNull(),
 	puesto: text('puesto').notNull(),
 	area: text('area').notNull(),
-	cede: text('cede').notNull()
+	cede: text('cede').notNull(),
+	totalPercepcionesSistema: real('total_percepciones_sistema').notNull().default(0),
+	totalDeduccionesSistema: real('total_deducciones_sistema').notNull().default(0),
+	deposito: real('deposito').notNull().default(0),
+	complementoSueldoEfectivo: real('complemento_sueldo_efectivo').notNull().default(0)
 });
 export const employeesToWeeksRelations = relations(employeesToWeeksTable, ({ one }) => ({
 	week: one(weeksTable, {

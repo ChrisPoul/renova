@@ -1,9 +1,12 @@
-import { categoryTypes } from './constants';
+import { categoryTypes, EMPLOEYEE_WEEK_COLUMNS } from './constants';
 
 type CategoryId = number;
 type employeeID = number;
 type employeeCategoryTypeTotal = number;
 type CategoryType = string;
+
+
+export const employees = $state<{ value: Employees }>({ value: new Map() });
 
 export interface IncidenceCell {
 	incidence: Incidence;
@@ -32,8 +35,24 @@ const derivedTotals = $derived.by(() => {
 		categoryTotals: new Map<CategoryId, CategoryTotal>(),
 		employeeTotals: new Map<employeeID, number>(),
 		totalPercepciones: new Map<employeeID, number>(),
-		grandTotalPercepciones: 0
+		grandTotalPercepciones: 0,
+		employeeWeekTotals: new Map<string, number>(),
+		totalSalary: 0
 	};
+
+	for (const column of EMPLOEYEE_WEEK_COLUMNS) {
+		newTotals.employeeWeekTotals.set(column.sumKey, 0);
+	}
+	for (const [, employee] of employees.value) {
+		newTotals.totalSalary += employee.salary;
+		for (const column of EMPLOEYEE_WEEK_COLUMNS) {
+			if (!column.sumKey) continue;
+			const currentValue = newTotals.employeeWeekTotals.get(column.sumKey) ?? 0;
+			const employeeValue = Number(employee[column.key as keyof Employee] ?? 0);
+			newTotals.employeeWeekTotals.set(column.sumKey, currentValue + employeeValue);
+		}
+	}
+
 	console.log('Calculating totals...');
 	// Loop through all incidences to calculate the totals
 	for (const [categoryId, categoryIncidenceCells] of incidenceCells.value) {
@@ -116,8 +135,6 @@ export const isReadOnly = $state({ value: false });
 
 export const categories = $state<{ value: Categories }>({ value: new Map() });
 
-export const employees = $state<{ value: Employees }>({ value: new Map() });
-
 const derivedCategoriesByType = $derived.by(() => {
 		const categoriesByType = new Map<CategoryType, Category[]>(
 			selectedCategoryTypes.value.map((categoryType) => [categoryType, []])
@@ -138,3 +155,62 @@ export const categoriesByType = {
 		return derivedCategoriesByType;
 	}
 }
+
+// The shape of the object holding resumen data for a single employee
+type EmployeeResumenHorasExtra = {
+	numeroHorasExtra: number;
+	importeHorasExtra: number;
+};
+
+type ResumenData = {
+	horasExtra: {
+		employees: Map<employeeID, EmployeeResumenHorasExtra>;
+		grandTotal: EmployeeResumenHorasExtra;
+	};
+};
+
+// The main derived state for resumen (summary) data
+const derivedResumen = $derived.by(() => {
+	const newResumen: ResumenData = {
+		horasExtra: {
+			employees: new Map<employeeID, EmployeeResumenHorasExtra>(),
+			grandTotal: {
+				numeroHorasExtra: 0,
+				importeHorasExtra: 0
+			}
+		}
+	};
+
+	// Loop through all incidences to calculate resumen
+	for (const [categoryId, categoryIncidenceCells] of incidenceCells.value) {
+		// Get the category to check its concept
+		const category = categories.value.get(categoryId);
+		if (!category || category.concept !== 'TIEMPO EXTRA') continue;
+
+		for (const [employeeId, incidenceCell] of categoryIncidenceCells) {
+			const { incidence, totalMonetaryValue } = incidenceCell;
+			const amount = incidence.amount;
+
+			const horasExtraEmployees = newResumen.horasExtra.employees;
+			const employeeHorasExtra = horasExtraEmployees.get(employeeId) ?? {
+				numeroHorasExtra: 0,
+				importeHorasExtra: 0
+			};
+			employeeHorasExtra.numeroHorasExtra = amount;
+			employeeHorasExtra.importeHorasExtra = totalMonetaryValue;
+			horasExtraEmployees.set(employeeId, employeeHorasExtra);
+
+			// Add to grand totals
+			newResumen.horasExtra.grandTotal.numeroHorasExtra += amount;
+			newResumen.horasExtra.grandTotal.importeHorasExtra += totalMonetaryValue;
+		}
+	}
+
+	return newResumen;
+});
+
+export const resumen = {
+	get value() {
+		return derivedResumen;
+	}
+};

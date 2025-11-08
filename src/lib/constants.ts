@@ -1,13 +1,21 @@
 export const categoryTypes = ['destajo', 'bono', 'deduccion'];
 
+
 export const EMPLOYEE_COLUMNS = [
 	{ key: 'name', label: 'Empleado', type: 'text' },
 	{ key: 'codigo', label: 'Código', type: 'text' },
 	{ key: 'area', label: 'Área', type: 'text' },
 	{ key: 'puesto', label: 'Puesto', type: 'text' },
 	{ key: 'cede', label: 'Cede', type: 'text' },
-	{ key: 'salary', label: 'Salario', type: 'number' }
+	{ key: 'salary', label: 'Salario', type: 'number', format: 'currency' },
 ];
+
+export const EMPLOEYEE_WEEK_COLUMNS = [
+	{ key: 'totalPercepcionesSistema', label: 'Total Percepciones Sistema', type: 'number', format: 'currency', sumKey: 'totalPercepcionesSistema' },
+	{ key: 'totalDeduccionesSistema', label: 'Total Deducciones Sistema', type: 'number', format: 'currency', sumKey: 'totalDeduccionesSistema' },
+	{ key: 'deposito', label: 'Depósito', type: 'number', format: 'currency', sumKey: 'deposito' },
+	{ key: 'complementoSueldoEfectivo', label: 'Complemento Sueldo Efectivo', type: 'number', format: 'currency', sumKey: 'complementoSueldoEfectivo' }
+]
 
 export const COMPUTED_COLUMNS = [
 	{ employeeKey: 'totalPercepciones', totalKey: 'grandTotalPercepciones', label: 'Total Percepciones' },

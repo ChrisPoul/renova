@@ -1,16 +1,17 @@
 <script lang="ts">
 	import MainTable from '$lib/components/table/MainTable.svelte';
-	import {
-		employees,
-		incidenceCells,
-		isReadOnly,
-		totals,
-		selectedWeek,
-		categoriesByType,
-		categories
-	} from '$lib/stores.svelte';
-	import ExcelJS from 'exceljs';
-	import { formatMonetaryValue, getCategoryTypeLabel } from '$lib/utils';
+import {
+	employees,
+	incidenceCells,
+	isReadOnly,
+	totals,
+	selectedWeek,
+	categoriesByType,
+	categories
+} from '$lib/stores.svelte';
+import ExcelJS from 'exceljs';
+import { formatMonetaryValue, getCategoryTypeLabel } from '$lib/utils';
+import { EMPLOYEE_COLUMNS } from '$lib/constants';
 
 	let { data } = $props();
 	employees.value = data.employees;
@@ -39,7 +40,7 @@
 		const defaultHeaderColor = 'FFE5E7EB'; // light gray
 
 		// Prepare headers
-		const baseHeaders = ['Empleado', 'Área', 'Puesto', 'Salario'];
+	const baseHeaders = EMPLOYEE_COLUMNS.map((column) => column.label);
 		const headers = [...baseHeaders];
 
 		for (const [categoryType, categoriesInType] of categoriesByType.value) {
@@ -74,15 +75,14 @@
 		styleExcelCell(totalCell, defaultHeaderColor)
 
 		// Add data rows
-		let totalSalary = 0;
-		for (const [employeeId, employee] of employees.value) {
-			totalSalary += employee.salary;
-			const rowData = [
-				employee.name,
-				employee.area,
-				employee.puesto,
-				formatMonetaryValue(employee.salary)
-			];
+	for (const [employeeId, employee] of employees.value) {
+		const rowData = EMPLOYEE_COLUMNS.map((column) => {
+			const value = (employee)[column.key as keyof Employee];
+			if (column.format === 'currency') {
+				return formatMonetaryValue(Number(value ?? 0));
+			}
+			return value ?? '';
+		});
 
 			for (const [categoryType, categoriesInType] of categoriesByType.value) {
 				for (const category of categoriesInType) {
@@ -105,7 +105,12 @@
 		}
 
 		// Add totals row
-		const totalsRowData = ['Total', '', '', formatMonetaryValue(totalSalary)];
+	const totalsRowData = EMPLOYEE_COLUMNS.map((column, index) => {
+		if (index === 0) return 'Total';
+		if (!column.sumKey) return '';
+		const sumValue = totals.value.employeeColumnSums.get(column.sumKey) ?? 0;
+		return column.format === 'currency' ? formatMonetaryValue(sumValue) : sumValue;
+	});
 
 		for (const [categoryType, categoriesInType] of categoriesByType.value) {
 			for (const category of categoriesInType) {

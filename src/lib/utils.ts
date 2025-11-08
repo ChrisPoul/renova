@@ -1,9 +1,10 @@
 import type { IncidenceCell, IncidenceCells } from './stores.svelte';
 
-export function formatMonetaryValue(value: number | undefined) {
+export function formatMonetaryValue(value: number | undefined | string) {
 	if (value === undefined) {
 		value = 0;
 	}
+	value = Number(value);
 	return (
 		value.toLocaleString('en-US', {
 			minimumFractionDigits: 2,
