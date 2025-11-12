@@ -24,7 +24,7 @@
 	<div class="space-y-8">
 		<div class="border p-4 rounded-lg">
 			<h2 class="text-xl font-bold mb-4">Employees</h2>
-			<RegisterEmployee context="manage" />
+			<RegisterEmployee />
 			<div class="mt-4 overflow-x-auto">
 				<table class="w-full min-w-max">
 					<thead>
@@ -75,7 +75,11 @@
 								{#each CATEGORY_FIELDS as field}
 									<td class="px-2 py-1">
 										{#if field.key === 'unitMonetaryValue'}
-											${(category[field.key as keyof typeof category] as number).toFixed(2)}
+											{#if category.unitValueIsDerived}
+												Derivado del Salario
+											{:else}
+												${(category[field.key as keyof typeof category] as number).toFixed(2)}
+											{/if}
 										{:else if field.key === 'unitValueIsDerived'}
 											{category[field.key as keyof typeof category] ? 'Yes' : 'No'}
 										{:else}

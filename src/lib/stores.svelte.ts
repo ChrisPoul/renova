@@ -37,16 +37,13 @@ const derivedTotals = $derived.by(() => {
 		totalPercepciones: new Map<employeeID, number>(),
 		grandTotalPercepciones: 0,
 		employeeWeekTotals: new Map<string, number>(),
-		totalSalary: 0
 	};
 
 	for (const column of EMPLOEYEE_WEEK_COLUMNS) {
 		newTotals.employeeWeekTotals.set(column.sumKey, 0);
 	}
 	for (const [, employee] of employees.value) {
-		newTotals.totalSalary += employee.salary;
 		for (const column of EMPLOEYEE_WEEK_COLUMNS) {
-			if (!column.sumKey) continue;
 			const currentValue = newTotals.employeeWeekTotals.get(column.sumKey) ?? 0;
 			const employeeValue = Number(employee[column.key as keyof Employee] ?? 0);
 			newTotals.employeeWeekTotals.set(column.sumKey, currentValue + employeeValue);
@@ -156,57 +153,109 @@ export const categoriesByType = {
 	}
 }
 
-// The shape of the object holding resumen data for a single employee
-type EmployeeResumenHorasExtra = {
+type EmployeeResumenData = {
+	deposito: number;
+	complementoEfectivo: number;
+	bono: number;
+	destajo: number;
+	deduccion: number;
 	numeroHorasExtra: number;
 	importeHorasExtra: number;
+	totalResumen: number;
 };
 
 type ResumenData = {
-	horasExtra: {
-		employees: Map<employeeID, EmployeeResumenHorasExtra>;
-		grandTotal: EmployeeResumenHorasExtra;
-	};
+	employees: Map<employeeID, EmployeeResumenData>;
+	grandTotals: EmployeeResumenData;
 };
+
+const createEmptyResumenData = (): EmployeeResumenData => ({
+	deposito: 0,
+	complementoEfectivo: 0,
+	bono: 0,
+	destajo: 0,
+	deduccion: 0,
+	numeroHorasExtra: 0,
+	importeHorasExtra: 0,
+	totalResumen: 0
+});
+
+type ResumenCategoryType = 'bono' | 'destajo' | 'deduccion';
+
+const resumenCategoryTypes = new Set<ResumenCategoryType>(['bono', 'destajo', 'deduccion']);
 
 // The main derived state for resumen (summary) data
 const derivedResumen = $derived.by(() => {
-	const newResumen: ResumenData = {
-		horasExtra: {
-			employees: new Map<employeeID, EmployeeResumenHorasExtra>(),
-			grandTotal: {
-				numeroHorasExtra: 0,
-				importeHorasExtra: 0
-			}
+	const employeesResumen = new Map<employeeID, EmployeeResumenData>();
+	const grandTotals = createEmptyResumenData();
+
+	const ensureEmployeeResumen = (employeeId: employeeID): EmployeeResumenData => {
+		let employeeResumen = employeesResumen.get(employeeId);
+		if (!employeeResumen) {
+			employeeResumen = createEmptyResumenData();
+			employeesResumen.set(employeeId, employeeResumen);
 		}
+		return employeeResumen;
 	};
 
-	// Loop through all incidences to calculate resumen
+	for (const [, employee] of employees.value) {
+		const deposito = Number(employee.deposito ?? 0);
+		const complementoEfectivo = Number(employee.complementoSueldoEfectivo ?? 0);
+		const employeeResumen = ensureEmployeeResumen(employee.id);
+		employeeResumen.deposito = deposito;
+		employeeResumen.complementoEfectivo = complementoEfectivo;
+		grandTotals.deposito += deposito;
+		grandTotals.complementoEfectivo += complementoEfectivo;
+	}
+
 	for (const [categoryId, categoryIncidenceCells] of incidenceCells.value) {
-		// Get the category to check its concept
 		const category = categories.value.get(categoryId);
-		if (!category || category.concept !== 'TIEMPO EXTRA') continue;
+		if (!category) continue;
+
+		const categoryType = category.type;
+		const considerCategory = selectedCategoryTypes.value.includes(categoryType);
+		const isResumenCategory = resumenCategoryTypes.has(categoryType as ResumenCategoryType);
+		const isTiempoExtra = category.concept === 'TIEMPO EXTRA';
+
+		if (!considerCategory && !isTiempoExtra) continue;
 
 		for (const [employeeId, incidenceCell] of categoryIncidenceCells) {
-			const { incidence, totalMonetaryValue } = incidenceCell;
-			const amount = incidence.amount;
+			const employeeResumen = ensureEmployeeResumen(employeeId);
 
-			const horasExtraEmployees = newResumen.horasExtra.employees;
-			const employeeHorasExtra = horasExtraEmployees.get(employeeId) ?? {
-				numeroHorasExtra: 0,
-				importeHorasExtra: 0
-			};
-			employeeHorasExtra.numeroHorasExtra = amount;
-			employeeHorasExtra.importeHorasExtra = totalMonetaryValue;
-			horasExtraEmployees.set(employeeId, employeeHorasExtra);
+			if (isResumenCategory && considerCategory) {
+				const totalValue = incidenceCell.totalMonetaryValue ?? 0;
+				const categoryTypeKey = categoryType as ResumenCategoryType;
+				employeeResumen[categoryTypeKey] += totalValue;
+				grandTotals[categoryTypeKey] += totalValue;
+			}
 
-			// Add to grand totals
-			newResumen.horasExtra.grandTotal.numeroHorasExtra += amount;
-			newResumen.horasExtra.grandTotal.importeHorasExtra += totalMonetaryValue;
+			if (isTiempoExtra) {
+				const amount = incidenceCell.incidence.amount ?? 0;
+				const totalValue = incidenceCell.totalMonetaryValue ?? 0;
+				employeeResumen.numeroHorasExtra += amount;
+				employeeResumen.importeHorasExtra += totalValue;
+				grandTotals.numeroHorasExtra += amount;
+				grandTotals.importeHorasExtra += totalValue;
+			}
 		}
 	}
 
-	return newResumen;
+	for (const [, employeeResumen] of employeesResumen) {
+		const totalResumen =
+			employeeResumen.deposito +
+			employeeResumen.complementoEfectivo +
+			employeeResumen.bono +
+			employeeResumen.destajo +
+			employeeResumen.importeHorasExtra -
+			employeeResumen.deduccion;
+		employeeResumen.totalResumen = totalResumen;
+		grandTotals.totalResumen += totalResumen;
+	}
+
+	return {
+		employees: employeesResumen,
+		grandTotals
+	} satisfies ResumenData;
 });
 
 export const resumen = {

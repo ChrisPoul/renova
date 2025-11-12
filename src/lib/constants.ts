@@ -6,16 +6,27 @@ export const EMPLOYEE_COLUMNS = [
 	{ key: 'codigo', label: 'Código', type: 'text' },
 	{ key: 'area', label: 'Área', type: 'text' },
 	{ key: 'puesto', label: 'Puesto', type: 'text' },
-	{ key: 'cede', label: 'Cede', type: 'text' },
-	{ key: 'salary', label: 'Salario', type: 'number', format: 'currency' },
+	{ key: 'cede', label: 'Cede', type: 'text' }
 ];
 
 export const EMPLOEYEE_WEEK_COLUMNS = [
+	{ key: 'salary', label: 'Salario', type: 'number', format: 'currency', sumKey: 'salary' },
 	{ key: 'totalPercepcionesSistema', label: 'Total Percepciones Sistema', type: 'number', format: 'currency', sumKey: 'totalPercepcionesSistema' },
 	{ key: 'totalDeduccionesSistema', label: 'Total Deducciones Sistema', type: 'number', format: 'currency', sumKey: 'totalDeduccionesSistema' },
 	{ key: 'deposito', label: 'Depósito', type: 'number', format: 'currency', sumKey: 'deposito' },
 	{ key: 'complementoSueldoEfectivo', label: 'Complemento Sueldo Efectivo', type: 'number', format: 'currency', sumKey: 'complementoSueldoEfectivo' }
 ]
+
+export const EMPLOYEE_RESUMEN_COLUMNS = [
+	{ key: 'deposito', label: 'Depósito', type: 'number', format: 'currency' },
+	{ key: 'complementoEfectivo', label: 'Complemento Efectivo', type: 'number', format: 'currency' },
+	{ key: 'bono', label: 'Bonos', type: 'number', format: 'currency' },
+	{ key: 'destajo', label: 'Destajo', type: 'number', format: 'currency' },
+	{ key: 'deduccion', label: 'Deducciones', type: 'number', format: 'currency' },
+	{ key: 'numeroHorasExtra', label: 'Horas Extra', type: 'number' },
+	{ key: 'importeHorasExtra', label: 'Importe Horas Extra', type: 'number', format: 'currency' },
+	{ key: 'totalResumen', label: 'Total Resumen', type: 'number', format: 'currency' }
+];
 
 export const COMPUTED_COLUMNS = [
 	{ employeeKey: 'totalPercepciones', totalKey: 'grandTotalPercepciones', label: 'Total Percepciones' },

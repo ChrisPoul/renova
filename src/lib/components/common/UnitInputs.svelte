@@ -12,10 +12,8 @@
 
 	$effect(() => {
 		if (unitValueIsDerived && derivableUnits.includes(unit)) {
-			unitMonetaryValue = 'Derivado del Salario';
-		} else if (unitMonetaryValue === 'Derivado del Salario') {
 			unitMonetaryValue = 1;
-		}
+		} 
 	});
 	$effect(() => {
 		if (!derivableUnits.includes(unit)) {
@@ -60,16 +58,27 @@
 	<label class="mb-1 block text-left text-sm font-medium" for="unitMonetaryValue"
 		>Valor Monetario por Unidad</label
 	>
-	<input
-		id="unitMonetaryValue"
-		type={unitValueIsDerived ? 'text' : 'number'}
-		step="0.01"
-		bind:value={unitMonetaryValue}
-		oninput={() => {
-			unitMonetaryValue = validateAmount(unitMonetaryValue);
-		}}
-		class="w-full rounded border border-gray-300 px-2 py-1 disabled:bg-gray-300 disabled:opacity-70"
-		required
-		disabled={unitValueIsDerived || unit === '$'}
-	/>
+	{#if unitValueIsDerived}
+		<input
+			id="unitMonetaryValue"
+			type="text"
+			value="Derivado del Salario"
+			class="w-full rounded border border-gray-300 px-2 py-1 disabled:bg-gray-300 disabled:opacity-70"
+			required
+			disabled
+		/>
+	{:else}
+		<input
+			id="unitMonetaryValue"
+			type="number"
+			step="0.01"
+			bind:value={unitMonetaryValue}
+			oninput={() => {
+				unitMonetaryValue = validateAmount(unitMonetaryValue);
+			}}
+			class="w-full rounded border border-gray-300 px-2 py-1 disabled:bg-gray-300 disabled:opacity-70"
+			required
+			disabled={unit === '$'}
+		/>
+	{/if}
 </div>

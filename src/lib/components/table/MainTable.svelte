@@ -1,9 +1,14 @@
 <script lang="ts">
 	import EmployeeRow from '$lib/components/table/EmployeeRow.svelte';
-	import { isReadOnly, totals, employees, categoriesByType } from '$lib/stores.svelte';
+	import { isReadOnly, totals, employees, categoriesByType, resumen } from '$lib/stores.svelte';
 	import { formatMonetaryValue, getCategoryTypeLabel } from '$lib/utils';
 	import EditCategory from '$lib/components/categories/EditCategory.svelte';
-	import { EMPLOYEE_COLUMNS, COMPUTED_COLUMNS, EMPLOEYEE_WEEK_COLUMNS } from '$lib/constants';
+	import {
+		EMPLOYEE_COLUMNS,
+		COMPUTED_COLUMNS,
+		EMPLOEYEE_WEEK_COLUMNS,
+		EMPLOYEE_RESUMEN_COLUMNS
+	} from '$lib/constants';
 </script>
 
 <div class="relative overflow-auto">
@@ -51,6 +56,11 @@
 					Total {getCategoryTypeLabel(categoryType)}
 				</th>
 			{/each}
+			{#each EMPLOYEE_RESUMEN_COLUMNS as col}
+				<th class="t-cell bg-gray-200">
+					{col.label}
+				</th>
+			{/each}
 			{#each COMPUTED_COLUMNS as col}
 				<th class="t-cell {col.totalKey === 'grandTotal' ? 'sticky right-0 bg-gray-300' : 'bg-gray-200'}">{col.label}</th>
 			{/each}
@@ -63,11 +73,7 @@
 		<tr class="bg-gray-100">
 			<td class="t-cell sticky left-0 bg-gray-300 font-bold">Total</td>
 			{#each EMPLOYEE_COLUMNS.slice(1) as col}
-			<td class="t-cell bg-gray-200 text-nowrap">
-				{#if col.key === 'salary'}
-					{formatMonetaryValue(totals.value.totalSalary)}
-				{/if}
-			</td>
+				<td class="t-cell bg-gray-200 text-nowrap"></td>
 			{/each}
 			{#each EMPLOEYEE_WEEK_COLUMNS as col}
 				<td class="t-cell bg-gray-200 text-nowrap">
@@ -89,6 +95,17 @@
 				{/each}
 				<td class={`t-cell text-nowrap ${categoryType}-opaco`}>
 					{formatMonetaryValue(totals.value.categoryTypeGrandTotals.get(categoryType) ?? 0)}
+				</td>
+			{/each}
+			{#each EMPLOYEE_RESUMEN_COLUMNS as col}
+				{@const grandTotals = resumen.value.grandTotals}
+				{@const value = grandTotals[col.key as keyof typeof grandTotals] ?? 0}
+				<td class="t-cell bg-gray-200 text-nowrap">
+					{#if col.format === 'currency'}
+						{formatMonetaryValue(value)}
+					{:else}
+						{value}
+					{/if}
 				</td>
 			{/each}
 			{#each COMPUTED_COLUMNS as col}

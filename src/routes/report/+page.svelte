@@ -1,17 +1,18 @@
 <script lang="ts">
 	import MainTable from '$lib/components/table/MainTable.svelte';
-import {
-	employees,
-	incidenceCells,
-	isReadOnly,
-	totals,
-	selectedWeek,
-	categoriesByType,
-	categories
-} from '$lib/stores.svelte';
-import ExcelJS from 'exceljs';
-import { formatMonetaryValue, getCategoryTypeLabel } from '$lib/utils';
-import { EMPLOYEE_COLUMNS } from '$lib/constants';
+	import {
+		employees,
+		incidenceCells,
+		isReadOnly,
+		totals,
+		selectedWeek,
+		categoriesByType,
+		categories,
+		resumen
+	} from '$lib/stores.svelte';
+	import ExcelJS from 'exceljs';
+	import { formatMonetaryValue, getCategoryTypeLabel } from '$lib/utils';
+import { EMPLOYEE_COLUMNS, EMPLOEYEE_WEEK_COLUMNS, EMPLOYEE_RESUMEN_COLUMNS } from '$lib/constants';
 
 	let { data } = $props();
 	employees.value = data.employees;
@@ -40,14 +41,18 @@ import { EMPLOYEE_COLUMNS } from '$lib/constants';
 		const defaultHeaderColor = 'FFE5E7EB'; // light gray
 
 		// Prepare headers
-	const baseHeaders = EMPLOYEE_COLUMNS.map((column) => column.label);
-		const headers = [...baseHeaders];
+		const baseHeaders = EMPLOYEE_COLUMNS.map((column) => column.label);
+		const weekHeaders = EMPLOEYEE_WEEK_COLUMNS.map((column) => column.label);
+		const headers = [...baseHeaders, ...weekHeaders];
 
 		for (const [categoryType, categoriesInType] of categoriesByType.value) {
 			for (const category of categoriesInType) {
 				headers.push(category.concept);
 			}
 			headers.push(`Total ${getCategoryTypeLabel(categoryType)}`);
+		}
+		for (const column of EMPLOYEE_RESUMEN_COLUMNS) {
+			headers.push(column.label);
 		}
 		headers.push('Total');
 
@@ -57,32 +62,47 @@ import { EMPLOYEE_COLUMNS } from '$lib/constants';
 		let colIdx = 1;
 		for (const header of baseHeaders) {
 			const cell = headerRow.getCell(colIdx);
-			styleExcelCell(cell, defaultHeaderColor)
+			styleExcelCell(cell, defaultHeaderColor);
+			colIdx++;
+		}
+		for (const _ of EMPLOEYEE_WEEK_COLUMNS) {
+			const cell = headerRow.getCell(colIdx);
+			styleExcelCell(cell, defaultHeaderColor);
 			colIdx++;
 		}
 		for (const [categoryType, categoriesInType] of categoriesByType.value) {
-			const color = categoryTypeColors[categoryType as keyof typeof categoryTypeColors]
+			const color = categoryTypeColors[categoryType as keyof typeof categoryTypeColors];
 			for (const category of categoriesInType) {
 				const cell = headerRow.getCell(colIdx);
-				styleExcelCell(cell, color)
+				styleExcelCell(cell, color);
 				colIdx++;
 			}
 			const totalCategoryTypeCell = headerRow.getCell(colIdx);
-			styleExcelCell(totalCategoryTypeCell, color)
+			styleExcelCell(totalCategoryTypeCell, color);
+			colIdx++;
+		}
+		for (const column of EMPLOYEE_RESUMEN_COLUMNS) {
+			const cell = headerRow.getCell(colIdx);
+			styleExcelCell(cell, defaultHeaderColor);
 			colIdx++;
 		}
 		const totalCell = headerRow.getCell(colIdx);
-		styleExcelCell(totalCell, defaultHeaderColor)
+		styleExcelCell(totalCell, defaultHeaderColor);
 
 		// Add data rows
-	for (const [employeeId, employee] of employees.value) {
-		const rowData = EMPLOYEE_COLUMNS.map((column) => {
-			const value = (employee)[column.key as keyof Employee];
-			if (column.format === 'currency') {
-				return formatMonetaryValue(Number(value ?? 0));
+		for (const [employeeId, employee] of employees.value) {
+			const rowData = EMPLOYEE_COLUMNS.map(
+				(column) => employee[column.key as keyof Employee] ?? ''
+			);
+
+			for (const column of EMPLOEYEE_WEEK_COLUMNS) {
+				const value = employee[column.key as keyof Employee] ?? 0;
+				if (column.format === 'currency') {
+					rowData.push(formatMonetaryValue(Number(value ?? 0)));
+				} else {
+					rowData.push(value ?? '');
+				}
 			}
-			return value ?? '';
-		});
 
 			for (const [categoryType, categoriesInType] of categoriesByType.value) {
 				for (const category of categoriesInType) {
@@ -100,21 +120,36 @@ import { EMPLOYEE_COLUMNS } from '$lib/constants';
 				rowData.push(formatMonetaryValue(typeTotal));
 			}
 
+			const resumenEmployee = resumen.value.employees.get(employeeId);
+			for (const column of EMPLOYEE_RESUMEN_COLUMNS) {
+				const value = resumenEmployee?.[column.key as keyof typeof resumenEmployee] ?? 0;
+				if (column.format === 'currency') {
+					rowData.push(formatMonetaryValue(Number(value ?? 0)));
+				} else {
+					rowData.push(value);
+				}
+			}
+
 			rowData.push(formatMonetaryValue(totals.value.employeeTotals.get(employeeId)!));
 			worksheet.addRow(rowData);
 		}
 
 		// Add totals row
-	const totalsRowData = EMPLOYEE_COLUMNS.map((column, index) => {
-		if (index === 0) return 'Total';
-		if (!column.sumKey) return '';
-		const sumValue = totals.value.employeeColumnSums.get(column.sumKey) ?? 0;
-		return column.format === 'currency' ? formatMonetaryValue(sumValue) : sumValue;
-	});
-
+		const totalsRowData: string[] = EMPLOYEE_COLUMNS.map((column, index) => {
+			if (index === 0) return 'Total';
+			return '';
+		});
+		for (const column of EMPLOEYEE_WEEK_COLUMNS) {
+			const value = totals.value.employeeWeekTotals.get(column.sumKey) ?? 0;
+			totalsRowData.push(
+				column.format === 'currency'
+					? formatMonetaryValue(Number(value ?? 0))
+					: value.toString()
+			);
+		}
 		for (const [categoryType, categoriesInType] of categoriesByType.value) {
 			for (const category of categoriesInType) {
-				const total = totals.value.categoryTotals.get(category.id)!
+				const total = totals.value.categoryTotals.get(category.id)!;
 				totalsRowData.push(`${total.amount} (${formatMonetaryValue(total.monetaryValue)})`);
 			}
 			totalsRowData.push(
@@ -122,11 +157,19 @@ import { EMPLOYEE_COLUMNS } from '$lib/constants';
 			);
 		}
 
+		for (const column of EMPLOYEE_RESUMEN_COLUMNS) {
+			const value =
+				resumen.value.grandTotals?.[column.key as keyof typeof resumen.value.grandTotals] ?? 0;
+			totalsRowData.push(
+				column.format === 'currency' ? formatMonetaryValue(Number(value ?? 0)) : value.toString()
+			);
+		}
+
 		totalsRowData.push(formatMonetaryValue(totals.value.grandTotal));
 
 		const excelTotalsRow = worksheet.addRow(totalsRowData);
 		excelTotalsRow.eachCell((cell) => {
-			styleExcelCell(cell, 'FFE5E7EB')
+			styleExcelCell(cell, 'FFE5E7EB');
 		});
 
 		// Auto-size columns
@@ -172,7 +215,7 @@ import { EMPLOYEE_COLUMNS } from '$lib/constants';
 <section class="flex flex-col gap-4 p-4">
 	<div class="relative">
 		<a
-			href={selectedWeek.value ? `/?weekId=${selectedWeek.value.id}` : "/"}
+			href={selectedWeek.value ? `/?weekId=${selectedWeek.value.id}` : '/'}
 			class="absolute top-0 left-0 rounded-lg bg-gray-200 px-3 py-2 text-gray-700 hover:bg-gray-300"
 		>
 			← Regresar
