@@ -1,5 +1,6 @@
 export const categoryTypes = ['destajo', 'bono', 'deduccion'];
 
+export const categoryGroups = [...categoryTypes, 'resumen'];
 
 export const EMPLOYEE_COLUMNS = [
 	{ key: 'name', label: 'Empleado', type: 'text' },

@@ -1,6 +1,13 @@
 <script lang="ts">
 	import EmployeeRow from '$lib/components/table/EmployeeRow.svelte';
-	import { isReadOnly, totals, employees, categoriesByType, resumen } from '$lib/stores.svelte';
+	import {
+		isReadOnly,
+		totals,
+		employees,
+		categoriesByType,
+		resumen,
+		selectedCategoryGroups
+	} from '$lib/stores.svelte';
 	import { formatMonetaryValue, getCategoryTypeLabel } from '$lib/utils';
 	import EditCategory from '$lib/components/categories/EditCategory.svelte';
 	import {
@@ -9,6 +16,8 @@
 		EMPLOEYEE_WEEK_COLUMNS,
 		EMPLOYEE_RESUMEN_COLUMNS
 	} from '$lib/constants';
+
+	const showResumen = $derived.by(() => selectedCategoryGroups.value.includes('resumen'));
 </script>
 
 <div class="relative overflow-auto">
@@ -56,11 +65,13 @@
 					Total {getCategoryTypeLabel(categoryType)}
 				</th>
 			{/each}
-			{#each EMPLOYEE_RESUMEN_COLUMNS as col}
-				<th class="t-cell bg-gray-200">
-					{col.label}
-				</th>
-			{/each}
+			{#if showResumen}
+				{#each EMPLOYEE_RESUMEN_COLUMNS as col}
+					<th class="t-cell bg-gray-200 resumen">
+						{col.label}
+					</th>
+				{/each}
+			{/if}
 			{#each COMPUTED_COLUMNS as col}
 				<th class="t-cell {col.totalKey === 'grandTotal' ? 'sticky right-0 bg-gray-300' : 'bg-gray-200'}">{col.label}</th>
 			{/each}
@@ -97,17 +108,19 @@
 					{formatMonetaryValue(totals.value.categoryTypeGrandTotals.get(categoryType) ?? 0)}
 				</td>
 			{/each}
-			{#each EMPLOYEE_RESUMEN_COLUMNS as col}
-				{@const grandTotals = resumen.value.grandTotals}
-				{@const value = grandTotals[col.key as keyof typeof grandTotals] ?? 0}
-				<td class="t-cell bg-gray-200 text-nowrap">
-					{#if col.format === 'currency'}
-						{formatMonetaryValue(value)}
-					{:else}
-						{value}
-					{/if}
-				</td>
-			{/each}
+			{#if showResumen}
+				{#each EMPLOYEE_RESUMEN_COLUMNS as col}
+					{@const grandTotals = resumen.value.grandTotals}
+					{@const value = grandTotals[col.key as keyof typeof grandTotals] ?? 0}
+					<td class="t-cell bg-gray-200 resumen-opaco text-nowrap">
+						{#if col.format === 'currency'}
+							{formatMonetaryValue(value)}
+						{:else}
+							{value}
+						{/if}
+					</td>
+				{/each}
+			{/if}
 			{#each COMPUTED_COLUMNS as col}
 				<td class="t-cell {col.totalKey === 'grandTotal' ? 'sticky right-0 bg-gray-300' : 'bg-gray-200'} text-nowrap">
 					{formatMonetaryValue((totals.value as any)[col.totalKey])}

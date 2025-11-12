@@ -1,18 +1,21 @@
 <script lang="ts">
 	import MainTable from '$lib/components/table/MainTable.svelte';
-	import {
-		employees,
-		incidenceCells,
-		isReadOnly,
-		totals,
-		selectedWeek,
-		categoriesByType,
-		categories,
-		resumen
-	} from '$lib/stores.svelte';
+import {
+	employees,
+	incidenceCells,
+	isReadOnly,
+	totals,
+	selectedWeek,
+	categoriesByType,
+	categories,
+	resumen,
+	selectedCategoryGroups
+} from '$lib/stores.svelte';
 	import ExcelJS from 'exceljs';
 	import { formatMonetaryValue, getCategoryTypeLabel } from '$lib/utils';
 import { EMPLOYEE_COLUMNS, EMPLOEYEE_WEEK_COLUMNS, EMPLOYEE_RESUMEN_COLUMNS } from '$lib/constants';
+
+const showResumen = $derived.by(() => selectedCategoryGroups.value.includes('resumen'));
 
 	let { data } = $props();
 	employees.value = data.employees;
@@ -51,8 +54,10 @@ import { EMPLOYEE_COLUMNS, EMPLOEYEE_WEEK_COLUMNS, EMPLOYEE_RESUMEN_COLUMNS } fr
 			}
 			headers.push(`Total ${getCategoryTypeLabel(categoryType)}`);
 		}
-		for (const column of EMPLOYEE_RESUMEN_COLUMNS) {
-			headers.push(column.label);
+		if (showResumen) {
+			for (const column of EMPLOYEE_RESUMEN_COLUMNS) {
+				headers.push(column.label);
+			}
 		}
 		headers.push('Total');
 
@@ -81,10 +86,12 @@ import { EMPLOYEE_COLUMNS, EMPLOEYEE_WEEK_COLUMNS, EMPLOYEE_RESUMEN_COLUMNS } fr
 			styleExcelCell(totalCategoryTypeCell, color);
 			colIdx++;
 		}
-		for (const column of EMPLOYEE_RESUMEN_COLUMNS) {
-			const cell = headerRow.getCell(colIdx);
-			styleExcelCell(cell, defaultHeaderColor);
-			colIdx++;
+		if (showResumen) {
+			for (const column of EMPLOYEE_RESUMEN_COLUMNS) {
+				const cell = headerRow.getCell(colIdx);
+				styleExcelCell(cell, defaultHeaderColor);
+				colIdx++;
+			}
 		}
 		const totalCell = headerRow.getCell(colIdx);
 		styleExcelCell(totalCell, defaultHeaderColor);
@@ -120,13 +127,15 @@ import { EMPLOYEE_COLUMNS, EMPLOEYEE_WEEK_COLUMNS, EMPLOYEE_RESUMEN_COLUMNS } fr
 				rowData.push(formatMonetaryValue(typeTotal));
 			}
 
-			const resumenEmployee = resumen.value.employees.get(employeeId);
-			for (const column of EMPLOYEE_RESUMEN_COLUMNS) {
-				const value = resumenEmployee?.[column.key as keyof typeof resumenEmployee] ?? 0;
-				if (column.format === 'currency') {
-					rowData.push(formatMonetaryValue(Number(value ?? 0)));
-				} else {
-					rowData.push(value);
+			if (showResumen) {
+				const resumenEmployee = resumen.value.employees.get(employeeId);
+				for (const column of EMPLOYEE_RESUMEN_COLUMNS) {
+					const value = resumenEmployee?.[column.key as keyof typeof resumenEmployee] ?? 0;
+					if (column.format === 'currency') {
+						rowData.push(formatMonetaryValue(Number(value ?? 0)));
+					} else {
+						rowData.push(value);
+					}
 				}
 			}
 
@@ -157,12 +166,17 @@ import { EMPLOYEE_COLUMNS, EMPLOEYEE_WEEK_COLUMNS, EMPLOYEE_RESUMEN_COLUMNS } fr
 			);
 		}
 
-		for (const column of EMPLOYEE_RESUMEN_COLUMNS) {
-			const value =
-				resumen.value.grandTotals?.[column.key as keyof typeof resumen.value.grandTotals] ?? 0;
-			totalsRowData.push(
-				column.format === 'currency' ? formatMonetaryValue(Number(value ?? 0)) : value.toString()
-			);
+		if (showResumen) {
+			for (const column of EMPLOYEE_RESUMEN_COLUMNS) {
+				const value =
+					resumen.value.grandTotals?.[column.key as keyof typeof resumen.value.grandTotals] ??
+					0;
+				totalsRowData.push(
+					column.format === 'currency'
+						? formatMonetaryValue(Number(value ?? 0))
+						: value.toString()
+				);
+			}
 		}
 
 		totalsRowData.push(formatMonetaryValue(totals.value.grandTotal));

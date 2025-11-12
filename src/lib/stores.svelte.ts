@@ -1,4 +1,4 @@
-import { categoryTypes, EMPLOEYEE_WEEK_COLUMNS } from './constants';
+import { categoryGroups, categoryTypes, EMPLOEYEE_WEEK_COLUMNS } from './constants';
 
 type CategoryId = number;
 type employeeID = number;
@@ -57,7 +57,7 @@ const derivedTotals = $derived.by(() => {
 			const { incidence, totalMonetaryValue, categoryType } = incidenceCell;
 			const amount = incidence.amount;
 
-			if (!selectedCategoryTypes.value.includes(categoryType)) continue;
+			if (!selectedCategoryGroups.value.includes(categoryType)) continue;
 
 			// 1. Aggregate totals per category (for the table footer)
 			const currentCategoryTotal = newTotals.categoryTotals.get(categoryId) ?? {
@@ -120,8 +120,8 @@ export const totals = {
 	}
 };
 
-export const selectedCategoryTypes = $state({
-	value: categoryTypes
+export const selectedCategoryGroups = $state({
+	value: categoryGroups
 });
 
 export const selectedWeek = $state<{ value: Week | null }>({
@@ -134,10 +134,12 @@ export const categories = $state<{ value: Categories }>({ value: new Map() });
 
 const derivedCategoriesByType = $derived.by(() => {
 		const categoriesByType = new Map<CategoryType, Category[]>(
-			selectedCategoryTypes.value.map((categoryType) => [categoryType, []])
+			selectedCategoryGroups.value
+				.filter((group): group is CategoryType => group !== 'resumen')
+				.map((categoryType) => [categoryType, []])
 		);
 		for (const category of categories.value.values()) {
-			if (!selectedCategoryTypes.value.includes(category.type)) continue;
+			if (!selectedCategoryGroups.value.includes(category.type)) continue;
 			let categoriesInType = categoriesByType.get(category.type);
 			if (categoriesInType === undefined) {
 				categoriesInType = [];
@@ -186,8 +188,16 @@ const resumenCategoryTypes = new Set<ResumenCategoryType>(['bono', 'destajo', 'd
 
 // The main derived state for resumen (summary) data
 const derivedResumen = $derived.by(() => {
+	const includeResumen = selectedCategoryGroups.value.includes('resumen');
 	const employeesResumen = new Map<employeeID, EmployeeResumenData>();
 	const grandTotals = createEmptyResumenData();
+
+	if (!includeResumen) {
+		return {
+			employees: employeesResumen,
+			grandTotals
+		};
+	}
 
 	const ensureEmployeeResumen = (employeeId: employeeID): EmployeeResumenData => {
 		let employeeResumen = employeesResumen.get(employeeId);
@@ -213,7 +223,7 @@ const derivedResumen = $derived.by(() => {
 		if (!category) continue;
 
 		const categoryType = category.type;
-		const considerCategory = selectedCategoryTypes.value.includes(categoryType);
+		const considerCategory = selectedCategoryGroups.value.includes(categoryType);
 		const isResumenCategory = resumenCategoryTypes.has(categoryType as ResumenCategoryType);
 		const isTiempoExtra = category.concept === 'TIEMPO EXTRA';
 

@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { categoryTypes } from '$lib/constants';
-	import { selectedCategoryTypes } from '$lib/stores.svelte';
+	import { categoryGroups } from '$lib/constants';
+	import { selectedCategoryGroups } from '$lib/stores.svelte';
 	import { getCategoryTypeLabel } from '$lib/utils';
 	import '../app.css';
 
@@ -9,23 +9,23 @@
 
 <div class="fixed top-0 p-2.5 left-0 z-20 flex justify-between w-full">
 	<div class="flex gap-2 font-bold text-white">
-		{#each categoryTypes as category}
+		{#each categoryGroups as group}
 			<label
-				class={`${category} flex cursor-pointer items-center gap-1.5 rounded-lg p-2 hover:scale-105`}
+				class={`${group} flex cursor-pointer items-center gap-1.5 rounded-lg p-2 hover:scale-105`}
 			>
 				<input
 					type="checkbox"
 					class="rounded-lg"
-					bind:group={selectedCategoryTypes.value}
-					value={category}
+					bind:group={selectedCategoryGroups.value}
+					value={group}
 				/>
-				{getCategoryTypeLabel(category)}
+				{group === 'resumen' ? 'Resumen' : getCategoryTypeLabel(group)}
 			</label>
 		{/each}
 		<button
 			class="flex cursor-pointer items-center gap-1.5 rounded-lg bg-slate-400 px-4 py-2 hover:scale-105"
 			onclick={() => {
-				selectedCategoryTypes.value = categoryTypes;
+				selectedCategoryGroups.value = categoryGroups;
 			}}
 		>
 			Todo
@@ -33,7 +33,7 @@
 		<button
 			class="flex cursor-pointer items-center gap-1.5 rounded-lg bg-slate-400 px-4 py-2 hover:scale-105"
 			onclick={() => {
-				selectedCategoryTypes.value = [];
+				selectedCategoryGroups.value = [];
 			}}
 		>
 			Ninguno
